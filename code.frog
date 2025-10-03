@@ -1,0 +1,23 @@
+struct Person {
+	str name,
+	age int,
+}
+
+Person jog = {
+	name = "jogua",
+	age = 82,
+}
+int number = 32;
+str message = "mmmnm i love frogs"
+
+void main = () {
+	print(message + str(number))
+}
+
+void increment = (&int num) {
+	*num += 1
+}
+
+int plus_one = (int num) {
+	num + 1
+}
