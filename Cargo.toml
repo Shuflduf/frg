@@ -1,5 +1,7 @@
 [package]
 name = "frg"
+description = "Compiled programming language with frogs!"
+license = "MIT"
 version = "0.1.0"
 edition = "2024"
 
