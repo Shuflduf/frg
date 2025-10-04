@@ -100,7 +100,7 @@ impl Lexer {
                     "vec" => Token::Keyword(Keyword::Vec),
                     "map" => Token::Keyword(Keyword::Map),
                     "set" => Token::Keyword(Keyword::Set),
-                    _ => todo!(),
+                    _ => Token::Literal(Literal::Identifier(current_token)),
                 };
                 token_list.push(prev_token);
                 current_token = String::new();
@@ -126,8 +126,12 @@ mod tests {
 
     #[test]
     fn keyword_test() {
-        let input = "int=";
-        let output = vec![Token::Keyword(Keyword::Int), Token::Symbol(Symbol::Equals)];
+        let input = "int frog=";
+        let output = vec![
+            Token::Keyword(Keyword::Int),
+            Token::Literal(Literal::Identifier("frog".into())),
+            Token::Symbol(Symbol::Equals),
+        ];
         let result = Lexer::new(input).parse();
         assert_eq!(output, result);
     }
