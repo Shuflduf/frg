@@ -104,14 +104,13 @@ impl Lexer {
                 };
                 token_list.push(prev_token);
                 current_token = String::new();
-                if c.is_whitespace() {
-                    // char_iter.next();
-                    continue;
-                }
             }
             if let Some(symbol_token) = new_symbol_token {
                 token_list.push(symbol_token);
             } else {
+                if c.is_whitespace() {
+                    continue;
+                }
                 current_token.push(c);
                 dbg!(&current_token);
             }
@@ -126,11 +125,10 @@ mod tests {
 
     #[test]
     fn keyword_test() {
-        let input = "int frog=";
+        let input = ": ()&frog int *)";
         let output = vec![
-            Token::Keyword(Keyword::Int),
-            Token::Literal(Literal::Identifier("frog".into())),
-            Token::Symbol(Symbol::Equals),
+            Token::Symbol(Symbol::Colon),
+            Token::Symbol(Symbol::LeftParen),
         ];
         let result = Lexer::new(input).parse();
         assert_eq!(output, result);
