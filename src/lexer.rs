@@ -90,7 +90,7 @@ impl Lexer {
                 _ => None,
             };
             let add_current_token = new_symbol_token.is_some() || c == ' ';
-            if add_current_token {
+            if add_current_token && !current_token.is_empty() {
                 let prev_token = match current_token.as_str() {
                     "struct" => Token::Keyword(Keyword::Struct),
                     "void" => Token::Keyword(Keyword::Void),
@@ -105,7 +105,8 @@ impl Lexer {
                 token_list.push(prev_token);
                 current_token = String::new();
                 if c.is_whitespace() {
-                    char_iter.next();
+                    // char_iter.next();
+                    continue;
                 }
             }
             if let Some(symbol_token) = new_symbol_token {
@@ -125,8 +126,8 @@ mod tests {
 
     #[test]
     fn keyword_test() {
-        let input = "int void float";
-        let output = vec![Token::Keyword(Keyword::Int)];
+        let input = "int=";
+        let output = vec![Token::Keyword(Keyword::Int), Token::Symbol(Symbol::Equals)];
         let result = Lexer::new(input).parse();
         assert_eq!(output, result);
     }
