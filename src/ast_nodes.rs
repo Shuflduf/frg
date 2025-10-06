@@ -1,10 +1,12 @@
-enum ASTNode {
+#[derive(Debug, Clone, PartialEq)]
+pub enum ASTNode {
     Program(Vec<ASTNode>),
     Statement(Statement),
     Expression(Expression),
 }
 
-enum Statement {
+#[derive(Debug, Clone, PartialEq)]
+pub enum Statement {
     VariableDeclaration {
         var_type: VarType,
         name: String,
@@ -23,21 +25,24 @@ enum Statement {
     ExpressionStatement(Box<Expression>),
 }
 
-enum BinaryOp {
+#[derive(Debug, Clone, PartialEq)]
+pub enum BinaryOp {
     Add,
     Subtract,
     Multiply,
     Divide,
 }
 
-enum UnaryOp {
+#[derive(Debug, Clone, PartialEq)]
+pub enum UnaryOp {
     Reference,
     Dereference,
     Negative,
     Not,
 }
 
-enum Expression {
+#[derive(Debug, Clone, PartialEq)]
+pub enum Expression {
     Identifier(String),
     Literal(Literal),
     CompositeLiteral(CompositeLiteral),
@@ -64,21 +69,24 @@ enum Expression {
     },
 }
 
-enum Literal {
+#[derive(Debug, Clone, PartialEq)]
+pub enum Literal {
     Int(i32),
     Float(f32),
     String(String),
     Bool(bool),
 }
 
-enum CompositeLiteral {
+#[derive(Debug, Clone, PartialEq)]
+pub enum CompositeLiteral {
     Vec(Vec<Expression>),
     Set(Vec<Expression>),
     Map(Vec<(Expression, Expression)>),
     Struct(Vec<(String, Expression)>),
 }
 
-enum VarType {
+#[derive(Debug, Clone, PartialEq)]
+pub enum VarType {
     Void,
     Int,
     Str,
@@ -91,7 +99,8 @@ enum VarType {
     Struct(String),
 }
 
-struct Parameter {
-    name: String,
-    param_type: VarType,
+#[derive(Debug, Clone, PartialEq)]
+pub struct Parameter {
+    pub name: String,
+    pub param_type: VarType,
 }
