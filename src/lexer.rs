@@ -65,15 +65,20 @@ impl Lexer {
         while let Some(c) = &mut char_iter.next() {
             let c = **c;
             dbg!(c);
-            // if string_open {
-            //     if c == '"' {
-            //         current_token.push(c);
-            //     } else {
-            //         string_open = false
-            //     }
-            // } else if c == '"' {
-            //     string_open = true
-            // }
+            if string_open {
+                if c != '"' {
+                    current_token.push(c);
+                    continue;
+                } else {
+                    token_list.push(Token::Literal(Literal::String(current_token)));
+                    current_token = String::new();
+                    string_open = false;
+                    continue;
+                }
+            } else if c == '"' {
+                string_open = true;
+                continue;
+            }
             let new_symbol_token = match c {
                 '{' => Some(Token::Symbol(Symbol::LeftBrace)),
                 '}' => Some(Token::Symbol(Symbol::RightBrace)),
@@ -86,10 +91,10 @@ impl Lexer {
                 '&' => Some(Token::Symbol(Symbol::Ampersand)),
                 '*' => Some(Token::Symbol(Symbol::Star)),
                 ':' => Some(Token::Symbol(Symbol::Colon)),
-                '.' => Some(Token::Symbol(Symbol::Period)),
+                '.' => Some(Token::Symbol(Symbol::Period)), // this is weird with floats
                 _ => None,
             };
-            let add_current_token = new_symbol_token.is_some() || c == ' ';
+            let add_current_token = new_symbol_token.is_some() || c == ' ' || c == '\n';
             if add_current_token && !current_token.is_empty() {
                 let prev_token = match current_token.as_str() {
                     "struct" => Token::Keyword(Keyword::Struct),
@@ -100,7 +105,11 @@ impl Lexer {
                     "vec" => Token::Keyword(Keyword::Vec),
                     "map" => Token::Keyword(Keyword::Map),
                     "set" => Token::Keyword(Keyword::Set),
-                    _ => Token::Literal(Literal::Identifier(current_token)),
+                    _ => Token::Literal(if current_token.chars().nth(0).unwrap().is_digit(10) {
+                        Literal::Number(current_token)
+                    } else {
+                        Literal::Identifier(current_token)
+                    }),
                 };
                 token_list.push(prev_token);
                 current_token = String::new();
@@ -125,13 +134,20 @@ mod tests {
 
     #[test]
     fn keyword_test() {
-        let input = ": ()&frog int *)";
+        let input = "int target_frog = &frogs[0]";
         let output = vec![
-            Token::Symbol(Symbol::Colon),
-            Token::Symbol(Symbol::LeftParen),
+            Token::Keyword(Keyword::Int),
+            Token::Literal(Literal::Identifier("target_frog".into())),
+            Token::Symbol(Symbol::Equals),
+            Token::Symbol(Symbol::Ampersand),
+            Token::Literal(Literal::Identifier("frogs".into())),
+            Token::Symbol(Symbol::LeftBracket),
+            Token::Literal(Literal::Number("0".into())),
+            Token::Symbol(Symbol::RightBracket),
         ];
         let result = Lexer::new(input).parse();
         assert_eq!(output, result);
+        println!("{:?}", &result);
     }
 
     #[ignore]

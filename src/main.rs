@@ -1,3 +1,5 @@
+use std::fs;
+
 mod lexer;
 
 fn main() {
@@ -8,6 +10,16 @@ fn main() {
     // }
 
     // let file_path = &args[1];
-    let source = "int x = 5";
-    let mut code_lexer = lexer::Lexer::new(source);
+    let input = fs::read_to_string("code.frog").unwrap();
+    let tokens = lexer::Lexer::new(&input).parse();
+    println!("{tokens:?}");
 }
+
+// #[cfg(tests)]
+// mod tests {
+
+//     #[test]
+//     fn main_code_test() {
+
+//     }
+// }
