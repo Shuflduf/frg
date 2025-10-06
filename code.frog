@@ -8,6 +8,8 @@ Person jog = {
 	age = 82,
 }
 
+str name = jog.name
+
 int number = 32
 float pi = 3.1
 str message = "mmmnm i love frogs"

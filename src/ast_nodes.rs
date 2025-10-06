@@ -1,5 +1,5 @@
 enum ASTNode {
-    Module(Vec<ASTNode>),
+    Program(Vec<ASTNode>),
     Statement(Statement),
     Expression(Expression),
 }
@@ -20,7 +20,7 @@ enum Statement {
         name: String,
         fields: Vec<Parameter>,
     },
-    ExpressionStatement(Box<ASTNode>),
+    ExpressionStatement(Box<Expression>),
 }
 
 enum BinaryOp {
@@ -42,24 +42,24 @@ enum Expression {
     Literal(Literal),
     CompositeLiteral(CompositeLiteral),
     BinaryOperation {
-        left: Box<ASTNode>,
+        left: Box<Expression>,
         op: BinaryOp,
-        right: Box<ASTNode>,
+        right: Box<Expression>,
     },
     UnaryOperation {
         op: UnaryOp,
-        expr: Box<ASTNode>,
+        expr: Box<Expression>,
     },
     FunctionCall {
         name: String,
-        args: Vec<ASTNode>,
+        args: Vec<Expression>,
     },
     Assignment {
         name: String,
-        value: Box<ASTNode>,
+        value: Box<Expression>,
     },
     MemberAccess {
-        object: Box<ASTNode>,
+        object: Box<Expression>,
         field: String,
     },
 }
@@ -72,13 +72,14 @@ enum Literal {
 }
 
 enum CompositeLiteral {
-    Array(Vec<ASTNode>),
-    Map(Vec<(ASTNode, ASTNode)>),
-    Set(Vec<ASTNode>),
-    Struct(Vec<(String, ASTNode)>),
+    Vec(Vec<Expression>),
+    Set(Vec<Expression>),
+    Map(Vec<(Expression, Expression)>),
+    Struct(Vec<(String, Expression)>),
 }
 
 enum VarType {
+    Void,
     Int,
     Str,
     Float,
