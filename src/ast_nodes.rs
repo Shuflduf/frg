@@ -32,13 +32,15 @@ enum BinaryOp {
 
 enum UnaryOp {
     Reference,
-    Minus,
+    Dereference,
+    Negative,
     Not,
 }
 
 enum Expression {
     Identifier(String),
     Literal(Literal),
+    CompositeLiteral(CompositeLiteral),
     BinaryOperation {
         left: Box<ASTNode>,
         op: BinaryOp,
@@ -52,6 +54,14 @@ enum Expression {
         name: String,
         args: Vec<ASTNode>,
     },
+    Assignment {
+        name: String,
+        value: Box<ASTNode>,
+    },
+    MemberAccess {
+        object: Box<ASTNode>,
+        field: String,
+    },
 }
 
 enum Literal {
@@ -59,6 +69,13 @@ enum Literal {
     Float(f32),
     String(String),
     Bool(bool),
+}
+
+enum CompositeLiteral {
+    Array(Vec<ASTNode>),
+    Map(Vec<(ASTNode, ASTNode)>),
+    Set(Vec<ASTNode>),
+    Struct(Vec<(String, ASTNode)>),
 }
 
 enum VarType {
