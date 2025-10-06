@@ -42,14 +42,12 @@ pub enum Token {
 
 pub struct Lexer {
     input: Vec<char>,
-    position: usize,
 }
 
 impl Lexer {
     pub fn new(input: &str) -> Self {
         Lexer {
             input: input.chars().collect(),
-            position: 0,
         }
     }
 
@@ -91,7 +89,14 @@ impl Lexer {
                 '&' => Some(Token::Symbol(Symbol::Ampersand)),
                 '*' => Some(Token::Symbol(Symbol::Star)),
                 ':' => Some(Token::Symbol(Symbol::Colon)),
-                '.' => Some(Token::Symbol(Symbol::Period)), // this is weird with floats
+                '.' => {
+                    if current_token.chars().nth(0).unwrap().is_ascii_digit() {
+                        current_token.push(c);
+                        continue;
+                    } else {
+                        Some(Token::Symbol(Symbol::Period))
+                    }
+                } // this is weird with floats
                 _ => None,
             };
             let add_current_token = new_symbol_token.is_some() || c == ' ' || c == '\n';
@@ -105,11 +110,13 @@ impl Lexer {
                     "vec" => Token::Keyword(Keyword::Vec),
                     "map" => Token::Keyword(Keyword::Map),
                     "set" => Token::Keyword(Keyword::Set),
-                    _ => Token::Literal(if current_token.chars().nth(0).unwrap().is_digit(10) {
-                        Literal::Number(current_token)
-                    } else {
-                        Literal::Identifier(current_token)
-                    }),
+                    _ => {
+                        Token::Literal(if current_token.chars().nth(0).unwrap().is_ascii_digit() {
+                            Literal::Number(current_token)
+                        } else {
+                            Literal::Identifier(current_token)
+                        })
+                    }
                 };
                 token_list.push(prev_token);
                 current_token = String::new();
