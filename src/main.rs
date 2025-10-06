@@ -1,5 +1,7 @@
 use std::fs;
 
+mod ast;
+mod ast_nodes;
 mod lexer;
 
 fn main() {
