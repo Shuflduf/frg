@@ -21,6 +21,9 @@ pub enum Symbol {
     Equals,
     Comma,
     Ampersand,
+    Plus,
+    Minus,
+    FSlash,
     Star,
     Colon,
     Period,
@@ -88,6 +91,9 @@ impl Lexer {
                 ',' => Some(Token::Symbol(Symbol::Comma)),
                 '&' => Some(Token::Symbol(Symbol::Ampersand)),
                 '*' => Some(Token::Symbol(Symbol::Star)),
+                '+' => Some(Token::Symbol(Symbol::Plus)),
+                '-' => Some(Token::Symbol(Symbol::Minus)),
+                '/' => Some(Token::Symbol(Symbol::FSlash)),
                 ':' => Some(Token::Symbol(Symbol::Colon)),
                 '.' => {
                     if current_token.chars().nth(0).unwrap().is_ascii_digit() {
