@@ -150,7 +150,6 @@ mod tests {
         println!("{:?}", &result);
     }
 
-    #[ignore]
     #[test]
     fn basic_identifier() {
         let input = "int x = 5";
@@ -162,5 +161,6 @@ mod tests {
         ];
         let result = lex(input);
         assert_eq!(output, result);
+        println!("{:?}", &result);
     }
 }

@@ -10,7 +10,7 @@ pub enum Statement {
     VariableDeclaration {
         var_type: VarType,
         name: String,
-        value: Box<ASTNode>,
+        value: Expression,
     },
     FunctionDeclaration {
         return_type: VarType,
