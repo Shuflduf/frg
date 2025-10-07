@@ -14,7 +14,7 @@ fn main() {
     // let file_path = &args[1];
     // let input = fs::read_to_string("code.frog").unwrap();
     let input = "int result = 5 + 2";
-    let tokens = lexer::Lexer::new(&input).parse();
+    let tokens = lexer::lex(input);
     println!("{tokens:?}");
 }
 

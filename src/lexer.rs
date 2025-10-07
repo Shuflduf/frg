@@ -43,102 +43,89 @@ pub enum Token {
     Literal(Literal),
 }
 
-pub struct Lexer {
-    input: Vec<char>,
-}
-
-impl Lexer {
-    pub fn new(input: &str) -> Self {
-        Lexer {
-            input: input.chars().collect(),
-        }
+pub fn lex(input: &str) -> Vec<Token> {
+    let mut input = input.to_string();
+    if !input.ends_with(&[' ']) {
+        input.push(' ');
     }
 
-    pub fn parse(&mut self) -> Vec<Token> {
-        if !self.input.ends_with(&[' ']) {
-            self.input.push(' ');
+    let mut token_list: Vec<Token> = vec![];
+    let mut string_open = false;
+    let mut current_token = String::new();
+    let mut char_iter = input.chars().peekable();
+    while let Some(c) = &mut char_iter.next() {
+        let c = *c;
+        dbg!(c);
+        if string_open {
+            if c != '"' {
+                current_token.push(c);
+                continue;
+            } else {
+                token_list.push(Token::Literal(Literal::String(current_token)));
+                current_token = String::new();
+                string_open = false;
+                continue;
+            }
+        } else if c == '"' {
+            string_open = true;
+            continue;
         }
-
-        let mut token_list: Vec<Token> = vec![];
-        let mut string_open = false;
-        let mut current_token = String::new();
-        let mut char_iter = self.input.iter().peekable();
-        while let Some(c) = &mut char_iter.next() {
-            let c = **c;
-            dbg!(c);
-            if string_open {
-                if c != '"' {
+        let new_symbol_token = match c {
+            '{' => Some(Token::Symbol(Symbol::LeftBrace)),
+            '}' => Some(Token::Symbol(Symbol::RightBrace)),
+            '(' => Some(Token::Symbol(Symbol::LeftParen)),
+            ')' => Some(Token::Symbol(Symbol::RightParen)),
+            '[' => Some(Token::Symbol(Symbol::LeftBracket)),
+            ']' => Some(Token::Symbol(Symbol::RightBracket)),
+            '=' => Some(Token::Symbol(Symbol::Equals)),
+            ',' => Some(Token::Symbol(Symbol::Comma)),
+            '&' => Some(Token::Symbol(Symbol::Ampersand)),
+            '*' => Some(Token::Symbol(Symbol::Star)),
+            '+' => Some(Token::Symbol(Symbol::Plus)),
+            '-' => Some(Token::Symbol(Symbol::Minus)),
+            '/' => Some(Token::Symbol(Symbol::FSlash)),
+            ':' => Some(Token::Symbol(Symbol::Colon)),
+            '.' => {
+                if current_token.chars().nth(0).unwrap().is_ascii_digit() {
                     current_token.push(c);
                     continue;
                 } else {
-                    token_list.push(Token::Literal(Literal::String(current_token)));
-                    current_token = String::new();
-                    string_open = false;
-                    continue;
+                    Some(Token::Symbol(Symbol::Period))
                 }
-            } else if c == '"' {
-                string_open = true;
+            } // this is weird with floats
+            _ => None,
+        };
+        let add_current_token = new_symbol_token.is_some() || c == ' ' || c == '\n';
+        if add_current_token && !current_token.is_empty() {
+            let prev_token = match current_token.as_str() {
+                "struct" => Token::Keyword(Keyword::Struct),
+                "void" => Token::Keyword(Keyword::Void),
+                "int" => Token::Keyword(Keyword::Int),
+                "float" => Token::Keyword(Keyword::Float),
+                "str" => Token::Keyword(Keyword::Str),
+                "vec" => Token::Keyword(Keyword::Vec),
+                "map" => Token::Keyword(Keyword::Map),
+                "set" => Token::Keyword(Keyword::Set),
+                _ => Token::Literal(if current_token.chars().nth(0).unwrap().is_ascii_digit() {
+                    Literal::Number(current_token)
+                } else {
+                    Literal::Identifier(current_token)
+                }),
+            };
+            token_list.push(prev_token);
+            current_token = String::new();
+        }
+        if let Some(symbol_token) = new_symbol_token {
+            token_list.push(symbol_token);
+        } else {
+            if c.is_whitespace() {
                 continue;
             }
-            let new_symbol_token = match c {
-                '{' => Some(Token::Symbol(Symbol::LeftBrace)),
-                '}' => Some(Token::Symbol(Symbol::RightBrace)),
-                '(' => Some(Token::Symbol(Symbol::LeftParen)),
-                ')' => Some(Token::Symbol(Symbol::RightParen)),
-                '[' => Some(Token::Symbol(Symbol::LeftBracket)),
-                ']' => Some(Token::Symbol(Symbol::RightBracket)),
-                '=' => Some(Token::Symbol(Symbol::Equals)),
-                ',' => Some(Token::Symbol(Symbol::Comma)),
-                '&' => Some(Token::Symbol(Symbol::Ampersand)),
-                '*' => Some(Token::Symbol(Symbol::Star)),
-                '+' => Some(Token::Symbol(Symbol::Plus)),
-                '-' => Some(Token::Symbol(Symbol::Minus)),
-                '/' => Some(Token::Symbol(Symbol::FSlash)),
-                ':' => Some(Token::Symbol(Symbol::Colon)),
-                '.' => {
-                    if current_token.chars().nth(0).unwrap().is_ascii_digit() {
-                        current_token.push(c);
-                        continue;
-                    } else {
-                        Some(Token::Symbol(Symbol::Period))
-                    }
-                } // this is weird with floats
-                _ => None,
-            };
-            let add_current_token = new_symbol_token.is_some() || c == ' ' || c == '\n';
-            if add_current_token && !current_token.is_empty() {
-                let prev_token = match current_token.as_str() {
-                    "struct" => Token::Keyword(Keyword::Struct),
-                    "void" => Token::Keyword(Keyword::Void),
-                    "int" => Token::Keyword(Keyword::Int),
-                    "float" => Token::Keyword(Keyword::Float),
-                    "str" => Token::Keyword(Keyword::Str),
-                    "vec" => Token::Keyword(Keyword::Vec),
-                    "map" => Token::Keyword(Keyword::Map),
-                    "set" => Token::Keyword(Keyword::Set),
-                    _ => {
-                        Token::Literal(if current_token.chars().nth(0).unwrap().is_ascii_digit() {
-                            Literal::Number(current_token)
-                        } else {
-                            Literal::Identifier(current_token)
-                        })
-                    }
-                };
-                token_list.push(prev_token);
-                current_token = String::new();
-            }
-            if let Some(symbol_token) = new_symbol_token {
-                token_list.push(symbol_token);
-            } else {
-                if c.is_whitespace() {
-                    continue;
-                }
-                current_token.push(c);
-                dbg!(&current_token);
-            }
+            current_token.push(c);
+            dbg!(&current_token);
         }
-        token_list
     }
+    token_list
 }
 
 #[cfg(test)]
@@ -158,7 +145,7 @@ mod tests {
             Token::Literal(Literal::Number("0".into())),
             Token::Symbol(Symbol::RightBracket),
         ];
-        let result = Lexer::new(input).parse();
+        let result = lex(input);
         assert_eq!(output, result);
         println!("{:?}", &result);
     }
@@ -173,7 +160,7 @@ mod tests {
             Token::Symbol(Symbol::Equals),
             Token::Literal(Literal::Number("5".into())),
         ];
-        let result = Lexer::new(input).parse();
+        let result = lex(input);
         assert_eq!(output, result);
     }
 }
