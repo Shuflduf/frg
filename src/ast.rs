@@ -7,11 +7,16 @@ pub fn parse(tokens: Vec<Token>) -> ASTNode {
     return ASTNode::Program(vec![]);
 }
 
-fn parse_literal(literal: &lexer::Literal) -> Expression {
+// shouldnt be pub but idc
+pub fn parse_literal(literal: &lexer::Literal) -> Expression {
     match literal {
         // TODO: floats
         lexer::Literal::Number(new_num) => {
-            Expression::Literal(Literal::Int(new_num.parse().unwrap()))
+            if is_num_float(&new_num) {
+                Expression::Literal(Literal::Float(new_num.parse().unwrap()))
+            } else {
+                Expression::Literal(Literal::Int(new_num.parse().unwrap()))
+            }
         }
         lexer::Literal::String(new_str) => {
             Expression::Literal(Literal::String(new_str.to_string()))
@@ -28,10 +33,56 @@ fn parse_literal(literal: &lexer::Literal) -> Expression {
     }
 }
 
+fn is_num_float(num: &str) -> bool {
+    num.contains(".")
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::{ast::parse, ast_nodes, lexer};
+    use crate::{
+        ast::{parse, parse_literal},
+        ast_nodes, lexer,
+    };
 
+    #[test]
+    fn literal_int() {
+        let input = lexer::Literal::Number("5".into());
+        let output = ast_nodes::Expression::Literal(ast_nodes::Literal::Int(5));
+        let result = parse_literal(&input);
+        assert_eq!(output, result);
+    }
+
+    #[test]
+    fn literal_string() {
+        let input = lexer::Literal::String("balls".into());
+        let output = ast_nodes::Expression::Literal(ast_nodes::Literal::String("balls".into()));
+        let result = parse_literal(&input);
+        assert_eq!(output, result);
+    }
+
+    #[test]
+    fn literal_bool() {
+        let input = lexer::Literal::Identifier("false".into());
+        let output = ast_nodes::Expression::Literal(ast_nodes::Literal::Bool(false));
+        let result = parse_literal(&input);
+        assert_eq!(output, result);
+    }
+
+    #[test]
+    fn literal_identifier() {
+        let input = lexer::Literal::Identifier("pepsi".into());
+        let output = ast_nodes::Expression::Identifier("pepsi".into());
+        let result = parse_literal(&input);
+        assert_eq!(output, result);
+    }
+
+    #[test]
+    fn literal_float() {
+        let input = lexer::Literal::Number("3.14".into());
+        let output = ast_nodes::Expression::Literal(ast_nodes::Literal::Float(3.14));
+        let result = parse_literal(&input);
+        assert_eq!(output, result);
+    }
     #[test]
     fn basic_identifier() {
         let input = vec![
