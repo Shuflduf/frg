@@ -13,9 +13,10 @@ fn main() {
 
     // let file_path = &args[1];
     // let input = fs::read_to_string("code.frog").unwrap();
-    let input = "int result = 5 + 2";
+    let input = "bool result = false int thing = 5";
     let tokens = lexer::lex(input);
-    println!("{tokens:?}");
+    let tree = ast::parse(tokens);
+    println!("{tree:?}");
 }
 
 // #[cfg(tests)]

@@ -9,7 +9,7 @@ pub fn parse(tokens: Vec<Token>) -> ASTNode {
     while let Some(token) = token_iter.next() {
         match token {
             // TODO:
-            Token::Keyword(lexer::Keyword::Int) => {
+            Token::Keyword(var_type) => {
                 let name = match token_iter.next() {
                     Some(Token::Literal(lexer::Literal::Identifier(n))) => n,
                     _ => panic!("identifier after type"),
@@ -19,13 +19,14 @@ pub fn parse(tokens: Vec<Token>) -> ASTNode {
                     _ => panic!("= after identifier"),
                 }
                 let value = match token_iter.next() {
-                    Some(Token::Literal(lexer::Literal::Number(n))) => {
-                        Expression::Literal(Literal::Int(n.parse().unwrap()))
+                    Some(Token::Literal(n)) => {
+                        // Expression::Literal(Literal::Int(n.parse().unwrap()))
+                        parse_literal(n)
                     }
                     _ => panic!("value after ="),
                 };
                 nodes.push(ASTNode::Statement(Statement::VariableDeclaration {
-                    var_type: VarType::Int,
+                    var_type: match_lexer_types(var_type),
                     name: name.clone(),
                     value,
                 }));
@@ -35,6 +36,17 @@ pub fn parse(tokens: Vec<Token>) -> ASTNode {
         dbg!(&token);
     }
     return ASTNode::Program(nodes);
+}
+
+fn match_lexer_types(lexer_type: &lexer::Keyword) -> VarType {
+    match lexer_type {
+        lexer::Keyword::Void => VarType::Void,
+        lexer::Keyword::Int => VarType::Int,
+        lexer::Keyword::Float => VarType::Float,
+        lexer::Keyword::Bool => VarType::Bool,
+        lexer::Keyword::Str => VarType::Str,
+        _ => todo!(),
+    }
 }
 
 // shouldnt be pub but idc
