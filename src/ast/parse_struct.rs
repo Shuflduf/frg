@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use super::*;
 
-pub fn parse_type(token_iter: &mut Iter<Token>) -> ASTNode {
+pub fn parse_type(token_iter: &mut Peekable<Iter<Token>>) -> ASTNode {
     let name = match token_iter.next() {
         Some(Token::Literal(lexer::Literal::Identifier(n))) => n,
         _ => panic!("identifier after type"),
@@ -34,7 +34,7 @@ pub fn parse_type(token_iter: &mut Iter<Token>) -> ASTNode {
     })
 }
 
-pub fn parse_data(token_iter: &mut Iter<Token>) -> Expression {
+pub fn parse_data(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
     expect_symbol(token_iter, lexer::Symbol::LeftBrace);
     let mut fields = HashMap::new();
     while let Some(token) = token_iter.next() {
@@ -43,8 +43,13 @@ pub fn parse_data(token_iter: &mut Iter<Token>) -> Expression {
             _ => panic!("expected identifier"),
         };
         expect_symbol(token_iter, lexer::Symbol::Colon);
+        dbg!(&token_iter);
         let value = parse_expression(token_iter);
         fields.insert(field_name.to_string(), value);
+        match token_iter.next() {
+            Some(Token::Symbol(lexer::Symbol::RightBrace)) => break,
+            _ => {}
+        }
     }
     Expression::CompositeLiteral(CompositeLiteral::Struct(fields))
 }

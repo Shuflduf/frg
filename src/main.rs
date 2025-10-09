@@ -10,19 +10,12 @@ fn main() {
 
     // let file_path = &args[1];
     // let input = fs::read_to_string("code.frog").unwrap();
-    let input = "Frog rocket = { legs: 4, name: \"Josch\" }";
+    let input = "Frog rocket = { legs: 4, name: \"Josch\" } int numbers = 5";
     println!("Input: {input}");
     let tokens = lexer::lex(input);
     println!("Tokens: {tokens:?}");
     let tree = ast::parse(tokens);
     println!("AST: {tree:?}");
-
-    let input = "vec(vec(float))";
-    println!("Input: {input}");
-    let tokens = lexer::lex(input);
-    println!("Tokens: {tokens:?}");
-    let var_type = ast::parse_type(None, &mut tokens.iter());
-    println!("Type: {var_type:?}");
 }
 
 // #[cfg(tests)]
