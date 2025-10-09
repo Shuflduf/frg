@@ -8,22 +8,26 @@ use crate::{
 mod ast_nodes;
 mod parse_struct;
 
-pub fn expect_symbol(token_iter: &mut Peekable<Iter<Token>>, expected: lexer::Symbol) {
+pub fn expect_token(token_iter: &mut Peekable<Iter<Token>>, expected: lexer::Token) {
     match token_iter.next() {
-        Some(Token::Symbol(s)) if *s == expected => {}
+        Some(s) if *s == expected => {}
         _ => panic!("Expected {:?}", expected),
     }
+}
+
+pub fn expect_symbol(token_iter: &mut Peekable<Iter<Token>>, expected: lexer::Symbol) {
+    expect_token(token_iter, Token::Symbol(expected));
 }
 
 pub fn parse(tokens: Vec<Token>) -> ASTNode {
     let mut nodes = vec![];
     let mut token_iter = tokens.iter().peekable();
-    while let Some(token) = token_iter.next() {
+    while let Some(token) = token_iter.peek() {
         let new_node = match token {
             Token::Keyword(lexer::Keyword::Struct) => parse_struct::parse_type(&mut token_iter),
             Token::Keyword(var_type) => {
                 // i still dont understand rust why do i need to clone
-                let var_type = parse_type(Some(&Token::Keyword(var_type.clone())), &mut token_iter);
+                let var_type = parse_type(&mut token_iter);
                 let name = match token_iter.next() {
                     Some(Token::Literal(lexer::Literal::Identifier(n))) => n,
                     _ => panic!("identifier after type"),
@@ -38,6 +42,7 @@ pub fn parse(tokens: Vec<Token>) -> ASTNode {
             }
             // could be a bad idea
             Token::Literal(lexer::Literal::Identifier(struct_name)) => {
+                token_iter.next();
                 let name = match token_iter.next() {
                     Some(Token::Literal(lexer::Literal::Identifier(n))) => n,
                     _ => panic!("identifier after type"),
@@ -52,6 +57,7 @@ pub fn parse(tokens: Vec<Token>) -> ASTNode {
             }
             _ => todo!(),
         };
+        dbg!(&new_node);
         nodes.push(new_node);
     }
     ASTNode::Program(nodes)
@@ -68,29 +74,29 @@ pub fn match_lexer_types(lexer_type: &lexer::Keyword) -> VarType {
     }
 }
 
-pub fn parse_type(last_token: Option<&Token>, token_iter: &mut Peekable<Iter<Token>>) -> VarType {
-    match last_token.or_else(|| token_iter.next()) {
+pub fn parse_type(token_iter: &mut Peekable<Iter<Token>>) -> VarType {
+    match token_iter.next() {
         Some(Token::Keyword(lexer::Keyword::Vec)) => {
             expect_symbol(token_iter, lexer::Symbol::LeftParen);
-            let var_type = parse_type(None, token_iter);
+            let var_type = parse_type(token_iter);
             expect_symbol(token_iter, lexer::Symbol::RightParen);
             VarType::Vec(Box::new(var_type))
         }
         // literally copy pasted
         Some(Token::Keyword(lexer::Keyword::Set)) => {
             expect_symbol(token_iter, lexer::Symbol::LeftParen);
-            let var_type = parse_type(None, token_iter);
+            let var_type = parse_type(token_iter);
             expect_symbol(token_iter, lexer::Symbol::RightParen);
             VarType::Set(Box::new(var_type))
         }
         Some(Token::Keyword(lexer::Keyword::Map)) => {
             expect_symbol(token_iter, lexer::Symbol::LeftParen);
-            let key_type = parse_type(None, token_iter);
+            let key_type = parse_type(token_iter);
             match token_iter.next() {
                 Some(Token::Symbol(lexer::Symbol::Comma)) => {}
                 _ => panic!(", after key"),
             }
-            let value_type = parse_type(None, token_iter);
+            let value_type = parse_type(token_iter);
             expect_symbol(token_iter, lexer::Symbol::RightParen);
             // VarType::Vec(Box::new(var_type))
             VarType::Map(Box::new(key_type), Box::new(value_type))
@@ -101,7 +107,6 @@ pub fn parse_type(last_token: Option<&Token>, token_iter: &mut Peekable<Iter<Tok
 }
 
 fn parse_expression(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
-    let mut token_iter = token_iter.peekable();
     let mut expr = match token_iter.next() {
         Some(Token::Literal(lexer::Literal::Identifier(id))) => Expression::Identifier(id.clone()),
         Some(Token::Literal(lit)) => parse_literal(lit),
@@ -121,10 +126,7 @@ fn parse_expression(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
                     right: Box::new(right),
                 };
             }
-            _ => {
-                dbg!(&token_iter);
-                break;
-            }
+            _ => break,
         }
     }
     expr

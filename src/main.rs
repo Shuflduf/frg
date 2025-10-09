@@ -10,7 +10,8 @@ fn main() {
 
     // let file_path = &args[1];
     // let input = fs::read_to_string("code.frog").unwrap();
-    let input = "Frog rocket = { legs: 4, name: \"Josch\" } int numbers = 5";
+    let input = "Frog rocket = { legs: 4 + 9 name: \"Josch\" } int number = 5";
+    // let input = "int number = 5";
     println!("Input: {input}");
     let tokens = lexer::lex(input);
     println!("Tokens: {tokens:?}");
