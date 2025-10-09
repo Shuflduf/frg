@@ -21,7 +21,7 @@ pub fn parse_type(token_iter: &mut Peekable<Iter<Token>>) -> ASTNode {
         };
         fields.push(Parameter {
             name: field_name.to_string(),
-            param_type: match_lexer_types(var_type),
+            param_type: parse_types::match_lexer_types(var_type),
         });
         if token_iter.peek() == Some(&&Token::Symbol(lexer::Symbol::Comma)) {
             token_iter.next();

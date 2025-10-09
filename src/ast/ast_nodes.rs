@@ -24,7 +24,7 @@ pub enum Statement {
         name: String,
         fields: Vec<Parameter>,
     },
-    Expression(Box<Expression>),
+    Expression(Expression),
 }
 
 #[derive(Debug, Clone, PartialEq)]
