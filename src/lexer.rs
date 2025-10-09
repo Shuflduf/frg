@@ -56,7 +56,6 @@ pub fn lex(input: &str) -> Vec<Token> {
     let mut char_iter = input.chars().peekable();
     while let Some(c) = &mut char_iter.next() {
         let c = *c;
-        dbg!(c);
         if string_open {
             if c != '"' {
                 current_token.push(c);
@@ -124,7 +123,6 @@ pub fn lex(input: &str) -> Vec<Token> {
                 continue;
             }
             current_token.push(c);
-            dbg!(&current_token);
         }
     }
     token_list

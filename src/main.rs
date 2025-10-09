@@ -1,7 +1,6 @@
 use std::fs;
 
 mod ast;
-mod ast_nodes;
 mod lexer;
 
 fn main() {
@@ -13,10 +12,12 @@ fn main() {
 
     // let file_path = &args[1];
     // let input = fs::read_to_string("code.frog").unwrap();
-    let input = "bool result = false int thing = 5";
+    let input = "struct Frog { int legs, bool alive }";
+    println!("Input: {input}");
     let tokens = lexer::lex(input);
+    println!("Tokens: {tokens:?}");
     let tree = ast::parse(tokens);
-    println!("{tree:?}");
+    println!("AST: {tree:?}");
 }
 
 // #[cfg(tests)]

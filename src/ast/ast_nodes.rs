@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum ASTNode {
     Program(Vec<ASTNode>),
@@ -82,7 +84,7 @@ pub enum CompositeLiteral {
     Vec(Vec<Expression>),
     Set(Vec<Expression>),
     Map(Vec<(Expression, Expression)>),
-    Struct(Vec<(String, Expression)>),
+    Struct(HashMap<String, Expression>),
 }
 
 #[derive(Debug, Clone, PartialEq)]

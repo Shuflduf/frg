@@ -1,14 +1,19 @@
+use std::slice::{Iter, IterMut};
+
 use crate::{
-    ast_nodes::*,
+    ast::ast_nodes::*,
     lexer::{self, Token},
 };
 
+mod ast_nodes;
+mod parse_struct;
+
 pub fn parse(tokens: Vec<Token>) -> ASTNode {
     let mut nodes = vec![];
-    let mut token_iter = tokens.iter().peekable();
+    let mut token_iter = tokens.iter();
     while let Some(token) = token_iter.next() {
-        match token {
-            // TODO:
+        let new_node = match token {
+            Token::Keyword(lexer::Keyword::Struct) => parse_struct::parse(&mut token_iter),
             Token::Keyword(var_type) => {
                 let name = match token_iter.next() {
                     Some(Token::Literal(lexer::Literal::Identifier(n))) => n,
@@ -18,27 +23,21 @@ pub fn parse(tokens: Vec<Token>) -> ASTNode {
                     Some(Token::Symbol(lexer::Symbol::Equals)) => {}
                     _ => panic!("= after identifier"),
                 }
-                let value = match token_iter.next() {
-                    Some(Token::Literal(n)) => {
-                        // Expression::Literal(Literal::Int(n.parse().unwrap()))
-                        parse_literal(n)
-                    }
-                    _ => panic!("value after ="),
-                };
-                nodes.push(ASTNode::Statement(Statement::VariableDeclaration {
+                let value = parse_expression(&mut token_iter);
+                ASTNode::Statement(Statement::VariableDeclaration {
                     var_type: match_lexer_types(var_type),
                     name: name.clone(),
                     value,
-                }));
+                })
             }
             _ => todo!(),
-        }
-        dbg!(&token);
+        };
+        nodes.push(new_node);
     }
     return ASTNode::Program(nodes);
 }
 
-fn match_lexer_types(lexer_type: &lexer::Keyword) -> VarType {
+pub fn match_lexer_types(lexer_type: &lexer::Keyword) -> VarType {
     match lexer_type {
         lexer::Keyword::Void => VarType::Void,
         lexer::Keyword::Int => VarType::Int,
@@ -49,8 +48,32 @@ fn match_lexer_types(lexer_type: &lexer::Keyword) -> VarType {
     }
 }
 
-// shouldnt be pub but idc
-pub fn parse_literal(literal: &lexer::Literal) -> Expression {
+fn parse_expression(token_iter: &mut Iter<Token>) -> Expression {
+    let mut expr = match token_iter.next() {
+        Some(Token::Literal(lexer::Literal::Identifier(id))) => Expression::Identifier(id.clone()),
+        Some(Token::Literal(lit)) => parse_literal(&lit),
+        _ => panic!("literal or identifier"),
+    };
+    while let Some(token) = token_iter.next() {
+        match token {
+            Token::Symbol(lexer::Symbol::Plus) => {
+                let right = match token_iter.next() {
+                    Some(Token::Literal(lit)) => parse_literal(&lit),
+                    _ => panic!("literal after +"),
+                };
+                expr = Expression::BinaryOperation {
+                    left: Box::new(expr),
+                    op: BinaryOp::Add,
+                    right: Box::new(right),
+                };
+            }
+            _ => break,
+        }
+    }
+    expr
+}
+
+fn parse_literal(literal: &lexer::Literal) -> Expression {
     match literal {
         lexer::Literal::Number(new_num) => {
             if is_num_float(&new_num) {
@@ -80,11 +103,8 @@ fn is_num_float(num: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use crate::{
-        ast::{parse, parse_literal},
-        ast_nodes::*,
-        lexer,
-    };
+    use super::*;
+    use crate::lexer::{self, Token};
 
     #[test]
     fn literal_int() {
@@ -121,6 +141,7 @@ mod tests {
     #[test]
     fn literal_float() {
         let input = lexer::Literal::Number("3.14".into());
+        #[allow(clippy::approx_constant)]
         let output = Expression::Literal(Literal::Float(3.14));
         let result = parse_literal(&input);
         assert_eq!(output, result);
@@ -142,5 +163,22 @@ mod tests {
         let result = parse(input);
         assert_eq!(program, result);
         dbg!(result);
+    }
+
+    #[test]
+    fn addition_expression() {
+        let input = vec![
+            Token::Literal(lexer::Literal::Number("5".to_string())),
+            Token::Symbol(lexer::Symbol::Plus),
+            Token::Literal(lexer::Literal::Number("2".to_string())),
+        ];
+        let mut token_iter = input.iter();
+        let output = Expression::BinaryOperation {
+            left: Box::new(Expression::Literal(Literal::Int(5))),
+            op: BinaryOp::Add,
+            right: Box::new(Expression::Literal(Literal::Int(2))),
+        };
+        let result = parse_expression(&mut token_iter);
+        assert_eq!(output, result)
     }
 }
