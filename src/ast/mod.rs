@@ -1,4 +1,4 @@
-use std::slice::{Iter, IterMut};
+use std::slice::Iter;
 
 use crate::{
     ast::ast_nodes::*,
@@ -34,7 +34,7 @@ pub fn parse(tokens: Vec<Token>) -> ASTNode {
         };
         nodes.push(new_node);
     }
-    return ASTNode::Program(nodes);
+    ASTNode::Program(nodes)
 }
 
 pub fn match_lexer_types(lexer_type: &lexer::Keyword) -> VarType {
@@ -70,14 +70,14 @@ pub fn parse_type(token_iter: &mut Iter<Token>) -> VarType {
 fn parse_expression(token_iter: &mut Iter<Token>) -> Expression {
     let mut expr = match token_iter.next() {
         Some(Token::Literal(lexer::Literal::Identifier(id))) => Expression::Identifier(id.clone()),
-        Some(Token::Literal(lit)) => parse_literal(&lit),
+        Some(Token::Literal(lit)) => parse_literal(lit),
         _ => panic!("literal or identifier"),
     };
     while let Some(token) = token_iter.next() {
         match token {
             Token::Symbol(lexer::Symbol::Plus) => {
                 let right = match token_iter.next() {
-                    Some(Token::Literal(lit)) => parse_literal(&lit),
+                    Some(Token::Literal(lit)) => parse_literal(lit),
                     _ => panic!("literal after +"),
                 };
                 expr = Expression::BinaryOperation {
@@ -95,7 +95,7 @@ fn parse_expression(token_iter: &mut Iter<Token>) -> Expression {
 fn parse_literal(literal: &lexer::Literal) -> Expression {
     match literal {
         lexer::Literal::Number(new_num) => {
-            if is_num_float(&new_num) {
+            if is_num_float(new_num) {
                 Expression::Literal(Literal::Float(new_num.parse().unwrap()))
             } else {
                 Expression::Literal(Literal::Int(new_num.parse().unwrap()))
@@ -194,7 +194,7 @@ mod tests {
 
     #[test]
     fn addition_expression() {
-        let input = vec![
+        let input = [
             Token::Literal(lexer::Literal::Number("5".to_string())),
             Token::Symbol(lexer::Symbol::Plus),
             Token::Literal(lexer::Literal::Number("2".to_string())),

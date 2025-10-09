@@ -46,7 +46,7 @@ pub enum Token {
 
 pub fn lex(input: &str) -> Vec<Token> {
     let mut input = input.to_string();
-    if !input.ends_with(&[' ']) {
+    if !input.ends_with([' ']) {
         input.push(' ');
     }
 
@@ -86,7 +86,7 @@ pub fn lex(input: &str) -> Vec<Token> {
             '/' => Some(Token::Symbol(Symbol::FSlash)),
             ':' => Some(Token::Symbol(Symbol::Colon)),
             '.' => {
-                if current_token.chars().nth(0).unwrap().is_ascii_digit() {
+                if current_token.chars().next().unwrap().is_ascii_digit() {
                     current_token.push(c);
                     continue;
                 } else {
@@ -107,7 +107,7 @@ pub fn lex(input: &str) -> Vec<Token> {
                 "vec" => Token::Keyword(Keyword::Vec),
                 "map" => Token::Keyword(Keyword::Map),
                 "set" => Token::Keyword(Keyword::Set),
-                _ => Token::Literal(if current_token.chars().nth(0).unwrap().is_ascii_digit() {
+                _ => Token::Literal(if current_token.chars().next().unwrap().is_ascii_digit() {
                     Literal::Number(current_token)
                 } else {
                     Literal::Identifier(current_token)
