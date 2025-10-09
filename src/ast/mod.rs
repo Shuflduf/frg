@@ -47,6 +47,10 @@ pub fn parse(tokens: Vec<Token>) -> ASTNode {
                     Some(Token::Literal(lexer::Literal::Identifier(n))) => n,
                     _ => panic!("identifier after type"),
                 };
+
+                // if token_iter.peek() == Some(&&Token::Symbol(lexer::Symbol::Equals)) {
+                //     token_iter.next();
+                // }
                 expect_symbol(&mut token_iter, lexer::Symbol::Equals);
                 let value = parse_struct::parse_data(&mut token_iter);
                 ASTNode::Statement(Statement::VariableDeclaration {

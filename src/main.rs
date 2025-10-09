@@ -1,3 +1,5 @@
+use std::fs;
+
 mod ast;
 mod lexer;
 
@@ -9,11 +11,12 @@ fn main() {
     // }
 
     // let file_path = &args[1];
-    // let input = fs::read_to_string("code.frog").unwrap();
-    let input = "Frog rocket = { legs: 4 + 9 name: \"Josch\" } int number = 5";
+    let input = fs::read_to_string("test.frg").unwrap();
+
+    // let input = "Frog rocket = { legs: 4 + 9, name: \"Josch\" } int number = 5";
     // let input = "int number = 5";
     println!("Input: {input}");
-    let tokens = lexer::lex(input);
+    let tokens = lexer::lex(&input);
     println!("Tokens: {tokens:?}");
     let tree = ast::parse(tokens);
     println!("AST: {tree:?}");

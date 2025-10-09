@@ -23,10 +23,12 @@ pub fn parse_type(token_iter: &mut Peekable<Iter<Token>>) -> ASTNode {
             name: field_name.to_string(),
             param_type: match_lexer_types(var_type),
         });
-        match token_iter.next() {
-            Some(Token::Symbol(lexer::Symbol::Comma)) => {}
-            Some(Token::Symbol(lexer::Symbol::RightBrace)) => break,
-            _ => panic!("expected , or }}"),
+        if token_iter.peek() == Some(&&Token::Symbol(lexer::Symbol::Comma)) {
+            token_iter.next();
+        }
+        if token_iter.peek() == Some(&&Token::Symbol(lexer::Symbol::RightBrace)) {
+            token_iter.next();
+            break;
         }
     }
     ASTNode::Statement(Statement::StructDeclaration {
@@ -44,20 +46,19 @@ pub fn parse_data(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
             Token::Literal(lexer::Literal::Identifier(id)) => id,
             _ => panic!("expected identifier"),
         };
+        // if token_iter.peek() == Some(&&Token::Symbol(lexer::Symbol::Colon)) {
+        //     token_iter.next();
+        // }
         expect_symbol(token_iter, lexer::Symbol::Colon);
         let value = parse_expression(token_iter);
         fields.insert(field_name.to_string(), value);
-        // commas are optional ig??
         dbg!(token_iter.peek());
-        match token_iter.peek() {
-            Some(Token::Symbol(lexer::Symbol::RightBrace)) => {
-                token_iter.next();
-                break;
-            }
-            Some(Token::Symbol(lexer::Symbol::Comma)) => {
-                token_iter.next();
-            }
-            _ => {}
+        if token_iter.peek() == Some(&&Token::Symbol(lexer::Symbol::Comma)) {
+            token_iter.next();
+        }
+        if token_iter.peek() == Some(&&Token::Symbol(lexer::Symbol::RightBrace)) {
+            token_iter.next();
+            break;
         }
     }
     Expression::CompositeLiteral(CompositeLiteral::Struct(fields))
