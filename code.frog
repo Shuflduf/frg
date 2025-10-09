@@ -4,8 +4,8 @@ struct Person {
 }
 
 Person jog = {
-	name = "jogua",
-	age = 82,
+	name: "jogua",
+	age: 82,
 }
 
 str name = jog.name

@@ -8,12 +8,19 @@ use crate::{
 mod ast_nodes;
 mod parse_struct;
 
+pub fn expect_symbol(token_iter: &mut Iter<Token>, expected: lexer::Symbol) {
+    match token_iter.next() {
+        Some(Token::Symbol(s)) if *s == expected => {}
+        _ => panic!("Expected {:?}", expected),
+    }
+}
+
 pub fn parse(tokens: Vec<Token>) -> ASTNode {
     let mut nodes = vec![];
     let mut token_iter = tokens.iter();
     while let Some(token) = token_iter.next() {
         let new_node = match token {
-            Token::Keyword(lexer::Keyword::Struct) => parse_struct::parse(&mut token_iter),
+            Token::Keyword(lexer::Keyword::Struct) => parse_struct::parse_type(&mut token_iter),
             Token::Keyword(var_type) => {
                 // i still dont understand rust why do i need to clone
                 let var_type = parse_type(Some(&Token::Keyword(var_type.clone())), &mut token_iter);
@@ -21,13 +28,24 @@ pub fn parse(tokens: Vec<Token>) -> ASTNode {
                     Some(Token::Literal(lexer::Literal::Identifier(n))) => n,
                     _ => panic!("identifier after type"),
                 };
-                match token_iter.next() {
-                    Some(Token::Symbol(lexer::Symbol::Equals)) => {}
-                    _ => panic!("= after identifier"),
-                }
+                expect_symbol(&mut token_iter, lexer::Symbol::Equals);
                 let value = parse_expression(&mut token_iter);
                 ASTNode::Statement(Statement::VariableDeclaration {
                     var_type,
+                    name: name.clone(),
+                    value,
+                })
+            }
+            // could be a bad idea
+            Token::Literal(lexer::Literal::Identifier(struct_name)) => {
+                let name = match token_iter.next() {
+                    Some(Token::Literal(lexer::Literal::Identifier(n))) => n,
+                    _ => panic!("identifier after type"),
+                };
+                expect_symbol(&mut token_iter, lexer::Symbol::Equals);
+                let value = parse_struct::parse_data(&mut token_iter);
+                ASTNode::Statement(Statement::VariableDeclaration {
+                    var_type: VarType::Struct(struct_name.to_string()),
                     name: name.clone(),
                     value,
                 })
@@ -53,33 +71,27 @@ pub fn match_lexer_types(lexer_type: &lexer::Keyword) -> VarType {
 pub fn parse_type(last_token: Option<&Token>, token_iter: &mut Iter<Token>) -> VarType {
     match last_token.or_else(|| token_iter.next()) {
         Some(Token::Keyword(lexer::Keyword::Vec)) => {
-            match token_iter.next() {
-                Some(Token::Symbol(lexer::Symbol::LeftParen)) => {}
-                _ => panic!("( after identifier"),
-            }
+            expect_symbol(token_iter, lexer::Symbol::LeftParen);
             let var_type = parse_type(None, token_iter);
-            match token_iter.next() {
-                Some(Token::Symbol(lexer::Symbol::RightParen)) => {}
-                _ => panic!(") after identifier"),
-            }
+            expect_symbol(token_iter, lexer::Symbol::RightParen);
             VarType::Vec(Box::new(var_type))
         }
-
+        // literally copy pasted
+        Some(Token::Keyword(lexer::Keyword::Set)) => {
+            expect_symbol(token_iter, lexer::Symbol::LeftParen);
+            let var_type = parse_type(None, token_iter);
+            expect_symbol(token_iter, lexer::Symbol::RightParen);
+            VarType::Set(Box::new(var_type))
+        }
         Some(Token::Keyword(lexer::Keyword::Map)) => {
-            match token_iter.next() {
-                Some(Token::Symbol(lexer::Symbol::LeftParen)) => {}
-                _ => panic!("( after identifier"),
-            }
+            expect_symbol(token_iter, lexer::Symbol::LeftParen);
             let key_type = parse_type(None, token_iter);
             match token_iter.next() {
                 Some(Token::Symbol(lexer::Symbol::Comma)) => {}
                 _ => panic!(", after key"),
             }
             let value_type = parse_type(None, token_iter);
-            match token_iter.next() {
-                Some(Token::Symbol(lexer::Symbol::RightParen)) => {}
-                _ => panic!(") after identifier"),
-            }
+            expect_symbol(token_iter, lexer::Symbol::RightParen);
             // VarType::Vec(Box::new(var_type))
             VarType::Map(Box::new(key_type), Box::new(value_type))
         }

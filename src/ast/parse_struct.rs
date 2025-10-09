@@ -1,14 +1,13 @@
+use std::collections::HashMap;
+
 use super::*;
 
-pub fn parse(token_iter: &mut Iter<Token>) -> ASTNode {
+pub fn parse_type(token_iter: &mut Iter<Token>) -> ASTNode {
     let name = match token_iter.next() {
         Some(Token::Literal(lexer::Literal::Identifier(n))) => n,
         _ => panic!("identifier after type"),
     };
-    match token_iter.next() {
-        Some(Token::Symbol(lexer::Symbol::LeftBrace)) => {}
-        _ => panic!("{{ after identifier"),
-    }
+    expect_symbol(token_iter, lexer::Symbol::LeftBrace);
     let mut fields: Vec<Parameter> = vec![];
     while let Some(token) = token_iter.next() {
         let var_type = match token {
@@ -33,4 +32,19 @@ pub fn parse(token_iter: &mut Iter<Token>) -> ASTNode {
         name: name.to_string(),
         fields,
     })
+}
+
+pub fn parse_data(token_iter: &mut Iter<Token>) -> Expression {
+    expect_symbol(token_iter, lexer::Symbol::LeftBrace);
+    let mut fields = HashMap::new();
+    while let Some(token) = token_iter.next() {
+        let field_name = match token {
+            Token::Literal(lexer::Literal::Identifier(id)) => id,
+            _ => panic!("expected identifier"),
+        };
+        expect_symbol(token_iter, lexer::Symbol::Colon);
+        let value = parse_expression(token_iter);
+        fields.insert(field_name.to_string(), value);
+    }
+    Expression::CompositeLiteral(CompositeLiteral::Struct(fields))
 }
