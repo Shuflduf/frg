@@ -15,6 +15,8 @@ pub fn parse(tokens: Vec<Token>) -> ASTNode {
         let new_node = match token {
             Token::Keyword(lexer::Keyword::Struct) => parse_struct::parse(&mut token_iter),
             Token::Keyword(var_type) => {
+                // i still dont understand rust why do i need to clone
+                let var_type = parse_type(Some(&Token::Keyword(var_type.clone())), &mut token_iter);
                 let name = match token_iter.next() {
                     Some(Token::Literal(lexer::Literal::Identifier(n))) => n,
                     _ => panic!("identifier after type"),
@@ -25,7 +27,7 @@ pub fn parse(tokens: Vec<Token>) -> ASTNode {
                 }
                 let value = parse_expression(&mut token_iter);
                 ASTNode::Statement(Statement::VariableDeclaration {
-                    var_type: match_lexer_types(var_type),
+                    var_type,
                     name: name.clone(),
                     value,
                 })
@@ -48,21 +50,21 @@ pub fn match_lexer_types(lexer_type: &lexer::Keyword) -> VarType {
     }
 }
 
-pub fn parse_type(token_iter: &mut Iter<Token>) -> VarType {
-    match token_iter.next() {
+pub fn parse_type(last_token: Option<&Token>, token_iter: &mut Iter<Token>) -> VarType {
+    match last_token.or_else(|| token_iter.next()) {
         Some(Token::Keyword(lexer::Keyword::Vec)) => {
             match token_iter.next() {
                 Some(Token::Symbol(lexer::Symbol::LeftParen)) => {}
                 _ => panic!("( after identifier"),
             }
-            let var_type = parse_type(token_iter);
+            let var_type = parse_type(None, token_iter);
             match token_iter.next() {
                 Some(Token::Symbol(lexer::Symbol::RightParen)) => {}
                 _ => panic!(") after identifier"),
             }
             VarType::Vec(Box::new(var_type))
         }
-        Some(Token::Keyword(var_type)) => match_lexer_types(var_type),
+        Some(Token::Keyword(var_type)) => match_lexer_types(&var_type),
         _ => todo!(),
     }
 }
@@ -129,7 +131,7 @@ mod tests {
     fn vec_type() {
         let input = lexer::lex("vec(int)");
         let output = VarType::Vec(Box::new(VarType::Int));
-        let result = parse_type(&mut input.iter());
+        let result = parse_type(None, &mut input.iter());
         assert_eq!(output, result);
     }
 

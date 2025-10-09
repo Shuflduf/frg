@@ -1,4 +1,3 @@
-
 mod ast;
 mod lexer;
 
@@ -11,7 +10,7 @@ fn main() {
 
     // let file_path = &args[1];
     // let input = fs::read_to_string("code.frog").unwrap();
-    let input = "struct Frog { int legs, bool alive }";
+    let input = "vec(vec(vec(float))) numbers = 5";
     println!("Input: {input}");
     let tokens = lexer::lex(input);
     println!("Tokens: {tokens:?}");
@@ -22,7 +21,7 @@ fn main() {
     println!("Input: {input}");
     let tokens = lexer::lex(input);
     println!("Tokens: {tokens:?}");
-    let var_type = ast::parse_type(&mut tokens.iter());
+    let var_type = ast::parse_type(None, &mut tokens.iter());
     println!("Type: {var_type:?}");
 }
 
