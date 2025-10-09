@@ -92,7 +92,7 @@ fn parse_expression(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
 fn parse_literal(literal: &lexer::Literal) -> Expression {
     match literal {
         lexer::Literal::Number(new_num) => {
-            if is_num_float(new_num) {
+            if new_num.contains(".") {
                 Expression::Literal(Literal::Float(new_num.parse().unwrap()))
             } else {
                 Expression::Literal(Literal::Int(new_num.parse().unwrap()))
@@ -113,22 +113,18 @@ fn parse_literal(literal: &lexer::Literal) -> Expression {
     }
 }
 
-fn is_num_float(num: &str) -> bool {
-    num.contains(".")
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
     use crate::lexer::{self, Token};
 
-    // #[test]
-    // fn vec_type() {
-    //     let input = lexer::lex("vec(int)");
-    //     let output = VarType::Vec(Box::new(VarType::Int));
-    //     let result = parse_type(None, &mut input.iter());
-    //     assert_eq!(output, result);
-    // }
+    #[test]
+    fn vec_type() {
+        let input = lexer::lex("vec(int)");
+        let output = VarType::Vec(Box::new(VarType::Int));
+        let result = parse_types::parse(&mut input.iter().peekable());
+        assert_eq!(output, result);
+    }
 
     #[test]
     fn literal_int() {
