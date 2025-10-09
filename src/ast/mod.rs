@@ -67,6 +67,10 @@ fn parse_expression(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
     let mut expr = match token_iter.next() {
         Some(Token::Literal(lexer::Literal::Identifier(id))) => Expression::Identifier(id.clone()),
         Some(Token::Literal(lit)) => parse_literal(lit),
+        Some(Token::Symbol(lexer::Symbol::LeftBracket)) => {
+            println!("its a fucking vec!!");
+            Expression::CompositeLiteral(CompositeLiteral::Vec(vec![]))
+        }
         _ => panic!("literal or identifier"),
     };
     while let Some(token) = token_iter.peek() {
