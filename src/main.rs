@@ -10,7 +10,7 @@ fn main() {
 
     // let file_path = &args[1];
     // let input = fs::read_to_string("code.frog").unwrap();
-    let input = "vec(vec(vec(float))) numbers = 5";
+    let input = "vec(vec(map(float, int))) numbers = 5";
     println!("Input: {input}");
     let tokens = lexer::lex(input);
     println!("Tokens: {tokens:?}");

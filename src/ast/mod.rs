@@ -64,6 +64,25 @@ pub fn parse_type(last_token: Option<&Token>, token_iter: &mut Iter<Token>) -> V
             }
             VarType::Vec(Box::new(var_type))
         }
+
+        Some(Token::Keyword(lexer::Keyword::Map)) => {
+            match token_iter.next() {
+                Some(Token::Symbol(lexer::Symbol::LeftParen)) => {}
+                _ => panic!("( after identifier"),
+            }
+            let key_type = parse_type(None, token_iter);
+            match token_iter.next() {
+                Some(Token::Symbol(lexer::Symbol::Comma)) => {}
+                _ => panic!(", after key"),
+            }
+            let value_type = parse_type(None, token_iter);
+            match token_iter.next() {
+                Some(Token::Symbol(lexer::Symbol::RightParen)) => {}
+                _ => panic!(") after identifier"),
+            }
+            // VarType::Vec(Box::new(var_type))
+            VarType::Map(Box::new(key_type), Box::new(value_type))
+        }
         Some(Token::Keyword(var_type)) => match_lexer_types(&var_type),
         _ => todo!(),
     }
