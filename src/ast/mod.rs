@@ -25,8 +25,7 @@ pub fn parse(tokens: Vec<Token>) -> ASTNode {
     while let Some(token) = token_iter.peek() {
         let new_node = match token {
             Token::Keyword(lexer::Keyword::Struct) => parse_struct::parse_type(&mut token_iter),
-            Token::Keyword(var_type) => {
-                // i still dont understand rust why do i need to clone
+            Token::Keyword(_) => {
                 let var_type = parse_type(&mut token_iter);
                 let name = match token_iter.next() {
                     Some(Token::Literal(lexer::Literal::Identifier(n))) => n,
@@ -96,16 +95,16 @@ pub fn parse_type(token_iter: &mut Peekable<Iter<Token>>) -> VarType {
         Some(Token::Keyword(lexer::Keyword::Map)) => {
             expect_symbol(token_iter, lexer::Symbol::LeftParen);
             let key_type = parse_type(token_iter);
-            match token_iter.next() {
-                Some(Token::Symbol(lexer::Symbol::Comma)) => {}
-                _ => panic!(", after key"),
+
+            if token_iter.peek() == Some(&&Token::Symbol(lexer::Symbol::Comma)) {
+                token_iter.next();
             }
             let value_type = parse_type(token_iter);
             expect_symbol(token_iter, lexer::Symbol::RightParen);
             // VarType::Vec(Box::new(var_type))
             VarType::Map(Box::new(key_type), Box::new(value_type))
         }
-        Some(Token::Keyword(var_type)) => match_lexer_types(&var_type),
+        Some(Token::Keyword(var_type)) => match_lexer_types(var_type),
         _ => todo!(),
     }
 }
