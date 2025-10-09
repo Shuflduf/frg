@@ -18,6 +18,13 @@ fn main() {
     println!("Tokens: {tokens:?}");
     let tree = ast::parse(tokens);
     println!("AST: {tree:?}");
+
+    let input = "vec(vec(float))";
+    println!("Input: {input}");
+    let tokens = lexer::lex(input);
+    println!("Tokens: {tokens:?}");
+    let var_type = ast::parse_type(&mut tokens.iter());
+    println!("Type: {var_type:?}");
 }
 
 // #[cfg(tests)]

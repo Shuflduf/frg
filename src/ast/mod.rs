@@ -48,6 +48,25 @@ pub fn match_lexer_types(lexer_type: &lexer::Keyword) -> VarType {
     }
 }
 
+pub fn parse_type(token_iter: &mut Iter<Token>) -> VarType {
+    match token_iter.next() {
+        Some(Token::Keyword(lexer::Keyword::Vec)) => {
+            match token_iter.next() {
+                Some(Token::Symbol(lexer::Symbol::LeftParen)) => {}
+                _ => panic!("( after identifier"),
+            }
+            let var_type = parse_type(token_iter);
+            match token_iter.next() {
+                Some(Token::Symbol(lexer::Symbol::RightParen)) => {}
+                _ => panic!(") after identifier"),
+            }
+            VarType::Vec(Box::new(var_type))
+        }
+        Some(Token::Keyword(var_type)) => match_lexer_types(var_type),
+        _ => todo!(),
+    }
+}
+
 fn parse_expression(token_iter: &mut Iter<Token>) -> Expression {
     let mut expr = match token_iter.next() {
         Some(Token::Literal(lexer::Literal::Identifier(id))) => Expression::Identifier(id.clone()),
@@ -105,6 +124,14 @@ fn is_num_float(num: &str) -> bool {
 mod tests {
     use super::*;
     use crate::lexer::{self, Token};
+
+    #[test]
+    fn vec_type() {
+        let input = lexer::lex("vec(int)");
+        let output = VarType::Vec(Box::new(VarType::Int));
+        let result = parse_type(&mut input.iter());
+        assert_eq!(output, result);
+    }
 
     #[test]
     fn literal_int() {
