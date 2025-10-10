@@ -8,6 +8,7 @@ use crate::{
 mod ast_nodes;
 mod parse_struct;
 mod parse_types;
+mod parse_vec;
 
 pub fn expect_token(token_iter: &mut Peekable<Iter<Token>>, expected: lexer::Token) {
     match token_iter.next() {
@@ -69,7 +70,7 @@ fn parse_expression(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
         Some(Token::Literal(lit)) => parse_literal(lit),
         Some(Token::Symbol(lexer::Symbol::LeftBracket)) => {
             println!("its a fucking vec!!");
-            Expression::CompositeLiteral(CompositeLiteral::Vec(vec![]))
+            parse_vec::parse_data(token_iter)
         }
         _ => panic!("literal or identifier"),
     };
