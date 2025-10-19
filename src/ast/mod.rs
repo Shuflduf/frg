@@ -6,6 +6,7 @@ use crate::{
 };
 
 mod ast_nodes;
+mod parse_function;
 mod parse_list;
 mod parse_struct;
 mod parse_types;
@@ -34,12 +35,27 @@ pub fn parse(tokens: Vec<Token>) -> ASTNode {
                     _ => panic!("identifier after type"),
                 };
                 expect_symbol(&mut token_iter, lexer::Symbol::Equals);
-                let value = parse_expression(&mut token_iter);
-                ASTNode::Statement(Statement::VariableDeclaration {
-                    var_type,
-                    name: name.clone(),
-                    value,
-                })
+                if token_iter.peek() == Some(&&Token::Symbol(lexer::Symbol::LeftParen))
+                    && let Some((params, new_token_iter)) =
+                        parse_function::parse_params(token_iter.clone())
+                {
+                    {
+                        dbg!(&params);
+                        ASTNode::Statement(Statement::FunctionDeclaration {
+                            return_type: var_type,
+                            name: name.clone(),
+                            params,
+                            body: vec![],
+                        })
+                    }
+                } else {
+                    let value = parse_expression(&mut token_iter);
+                    ASTNode::Statement(Statement::VariableDeclaration {
+                        var_type,
+                        name: name.clone(),
+                        value,
+                    })
+                }
             }
             // could be a bad idea
             Token::Literal(lexer::Literal::Identifier(struct_name)) => {

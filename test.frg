@@ -1,9 +1,8 @@
-vec(int) numbers = [5 + 3 2 8 + frog_leg]
-vec(int) numbers = [5 + 3, 2, 8 + frog_leg, ]
-
-Frog rocket = {
-	legs: 4,
-	name: "Josch",
+int plus_one = (int num) {
+	num + 1
 }
 
+void takes_struct = (Frog my_frog) {
+	return
+}
 
