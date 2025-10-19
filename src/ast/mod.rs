@@ -63,7 +63,17 @@ pub fn parse(tokens: Vec<Token>) -> ASTNode {
 
 fn parse_expression(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
     let mut expr = match token_iter.next() {
-        Some(Token::Literal(lexer::Literal::Identifier(id))) => Expression::Identifier(id.clone()),
+        Some(Token::Literal(lexer::Literal::Identifier(id))) => {
+            if token_iter.peek() == Some(&&Token::Symbol(lexer::Symbol::LeftParen)) {
+                let args = parse_function::parse_arguments(token_iter);
+                Expression::FunctionCall {
+                    name: id.clone(),
+                    args,
+                }
+            } else {
+                Expression::Identifier(id.clone())
+            }
+        }
         Some(Token::Literal(lit)) => parse_literal(lit),
         Some(Token::Symbol(lexer::Symbol::LeftBracket)) => {
             parse_list::parse_data(token_iter, lexer::Symbol::RightBracket)

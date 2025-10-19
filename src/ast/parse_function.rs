@@ -47,3 +47,9 @@ pub fn parse_body(token_iter: &mut Peekable<Iter<Token>>) -> Vec<ASTNode> {
     }
     nodes
 }
+
+pub fn parse_arguments(token_iter: &mut Peekable<Iter<Token>>) -> Vec<Expression> {
+    expect_symbol(token_iter, lexer::Symbol::LeftParen);
+    expect_symbol(token_iter, lexer::Symbol::RightParen);
+    vec![]
+}
