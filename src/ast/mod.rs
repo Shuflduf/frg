@@ -6,6 +6,7 @@ use crate::{
 };
 
 mod ast_nodes;
+mod parse_declaration;
 mod parse_function;
 mod parse_list;
 mod parse_struct;
@@ -22,41 +23,11 @@ pub fn expect_symbol(token_iter: &mut Peekable<Iter<Token>>, expected: lexer::Sy
     expect_token(token_iter, Token::Symbol(expected));
 }
 
-pub fn parse(tokens: Vec<Token>) -> ASTNode {
-    let mut nodes = vec![];
-    let mut token_iter = tokens.iter().peekable();
-    while let Some(token) = token_iter.peek() {
+pub fn parse_next(token_iter: &mut Peekable<Iter<Token>>) -> Option<ASTNode> {
+    if let Some(token) = token_iter.peek() {
         let new_node = match token {
-            Token::Keyword(lexer::Keyword::Struct) => parse_struct::parse_type(&mut token_iter),
-            Token::Keyword(_) => {
-                let var_type = parse_types::parse(&mut token_iter);
-                let name = match token_iter.next() {
-                    Some(Token::Literal(lexer::Literal::Identifier(n))) => n,
-                    _ => panic!("identifier after type"),
-                };
-                expect_symbol(&mut token_iter, lexer::Symbol::Equals);
-                if token_iter.peek() == Some(&&Token::Symbol(lexer::Symbol::LeftParen))
-                    && let Some((params, new_token_iter)) =
-                        parse_function::parse_params(token_iter.clone())
-                {
-                    {
-                        dbg!(&params);
-                        ASTNode::Statement(Statement::FunctionDeclaration {
-                            return_type: var_type,
-                            name: name.clone(),
-                            params,
-                            body: vec![],
-                        })
-                    }
-                } else {
-                    let value = parse_expression(&mut token_iter);
-                    ASTNode::Statement(Statement::VariableDeclaration {
-                        var_type,
-                        name: name.clone(),
-                        value,
-                    })
-                }
-            }
+            Token::Keyword(lexer::Keyword::Struct) => parse_struct::parse_type(token_iter),
+            Token::Keyword(_) => parse_declaration::parse(token_iter),
             // could be a bad idea
             Token::Literal(lexer::Literal::Identifier(struct_name)) => {
                 token_iter.next();
@@ -64,8 +35,8 @@ pub fn parse(tokens: Vec<Token>) -> ASTNode {
                     Some(Token::Literal(lexer::Literal::Identifier(n))) => n,
                     _ => panic!("identifier after type"),
                 };
-                expect_symbol(&mut token_iter, lexer::Symbol::Equals);
-                let value = parse_struct::parse_data(&mut token_iter);
+                expect_symbol(token_iter, lexer::Symbol::Equals);
+                let value = parse_struct::parse_data(token_iter);
                 ASTNode::Statement(Statement::VariableDeclaration {
                     var_type: VarType::Struct(struct_name.to_string()),
                     name: name.clone(),
@@ -74,6 +45,16 @@ pub fn parse(tokens: Vec<Token>) -> ASTNode {
             }
             _ => todo!(),
         };
+        return Some(new_node);
+    } else {
+        return None;
+    }
+}
+
+pub fn parse(tokens: Vec<Token>) -> ASTNode {
+    let mut nodes = vec![];
+    let mut token_iter = tokens.iter().peekable();
+    while let Some(new_node) = parse_next(&mut token_iter) {
         dbg!(&new_node);
         nodes.push(new_node);
     }
