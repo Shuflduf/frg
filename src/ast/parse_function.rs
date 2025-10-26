@@ -49,7 +49,21 @@ pub fn parse_body(token_iter: &mut Peekable<Iter<Token>>) -> Vec<ASTNode> {
 }
 
 pub fn parse_arguments(token_iter: &mut Peekable<Iter<Token>>) -> Vec<Expression> {
+    let mut arguments = vec![];
     expect_symbol(token_iter, lexer::Symbol::LeftParen);
-    expect_symbol(token_iter, lexer::Symbol::RightParen);
-    vec![]
+    while let Some(token) = token_iter.peek() {
+        let new_argument = match token {
+            Token::Symbol(lexer::Symbol::RightParen) => {
+                token_iter.next();
+                return arguments;
+            }
+            Token::Symbol(lexer::Symbol::Comma) => {
+                token_iter.next();
+                continue;
+            }
+            _ => parse_expression(token_iter),
+        };
+        arguments.push(new_argument);
+    }
+    arguments
 }
