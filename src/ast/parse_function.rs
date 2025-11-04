@@ -69,5 +69,7 @@ pub fn parse_arguments(token_iter: &mut Peekable<Iter<Token>>) -> Vec<Expression
 }
 
 pub fn parse_return(token_iter: &mut Peekable<Iter<Token>>) -> Statement {
-    return Statement::Return(Expression::Literal(Literal::Int(2)));
+    expect_token(token_iter, Token::Keyword(lexer::Keyword::Return));
+    let value = parse_expression(token_iter);
+    return Statement::Return(value);
 }
