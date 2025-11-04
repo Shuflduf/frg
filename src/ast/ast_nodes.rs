@@ -28,9 +28,15 @@ pub enum Statement {
         fields: Vec<Parameter>,
     },
     /// call()
+    /// basically throwing away the returned value
     Expression(Expression),
     /// return var
     Return(Expression),
+    /// existing_var = 5
+    Assignment {
+        name: String,
+        value: Box<Expression>,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -43,34 +49,35 @@ pub enum BinaryOp {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum UnaryOp {
+    /// \&
     Reference,
+    /// \*
     Dereference,
+    /// \-
     Negative,
+    /// !
     Not,
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expression {
+    /// my_var
     Identifier(String),
+    /// "string data"
     Literal(Literal),
+    /// [4, 2]
     CompositeLiteral(CompositeLiteral),
+    /// 5 + 2
     BinaryOperation {
         left: Box<Expression>,
         op: BinaryOp,
         right: Box<Expression>,
     },
-    UnaryOperation {
-        op: UnaryOp,
-        expr: Box<Expression>,
-    },
-    FunctionCall {
-        name: String,
-        args: Vec<Expression>,
-    },
-    Assignment {
-        name: String,
-        value: Box<Expression>,
-    },
+    /// !true
+    UnaryOperation { op: UnaryOp, expr: Box<Expression> },
+    /// call()
+    FunctionCall { name: String, args: Vec<Expression> },
+    /// thing.component
     MemberAccess {
         object: Box<Expression>,
         field: String,
@@ -87,9 +94,14 @@ pub enum Literal {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum CompositeLiteral {
+    /// [4, 2]
     Vec(Vec<Expression>),
+    /// {4, 2}
+    /// Unordered with no duplicates
     Set(Vec<Expression>),
+    /// { "eggs": 4, "days": 82 }
     Map(Vec<(Expression, Expression)>),
+    /// Frog chicken = {}
     Struct(HashMap<String, Expression>),
 }
 
