@@ -10,6 +10,7 @@ pub enum Keyword {
     Map,
     Set,
     Return,
+    If,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -109,6 +110,7 @@ pub fn lex(input: &str) -> Vec<Token> {
                 "map" => Token::Keyword(Keyword::Map),
                 "set" => Token::Keyword(Keyword::Set),
                 "return" => Token::Keyword(Keyword::Return),
+                "if" => Token::Keyword(Keyword::If),
                 _ => Token::Literal(if current_token.chars().next().unwrap().is_ascii_digit() {
                     Literal::Number(current_token)
                 } else {
