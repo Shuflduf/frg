@@ -1,13 +1,6 @@
 use std::collections::HashMap;
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum ASTNode {
-    Program(Vec<ASTNode>),
-    Statement(Statement),
-    Expression(Expression),
-}
-
-#[derive(Debug, Clone, PartialEq)]
 pub enum Statement {
     /// int var = 5
     VariableDeclaration {
@@ -20,7 +13,7 @@ pub enum Statement {
         return_type: VarType,
         name: String,
         params: Vec<Parameter>,
-        body: Vec<ASTNode>,
+        body: Vec<Statement>,
     },
     /// struct Frog {}
     StructDeclaration {

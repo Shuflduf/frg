@@ -23,7 +23,7 @@ pub fn expect_symbol(token_iter: &mut Peekable<Iter<Token>>, expected: lexer::Sy
     expect_token(token_iter, Token::Symbol(expected));
 }
 
-pub fn parse_next(token_iter: &mut Peekable<Iter<Token>>) -> Option<ASTNode> {
+pub fn parse_next(token_iter: &mut Peekable<Iter<Token>>) -> Option<Statement> {
     if let Some(token) = token_iter.peek() {
         let new_node = match token {
             Token::Keyword(lexer::Keyword::Struct) => parse_struct::parse_type(token_iter),
@@ -38,11 +38,11 @@ pub fn parse_next(token_iter: &mut Peekable<Iter<Token>>) -> Option<ASTNode> {
                 };
                 expect_symbol(token_iter, lexer::Symbol::Equals);
                 let value = parse_struct::parse_data(token_iter);
-                ASTNode::Statement(Statement::VariableDeclaration {
+                Statement::VariableDeclaration {
                     var_type: VarType::Struct(struct_name.to_string()),
                     name: name.clone(),
                     value,
-                })
+                }
             }
             _ => todo!(),
         };
@@ -52,14 +52,14 @@ pub fn parse_next(token_iter: &mut Peekable<Iter<Token>>) -> Option<ASTNode> {
     }
 }
 
-pub fn parse(tokens: Vec<Token>) -> ASTNode {
+pub fn parse(tokens: Vec<Token>) -> Vec<Statement> {
     let mut nodes = vec![];
     let mut token_iter = tokens.iter().peekable();
     while let Some(new_node) = parse_next(&mut token_iter) {
         dbg!(&new_node);
         nodes.push(new_node);
     }
-    ASTNode::Program(nodes)
+    nodes
 }
 
 fn parse_expression(token_iter: &mut Peekable<Iter<Token>>) -> Expression {

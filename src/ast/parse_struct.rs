@@ -2,7 +2,7 @@ use std::collections::HashMap;
 
 use super::*;
 
-pub fn parse_type(token_iter: &mut Peekable<Iter<Token>>) -> ASTNode {
+pub fn parse_type(token_iter: &mut Peekable<Iter<Token>>) -> Statement {
     expect_token(token_iter, Token::Keyword(lexer::Keyword::Struct));
     let name = match token_iter.next() {
         Some(Token::Literal(lexer::Literal::Identifier(n))) => n,
@@ -31,10 +31,10 @@ pub fn parse_type(token_iter: &mut Peekable<Iter<Token>>) -> ASTNode {
             break;
         }
     }
-    ASTNode::Statement(Statement::StructDeclaration {
+    Statement::StructDeclaration {
         name: name.to_string(),
         fields,
-    })
+    }
 }
 
 pub fn parse_data(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
