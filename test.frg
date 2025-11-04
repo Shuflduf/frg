@@ -1,1 +1,3 @@
-int res = 4 + add(6, 9)
+int sub = 4-2
+int mult = 6 * 2 * 9
+int div = 90 / 9

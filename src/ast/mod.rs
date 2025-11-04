@@ -62,8 +62,7 @@ pub fn parse(tokens: Vec<Token>) -> Vec<Statement> {
     nodes
 }
 
-// TODO: rename
-fn parse_maybe_function_probably_not(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
+fn parse_single_value(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
     let expr = match token_iter.next() {
         Some(Token::Literal(lexer::Literal::Identifier(id))) => {
             if token_iter.peek() == Some(&&Token::Symbol(lexer::Symbol::LeftParen)) {
@@ -87,25 +86,32 @@ fn parse_maybe_function_probably_not(token_iter: &mut Peekable<Iter<Token>>) -> 
 }
 
 fn parse_expression(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
-    let mut expr = parse_maybe_function_probably_not(token_iter);
+    let mut expr = parse_single_value(token_iter);
     while let Some(token) = token_iter.peek() {
-        match token {
-            Token::Symbol(lexer::Symbol::Plus) => {
-                token_iter.next();
-                let right = match token_iter.peek() {
-                    Some(Token::Literal(_)) => parse_maybe_function_probably_not(token_iter),
-                    _ => panic!("literal after +"),
-                };
-                expr = Expression::BinaryOperation {
-                    left: Box::new(expr),
-                    op: BinaryOp::Add,
-                    right: Box::new(right),
-                };
-            }
+        let operation = match token {
+            Token::Symbol(lexer::Symbol::Plus) => BinaryOp::Add,
+            Token::Symbol(lexer::Symbol::Minus) => BinaryOp::Subtract,
+            Token::Symbol(lexer::Symbol::Star) => BinaryOp::Multiply,
+            Token::Symbol(lexer::Symbol::FSlash) => BinaryOp::Divide,
             _ => break,
-        }
+        };
+        append_operation(token_iter, operation, &mut expr);
     }
     expr
+}
+
+fn append_operation(
+    token_iter: &mut Peekable<Iter<Token>>,
+    operation: BinaryOp,
+    expr: &mut Expression,
+) {
+    token_iter.next();
+    let right = parse_single_value(token_iter);
+    *expr = Expression::BinaryOperation {
+        left: Box::new(expr.clone()),
+        op: operation,
+        right: Box::new(right),
+    };
 }
 
 fn parse_literal(literal: &lexer::Literal) -> Expression {
@@ -193,12 +199,12 @@ mod tests {
             lexer::Token::Symbol(lexer::Symbol::Equals),
             lexer::Token::Literal(lexer::Literal::Number("5".into())),
         ];
-        let output = ASTNode::Statement(Statement::VariableDeclaration {
+        let output = Statement::VariableDeclaration {
             var_type: VarType::Int,
             name: "x".into(),
             value: Expression::Literal(Literal::Int(5)),
-        });
-        let program = ASTNode::Program(vec![output]);
+        };
+        let program = vec![output];
         let result = parse(input);
         assert_eq!(program, result);
         dbg!(result);
