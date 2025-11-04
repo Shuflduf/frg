@@ -11,6 +11,8 @@ pub enum Keyword {
     Set,
     Return,
     If,
+    Elif,
+    Else,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -111,6 +113,8 @@ pub fn lex(input: &str) -> Vec<Token> {
                 "set" => Token::Keyword(Keyword::Set),
                 "return" => Token::Keyword(Keyword::Return),
                 "if" => Token::Keyword(Keyword::If),
+                "else" => Token::Keyword(Keyword::Else),
+                "elif" => Token::Keyword(Keyword::Elif),
                 _ => Token::Literal(if current_token.chars().next().unwrap().is_ascii_digit() {
                     Literal::Number(current_token)
                 } else {
