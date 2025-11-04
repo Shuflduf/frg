@@ -27,6 +27,7 @@ pub fn parse_next(token_iter: &mut Peekable<Iter<Token>>) -> Option<ASTNode> {
     if let Some(token) = token_iter.peek() {
         let new_node = match token {
             Token::Keyword(lexer::Keyword::Struct) => parse_struct::parse_type(token_iter),
+            Token::Keyword(lexer::Keyword::Return) => parse_function::parse_return(token_iter),
             Token::Keyword(_) => parse_declaration::parse(token_iter),
             // could be a bad idea
             Token::Literal(lexer::Literal::Identifier(struct_name)) => {

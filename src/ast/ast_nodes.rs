@@ -9,22 +9,28 @@ pub enum ASTNode {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Statement {
+    /// int var = 5
     VariableDeclaration {
         var_type: VarType,
         name: String,
         value: Expression,
     },
+    /// void func = () {}
     FunctionDeclaration {
         return_type: VarType,
         name: String,
         params: Vec<Parameter>,
         body: Vec<ASTNode>,
     },
+    /// struct Frog {}
     StructDeclaration {
         name: String,
         fields: Vec<Parameter>,
     },
+    /// call()
     Expression(Expression),
+    /// return var
+    Return(Expression),
 }
 
 #[derive(Debug, Clone, PartialEq)]
