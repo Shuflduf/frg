@@ -1,6 +1,1 @@
-int add = (int first, int second) {
-    int sum = first + second
-    return sum
-}
-
-int result = add(5, 4+2, 2)
+int res = 4 + add(6, 9)

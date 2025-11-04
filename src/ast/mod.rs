@@ -62,8 +62,9 @@ pub fn parse(tokens: Vec<Token>) -> Vec<Statement> {
     nodes
 }
 
-fn parse_expression(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
-    let mut expr = match token_iter.next() {
+// TODO: rename
+fn parse_maybe_function_probably_not(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
+    let expr = match token_iter.next() {
         Some(Token::Literal(lexer::Literal::Identifier(id))) => {
             if token_iter.peek() == Some(&&Token::Symbol(lexer::Symbol::LeftParen)) {
                 let args = parse_function::parse_arguments(token_iter);
@@ -82,12 +83,17 @@ fn parse_expression(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
 
         _ => panic!("literal or identifier"),
     };
+    expr
+}
+
+fn parse_expression(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
+    let mut expr = parse_maybe_function_probably_not(token_iter);
     while let Some(token) = token_iter.peek() {
         match token {
             Token::Symbol(lexer::Symbol::Plus) => {
                 token_iter.next();
-                let right = match token_iter.next() {
-                    Some(Token::Literal(lit)) => parse_literal(lit),
+                let right = match token_iter.peek() {
+                    Some(Token::Literal(_)) => parse_maybe_function_probably_not(token_iter),
                     _ => panic!("literal after +"),
                 };
                 expr = Expression::BinaryOperation {
