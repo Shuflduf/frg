@@ -24,6 +24,7 @@ pub enum Symbol {
     LeftBracket,
     RightBracket,
     Equals,
+    DoubleEquals,
     Comma,
     Ampersand,
     Plus,
@@ -95,6 +96,10 @@ pub fn lex(input: &str) -> Vec<Token> {
             '<' => Some(Token::Symbol(Symbol::LessThan)),
             '>' => Some(Token::Symbol(Symbol::GreaterThan)),
             '=' => match token_list.last() {
+                Some(Token::Symbol(Symbol::Equals)) => {
+                    token_list.pop();
+                    Some(Token::Symbol(Symbol::DoubleEquals))
+                }
                 Some(Token::Symbol(Symbol::LessThan)) => {
                     token_list.pop();
                     Some(Token::Symbol(Symbol::LessThanOrEqual))

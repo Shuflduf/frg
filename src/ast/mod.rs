@@ -100,6 +100,7 @@ fn parse_expression(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
             Token::Symbol(lexer::Symbol::LessThanOrEqual) => BinaryOp::LessThanOrEqual,
             Token::Symbol(lexer::Symbol::GreaterThan) => BinaryOp::GreaterThan,
             Token::Symbol(lexer::Symbol::GreaterThanOrEqual) => BinaryOp::GreaterThanOrEqual,
+            Token::Symbol(lexer::Symbol::DoubleEquals) => BinaryOp::Equals,
             _ => break,
         };
         append_operation(token_iter, operation, &mut expr);
