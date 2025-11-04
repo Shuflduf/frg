@@ -19,7 +19,7 @@ fn main() {
     let tokens = lexer::lex(&input);
     println!("Tokens: {tokens:?}");
     let tree = ast::parse(tokens);
-    println!("AST: {tree:?}");
+    println!("AST: {tree:#?}");
 }
 
 // #[cfg(tests)]

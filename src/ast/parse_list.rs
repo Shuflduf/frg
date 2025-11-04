@@ -6,7 +6,6 @@ pub fn parse_data(
     // dbg!(token_iter.next());
     let mut values = vec![];
     while let Some(token) = token_iter.peek() {
-        dbg!(token);
         match token {
             Token::Symbol(lexer::Symbol::Comma) => {
                 token_iter.next();

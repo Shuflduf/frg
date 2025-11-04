@@ -41,7 +41,6 @@ pub fn parse_data(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
     expect_symbol(token_iter, lexer::Symbol::LeftBrace);
     let mut fields = HashMap::new();
     while let Some(token) = token_iter.next() {
-        dbg!(token);
         let field_name = match token {
             Token::Literal(lexer::Literal::Identifier(id)) => id,
             _ => panic!("expected identifier"),
@@ -52,7 +51,6 @@ pub fn parse_data(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
         expect_symbol(token_iter, lexer::Symbol::Colon);
         let value = parse_expression(token_iter);
         fields.insert(field_name.to_string(), value);
-        dbg!(token_iter.peek());
         if token_iter.peek() == Some(&&Token::Symbol(lexer::Symbol::Comma)) {
             token_iter.next();
         }

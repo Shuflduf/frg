@@ -11,7 +11,6 @@ pub fn parse(token_iter: &mut Peekable<Iter<Token>>) -> Statement {
         && let Some((params, new_token_iter)) = parse_function::parse_params(token_iter.clone())
     {
         {
-            dbg!(&params);
             *token_iter = new_token_iter;
             Statement::FunctionDeclaration {
                 return_type: var_type,

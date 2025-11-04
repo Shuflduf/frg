@@ -32,6 +32,10 @@ pub enum Symbol {
     Star,
     Colon,
     Period,
+    LessThan,
+    LessThanOrEqual,
+    GreaterThan,
+    GreaterThanOrEqual,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -81,7 +85,6 @@ pub fn lex(input: &str) -> Vec<Token> {
             ')' => Some(Token::Symbol(Symbol::RightParen)),
             '[' => Some(Token::Symbol(Symbol::LeftBracket)),
             ']' => Some(Token::Symbol(Symbol::RightBracket)),
-            '=' => Some(Token::Symbol(Symbol::Equals)),
             ',' => Some(Token::Symbol(Symbol::Comma)),
             '&' => Some(Token::Symbol(Symbol::Ampersand)),
             '*' => Some(Token::Symbol(Symbol::Star)),
@@ -89,6 +92,19 @@ pub fn lex(input: &str) -> Vec<Token> {
             '-' => Some(Token::Symbol(Symbol::Minus)),
             '/' => Some(Token::Symbol(Symbol::FSlash)),
             ':' => Some(Token::Symbol(Symbol::Colon)),
+            '<' => Some(Token::Symbol(Symbol::LessThan)),
+            '>' => Some(Token::Symbol(Symbol::GreaterThan)),
+            '=' => match token_list.last() {
+                Some(Token::Symbol(Symbol::LessThan)) => {
+                    token_list.pop();
+                    Some(Token::Symbol(Symbol::LessThanOrEqual))
+                }
+                Some(Token::Symbol(Symbol::GreaterThan)) => {
+                    token_list.pop();
+                    Some(Token::Symbol(Symbol::GreaterThanOrEqual))
+                }
+                _ => Some(Token::Symbol(Symbol::Equals)),
+            },
             '.' => {
                 if current_token.chars().next().unwrap().is_ascii_digit() {
                     current_token.push(c);

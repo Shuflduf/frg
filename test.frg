@@ -1,3 +1,2 @@
-if false {
-    int sub = 2 - 9
-}
+if 5 > 2 {}
+if 6 <= 8 {}

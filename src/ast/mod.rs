@@ -29,7 +29,9 @@ pub fn parse_next(token_iter: &mut Peekable<Iter<Token>>) -> Option<Statement> {
         let new_node = match token {
             Token::Keyword(lexer::Keyword::Struct) => parse_struct::parse_type(token_iter),
             Token::Keyword(lexer::Keyword::Return) => parse_function::parse_return(token_iter),
-            Token::Keyword(lexer::Keyword::If) => parse_conditional::parse(token_iter),
+            Token::Keyword(lexer::Keyword::If)
+            | Token::Keyword(lexer::Keyword::Elif)
+            | Token::Keyword(lexer::Keyword::Else) => parse_conditional::parse(token_iter),
             Token::Keyword(_) => parse_declaration::parse(token_iter),
             // could be a bad idea
             Token::Literal(lexer::Literal::Identifier(struct_name)) => {
@@ -208,7 +210,6 @@ mod tests {
         let program = vec![output];
         let result = parse(input);
         assert_eq!(program, result);
-        dbg!(result);
     }
 
     #[test]

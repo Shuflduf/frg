@@ -31,9 +31,16 @@ pub enum Statement {
     Assignment { name: String, value: Expression },
     /// if true {}
     Conditional {
-        value: Expression,
+        conditional_type: ConditionalType,
         body: Vec<Statement>,
     },
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum ConditionalType {
+    If(Expression),
+    Elif(Expression),
+    Else,
 }
 
 #[derive(Debug, Clone, PartialEq)]

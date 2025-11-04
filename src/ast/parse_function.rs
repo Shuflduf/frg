@@ -6,7 +6,6 @@ pub fn parse_params(
     let mut params = vec![];
 
     while let Some(token) = token_iter.next() {
-        dbg!(token);
         let new_param = match token {
             Token::Keyword(keyword) => {
                 let param_type = parse_types::match_lexer_types(keyword);
@@ -14,7 +13,6 @@ pub fn parse_params(
                 if let Some(Token::Literal(lexer::Literal::Identifier(param_name))) =
                     token_iter.next()
                 {
-                    dbg!(param_name);
                     Parameter {
                         name: param_name.to_string(),
                         param_type,
@@ -38,7 +36,6 @@ pub fn parse_body(token_iter: &mut Peekable<Iter<Token>>) -> Vec<Statement> {
     expect_symbol(token_iter, lexer::Symbol::LeftBrace);
     let mut nodes = vec![];
     while let Some(new_node) = parse_next(token_iter) {
-        dbg!(&new_node);
         nodes.push(new_node);
         if token_iter.peek() == Some(&&Token::Symbol(lexer::Symbol::RightBrace)) {
             token_iter.next();
