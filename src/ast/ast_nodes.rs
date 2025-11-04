@@ -22,13 +22,17 @@ pub enum Statement {
     },
     /// call()
     /// basically throwing away the returned value
+    #[allow(dead_code)]
     Expression(Expression),
     /// return var
     Return(Expression),
     /// existing_var = 5
-    Assignment {
-        name: String,
-        value: Box<Expression>,
+    #[allow(dead_code)]
+    Assignment { name: String, value: Expression },
+    /// if true {}
+    Conditional {
+        value: Expression,
+        body: Vec<Statement>,
     },
 }
 
@@ -43,12 +47,16 @@ pub enum BinaryOp {
 #[derive(Debug, Clone, PartialEq)]
 pub enum UnaryOp {
     /// \&
+    #[allow(dead_code)]
     Reference,
     /// \*
+    #[allow(dead_code)]
     Dereference,
     /// \-
+    #[allow(dead_code)]
     Negative,
     /// !
+    #[allow(dead_code)]
     Not,
 }
 
@@ -67,10 +75,12 @@ pub enum Expression {
         right: Box<Expression>,
     },
     /// !true
+    #[allow(dead_code)]
     UnaryOperation { op: UnaryOp, expr: Box<Expression> },
     /// call()
     FunctionCall { name: String, args: Vec<Expression> },
     /// thing.component
+    #[allow(dead_code)]
     MemberAccess {
         object: Box<Expression>,
         field: String,
@@ -91,8 +101,10 @@ pub enum CompositeLiteral {
     Vec(Vec<Expression>),
     /// {4, 2}
     /// Unordered with no duplicates
+    #[allow(dead_code)]
     Set(Vec<Expression>),
     /// { "eggs": 4, "days": 82 }
+    #[allow(dead_code)]
     Map(Vec<(Expression, Expression)>),
     /// Frog chicken = {}
     Struct(HashMap<String, Expression>),
@@ -108,6 +120,7 @@ pub enum VarType {
     Vec(Box<VarType>),
     Map(Box<VarType>, Box<VarType>),
     Set(Box<VarType>),
+    #[allow(dead_code)]
     Reference(Box<VarType>),
     Struct(String),
 }

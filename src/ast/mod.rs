@@ -6,6 +6,7 @@ use crate::{
 };
 
 mod ast_nodes;
+mod parse_conditional;
 mod parse_declaration;
 mod parse_function;
 mod parse_list;
@@ -28,6 +29,7 @@ pub fn parse_next(token_iter: &mut Peekable<Iter<Token>>) -> Option<Statement> {
         let new_node = match token {
             Token::Keyword(lexer::Keyword::Struct) => parse_struct::parse_type(token_iter),
             Token::Keyword(lexer::Keyword::Return) => parse_function::parse_return(token_iter),
+            Token::Keyword(lexer::Keyword::If) => parse_conditional::parse(token_iter),
             Token::Keyword(_) => parse_declaration::parse(token_iter),
             // could be a bad idea
             Token::Literal(lexer::Literal::Identifier(struct_name)) => {
@@ -46,9 +48,9 @@ pub fn parse_next(token_iter: &mut Peekable<Iter<Token>>) -> Option<Statement> {
             }
             _ => todo!(),
         };
-        return Some(new_node);
+        Some(new_node)
     } else {
-        return None;
+        None
     }
 }
 
@@ -63,7 +65,7 @@ pub fn parse(tokens: Vec<Token>) -> Vec<Statement> {
 }
 
 fn parse_single_value(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
-    let expr = match token_iter.next() {
+    match token_iter.next() {
         Some(Token::Literal(lexer::Literal::Identifier(id))) => {
             if token_iter.peek() == Some(&&Token::Symbol(lexer::Symbol::LeftParen)) {
                 let args = parse_function::parse_arguments(token_iter);
@@ -81,8 +83,7 @@ fn parse_single_value(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
         }
 
         _ => panic!("literal or identifier"),
-    };
-    expr
+    }
 }
 
 fn parse_expression(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
