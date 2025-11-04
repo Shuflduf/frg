@@ -48,7 +48,7 @@ pub fn parse_next(token_iter: &mut Peekable<Iter<Token>>) -> Option<Statement> {
                     value,
                 }
             }
-            _ => todo!(),
+            _ => return None,
         };
         Some(new_node)
     } else {
@@ -96,6 +96,10 @@ fn parse_expression(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
             Token::Symbol(lexer::Symbol::Minus) => BinaryOp::Subtract,
             Token::Symbol(lexer::Symbol::Star) => BinaryOp::Multiply,
             Token::Symbol(lexer::Symbol::FSlash) => BinaryOp::Divide,
+            Token::Symbol(lexer::Symbol::LessThan) => BinaryOp::LessThan,
+            Token::Symbol(lexer::Symbol::LessThanOrEqual) => BinaryOp::LessThanOrEqual,
+            Token::Symbol(lexer::Symbol::GreaterThan) => BinaryOp::GreaterThan,
+            Token::Symbol(lexer::Symbol::GreaterThanOrEqual) => BinaryOp::GreaterThanOrEqual,
             _ => break,
         };
         append_operation(token_iter, operation, &mut expr);
