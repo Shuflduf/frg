@@ -25,10 +25,10 @@ struct FunctionData {
 
 #[derive(Debug, Default, Clone)]
 struct ExecutionContext {
-    declared_variables: HashMap<String, VariableData>,
-    declared_functions: HashMap<String, FunctionData>,
+    declared_variables: HashMap<String, Box<VariableData>>,
+    declared_functions: HashMap<String, Box<FunctionData>>,
     // maybe use a tuple struct for this
-    declared_structs: HashMap<String, HashMap<String, VarType>>,
+    declared_structs: HashMap<String, Box<HashMap<String, VarType>>>,
     continue_to_next_if: bool,
 }
 
@@ -97,12 +97,12 @@ fn declare_function(
 ) {
     ctx.declared_functions.insert(
         name,
-        FunctionData {
+        Box::new(FunctionData {
             ctx: ctx.clone(),
             ast: body,
             params,
             return_type,
-        },
+        }),
     );
 }
 
@@ -114,7 +114,7 @@ fn declare_variable(
 ) {
     let value = eval(ctx, expression);
     ctx.declared_variables
-        .insert(name, VariableData { value, var_type });
+        .insert(name, Box::new(VariableData { value, var_type }));
 }
 
 fn declare_struct(ctx: &mut ExecutionContext, name: String, fields: Vec<Parameter>) {
@@ -122,7 +122,7 @@ fn declare_struct(ctx: &mut ExecutionContext, name: String, fields: Vec<Paramete
     fields.iter().for_each(|param| {
         struct_fields.insert(param.name.clone(), param.param_type.clone());
     });
-    ctx.declared_structs.insert(name, struct_fields);
+    ctx.declared_structs.insert(name, Box::new(struct_fields));
 }
 
 fn eval(ctx: &mut ExecutionContext, expression: Expression) -> VariableValue {
@@ -189,8 +189,7 @@ fn eval(ctx: &mut ExecutionContext, expression: Expression) -> VariableValue {
                     );
                 });
             // dbg!(&func_ctx.declared_variables);
-            println!("current context: {:#?}", &ctx);
-            println!("function {name} context: {:#?}", &func_ctx);
+            println!("{name} context: {:#?}", &func_ctx);
 
             interpret_block(func_ctx, target_func.ast.clone())
         }
