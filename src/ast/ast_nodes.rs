@@ -113,11 +113,11 @@ pub enum CompositeLiteral {
     Vec(Vec<Expression>),
     /// {4, 2}
     /// Unordered with no duplicates
-    #[allow(dead_code)]
     Set(Vec<Expression>),
     /// { "eggs": 4, "days": 82 }
-    #[allow(dead_code)]
     Map(Vec<(Expression, Expression)>),
+    /// {}
+    Empty,
     /// Frog chicken = {}
     Struct(HashMap<String, Expression>),
 }

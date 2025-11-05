@@ -39,7 +39,7 @@ pub fn parse_body(token_iter: &mut Peekable<Iter<Token>>) -> Vec<Statement> {
         return vec![];
     }
     let mut nodes = vec![];
-    while let Some(new_node) = parse_next(token_iter) {
+    while let Some(new_node) = parse_next_statement(token_iter) {
         nodes.push(new_node);
         if token_iter.peek() == Some(&&Token::Symbol(lexer::Symbol::RightBrace)) {
             token_iter.next();

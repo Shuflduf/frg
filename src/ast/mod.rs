@@ -24,7 +24,7 @@ pub fn expect_symbol(token_iter: &mut Peekable<Iter<Token>>, expected: lexer::Sy
     expect_token(token_iter, Token::Symbol(expected));
 }
 
-pub fn parse_next(token_iter: &mut Peekable<Iter<Token>>) -> Option<Statement> {
+pub fn parse_next_statement(token_iter: &mut Peekable<Iter<Token>>) -> Option<Statement> {
     if let Some(token) = token_iter.peek() {
         let new_node = match token {
             Token::Keyword(lexer::Keyword::Struct) => parse_struct::parse_type(token_iter),
@@ -59,8 +59,8 @@ pub fn parse_next(token_iter: &mut Peekable<Iter<Token>>) -> Option<Statement> {
 pub fn parse(tokens: Vec<Token>) -> Vec<Statement> {
     let mut nodes = vec![];
     let mut token_iter = tokens.iter().peekable();
-    while let Some(new_node) = parse_next(&mut token_iter) {
-        dbg!(&new_node);
+    while let Some(new_node) = parse_next_statement(&mut token_iter) {
+        // dbg!(&new_node);
         nodes.push(new_node);
     }
     nodes
@@ -79,10 +79,10 @@ fn parse_single_value(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
                 Expression::Identifier(id.clone())
             }
         }
+
         Some(Token::Literal(lit)) => parse_literal(lit),
-        Some(Token::Symbol(lexer::Symbol::LeftBracket)) => {
-            parse_list::parse_data(token_iter, lexer::Symbol::RightBracket)
-        }
+        Some(Token::Symbol(lexer::Symbol::LeftBracket)) => parse_list::parse_vec(token_iter),
+        Some(Token::Symbol(lexer::Symbol::LeftBrace)) => parse_list::parse_set_or_map(token_iter),
 
         _ => panic!("literal or identifier"),
     }
