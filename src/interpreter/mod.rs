@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use crate::ast::ast_nodes::*;
 
@@ -13,13 +13,27 @@ struct VariableData {
 enum VariableValue {
     Void,
     Int(i32),
+    #[allow(dead_code)]
+    Str(String),
+    #[allow(dead_code)]
+    Float(f32),
     Bool(bool),
+    #[allow(dead_code)]
+    Vec(Vec<VariableValue>),
+    #[allow(dead_code)]
+    Map(HashMap<VariableValue, VariableValue>),
+    #[allow(dead_code)]
+    Set(HashSet<VariableValue>),
+    #[allow(dead_code)]
+    Reference(Box<VariableValue>),
+    #[allow(dead_code)]
+    Struct(HashMap<String, VariableValue>),
 }
 
 #[derive(Debug, Clone)]
 struct FunctionData {
     ctx: ExecutionContext,
-    ast: Box<Vec<Statement>>,
+    ast: Vec<Statement>,
     params: Vec<Parameter>,
     #[allow(dead_code)]
     return_type: VarType,
@@ -30,7 +44,7 @@ struct ExecutionContext {
     declared_variables: HashMap<String, Box<VariableData>>,
     declared_functions: HashMap<String, Box<FunctionData>>,
     // maybe use a tuple struct for this
-    declared_structs: HashMap<String, Box<HashMap<String, VarType>>>,
+    declared_structs: HashMap<String, HashMap<String, VarType>>,
     continue_to_next_if: bool,
 }
 
@@ -111,7 +125,7 @@ fn declare_function(
         name,
         Box::new(FunctionData {
             ctx: ctx.clone(),
-            ast: Box::new(body),
+            ast: body,
             params,
             return_type,
         }),
@@ -133,7 +147,7 @@ fn declare_struct(ctx: &mut ExecutionContext, name: String, fields: Vec<Paramete
     fields.iter().for_each(|param| {
         struct_fields.insert(param.name.clone(), param.param_type.clone());
     });
-    ctx.declared_structs.insert(name, Box::new(struct_fields));
+    ctx.declared_structs.insert(name, struct_fields);
 }
 
 fn eval(ctx: &mut ExecutionContext, expression: Expression) -> VariableValue {
@@ -156,22 +170,26 @@ fn eval(ctx: &mut ExecutionContext, expression: Expression) -> VariableValue {
             .value
             .clone(),
         Expression::BinaryOperation { left, op, right } => {
-            if let VariableValue::Int(left) = eval(ctx, *left)
-                && let VariableValue::Int(right) = eval(ctx, *right)
-            {
-                match op {
-                    BinaryOp::Add => VariableValue::Int(left + right),
-                    BinaryOp::Subtract => VariableValue::Int(left - right),
-                    BinaryOp::Multiply => VariableValue::Int(left * right),
-                    BinaryOp::Divide => VariableValue::Int(left / right),
-                    BinaryOp::LessThan => VariableValue::Bool(left < right),
-                    BinaryOp::LessThanOrEqual => VariableValue::Bool(left <= right),
-                    BinaryOp::GreaterThan => VariableValue::Bool(left > right),
-                    BinaryOp::GreaterThanOrEqual => VariableValue::Bool(left >= right),
-                    BinaryOp::Equals => VariableValue::Bool(left == right),
+            let left = eval(ctx, *left);
+            let right = eval(ctx, *right);
+            match left {
+                VariableValue::Int(left) => {
+                    let VariableValue::Int(right) = right else {
+                        panic!("cant fucking")
+                    };
+                    match op {
+                        BinaryOp::Add => VariableValue::Int(left + right),
+                        BinaryOp::Subtract => VariableValue::Int(left - right),
+                        BinaryOp::Multiply => VariableValue::Int(left * right),
+                        BinaryOp::Divide => VariableValue::Int(left / right),
+                        BinaryOp::LessThan => VariableValue::Bool(left < right),
+                        BinaryOp::LessThanOrEqual => VariableValue::Bool(left <= right),
+                        BinaryOp::GreaterThan => VariableValue::Bool(left > right),
+                        BinaryOp::GreaterThanOrEqual => VariableValue::Bool(left >= right),
+                        BinaryOp::Equals => VariableValue::Bool(left == right),
+                    }
                 }
-            } else {
-                todo!()
+                _ => todo!(),
             }
         }
         Expression::FunctionCall { name, args } => {
@@ -198,7 +216,7 @@ fn eval(ctx: &mut ExecutionContext, expression: Expression) -> VariableValue {
                         params[i].clone(),
                     );
                 });
-            if let Some(returned_value) = interpret_block(func_ctx, *target_func.ast.clone()) {
+            if let Some(returned_value) = interpret_block(func_ctx, target_func.ast.clone()) {
                 return returned_value;
             }
             VariableValue::Void
