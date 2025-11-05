@@ -1,7 +1,5 @@
-if 4 < 2 {
-    int res = 2
-} elif 4 < 3 {
-    int res = 3
-} else {
-    int res = 4
+int add = (int first, int second) {
+    return first + second
 }
+
+int result = add(8, 2)

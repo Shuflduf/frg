@@ -10,6 +10,7 @@ struct VariableData {
 
 #[derive(Debug, Clone)]
 enum VariableValue {
+    Void,
     Int(i32),
     Bool(bool),
 }
@@ -18,17 +19,20 @@ enum VariableValue {
 struct FunctionData {
     ctx: ExecutionContext,
     ast: Vec<Statement>,
+    params: Vec<Parameter>,
 }
 
 #[derive(Debug, Default, Clone)]
 struct ExecutionContext {
     declared_variables: HashMap<String, VariableData>,
     declared_functions: HashMap<String, FunctionData>,
+    // maybe use a tuple struct for this
+    declared_structs: HashMap<String, HashMap<String, VarType>>,
     callable_functions: HashSet<String>,
     continue_to_next_if: bool,
 }
 
-fn interpret_block(mut ctx: ExecutionContext, ast: Vec<Statement>) {
+fn interpret_block(mut ctx: ExecutionContext, ast: Vec<Statement>) -> VariableValue {
     for statement in ast {
         match statement {
             Statement::VariableDeclaration {
@@ -42,14 +46,17 @@ fn interpret_block(mut ctx: ExecutionContext, ast: Vec<Statement>) {
                 params,
                 body,
             } => declare_function(&mut ctx, return_type, name, params, body),
+            Statement::StructDeclaration { name, fields } => declare_struct(&mut ctx, name, fields),
             Statement::Conditional {
                 conditional_type,
                 body,
             } => handle_conditionals(&mut ctx, conditional_type, body),
+            Statement::Return(expression) => return eval(&mut ctx, expression),
             _ => todo!(),
         }
     }
     dbg!(ctx);
+    VariableValue::Void
 }
 
 pub fn interpret(ast: Vec<Statement>) {
@@ -82,7 +89,7 @@ fn declare_function(
     ctx: &mut ExecutionContext,
     _return_type: VarType,
     name: String,
-    _params: Vec<Parameter>,
+    params: Vec<Parameter>,
     body: Vec<Statement>,
 ) {
     ctx.callable_functions.insert(name.clone());
@@ -91,6 +98,7 @@ fn declare_function(
         FunctionData {
             ctx: ctx.clone(),
             ast: body,
+            params,
         },
     );
 }
@@ -106,6 +114,14 @@ fn declare_variable(
         .insert(name, VariableData { value, var_type });
 }
 
+fn declare_struct(ctx: &mut ExecutionContext, name: String, fields: Vec<Parameter>) {
+    let mut struct_fields = HashMap::new();
+    fields.iter().for_each(|param| {
+        struct_fields.insert(param.name.clone(), param.param_type.clone());
+    });
+    ctx.declared_structs.insert(name, struct_fields);
+}
+
 fn eval(ctx: &mut ExecutionContext, expression: Expression) -> VariableValue {
     match expression {
         Expression::Literal(literal) => match literal {
@@ -113,6 +129,12 @@ fn eval(ctx: &mut ExecutionContext, expression: Expression) -> VariableValue {
             Literal::Bool(new_bool) => VariableValue::Bool(new_bool),
             _ => todo!(),
         },
+        Expression::Identifier(identifier) => ctx
+            .declared_variables
+            .get(&identifier)
+            .expect("variable doesnt exist")
+            .value
+            .clone(),
         Expression::BinaryOperation { left, op, right } => {
             if let VariableValue::Int(left) = eval(ctx, *left)
                 && let VariableValue::Int(right) = eval(ctx, *right)
@@ -131,6 +153,29 @@ fn eval(ctx: &mut ExecutionContext, expression: Expression) -> VariableValue {
             } else {
                 todo!()
             }
+        }
+        Expression::FunctionCall { name, args } => {
+            // let args: Vec<VariableValue> = args.iter().map(|arg| eval(ctx, *arg)).collect();
+            let target_func = ctx
+                .declared_functions
+                .get(&name)
+                .expect("function {name} doesnt exist");
+            let mut func_ctx = target_func.ctx.clone();
+
+            target_func
+                .params
+                .iter()
+                .enumerate()
+                .for_each(|(i, param)| {
+                    declare_variable(
+                        &mut func_ctx,
+                        param.param_type.clone(),
+                        param.name.clone(),
+                        args[i].clone(),
+                    );
+                });
+
+            interpret_block(func_ctx, target_func.ast.clone())
         }
         _ => todo!(),
     }
