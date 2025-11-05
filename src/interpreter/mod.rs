@@ -73,6 +73,8 @@ fn handle_conditionals(
             interpret_block(ctx.clone(), body);
             ctx.continue_to_next_if = false
         }
+    } else {
+        panic!("use bools dumbass")
     }
 }
 
