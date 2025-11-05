@@ -1,9 +1,8 @@
-int add_two = (int second_target) {
-    return second_target + 2
+int recursive = (int start) {
+    if start <= 0 {
+        return 0
+    }
+    return start + recursive(start - 1)
 }
 
-int add_four = (int first_target) {
-    return add_two(first_target)
-}
-
-int result = add_four(6)
+int result = recursive(3)

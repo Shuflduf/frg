@@ -40,7 +40,10 @@ fn interpret_block(mut ctx: ExecutionContext, ast: Vec<Statement>) -> VariableVa
                 var_type,
                 name,
                 value,
-            } => declare_variable(&mut ctx, var_type, name, value),
+            } => {
+                let value = eval(&mut ctx, value);
+                declare_variable(&mut ctx, var_type, name, value);
+            }
             Statement::FunctionDeclaration {
                 return_type,
                 name,
@@ -110,9 +113,8 @@ fn declare_variable(
     ctx: &mut ExecutionContext,
     var_type: VarType,
     name: String,
-    expression: Expression,
+    value: VariableValue,
 ) {
-    let value = eval(ctx, expression);
     ctx.declared_variables
         .insert(name, Box::new(VariableData { value, var_type }));
 }
@@ -162,19 +164,16 @@ fn eval(ctx: &mut ExecutionContext, expression: Expression) -> VariableValue {
             }
         }
         Expression::FunctionCall { name, args } => {
+            let params: Vec<VariableValue> =
+                args.iter().map(|exp| eval(ctx, exp.clone())).collect();
             let target_func = ctx
                 .declared_functions
                 .get(&name)
                 .expect(&format!("function `{name}` doesnt exist"));
             let mut func_ctx = target_func.ctx.clone();
-            // TODO: make it like a pointer to itself or smth so it doesnt keep cloning for large recursive functions
-            declare_function(
-                &mut func_ctx,
-                target_func.return_type.clone(),
-                name.clone(),
-                target_func.params.clone(),
-                target_func.ast.clone(),
-            );
+            func_ctx
+                .declared_functions
+                .insert(name.clone(), target_func.clone());
             target_func
                 .params
                 .iter()
@@ -185,12 +184,9 @@ fn eval(ctx: &mut ExecutionContext, expression: Expression) -> VariableValue {
                         &mut func_ctx,
                         param.param_type.clone(),
                         param.name.clone(),
-                        args[i].clone(),
+                        params[i].clone(),
                     );
                 });
-            // dbg!(&func_ctx.declared_variables);
-            println!("{name} context: {:#?}", &func_ctx);
-
             interpret_block(func_ctx, target_func.ast.clone())
         }
         _ => todo!(),
