@@ -165,14 +165,13 @@ fn eval(ctx: &mut ExecutionContext, expression: Expression) -> VariableValue {
             let target_func = ctx
                 .declared_functions
                 .get(&name)
-                .expect(&format!("function `{name}` doesnt exist"))
-                .clone();
+                .expect(&format!("function `{name}` doesnt exist"));
             let mut func_ctx = target_func.ctx.clone();
             // TODO: make it like a pointer to itself or smth so it doesnt keep cloning for large recursive functions
             declare_function(
                 &mut func_ctx,
-                target_func.return_type,
-                name,
+                target_func.return_type.clone(),
+                name.clone(),
                 target_func.params.clone(),
                 target_func.ast.clone(),
             );
@@ -181,6 +180,7 @@ fn eval(ctx: &mut ExecutionContext, expression: Expression) -> VariableValue {
                 .iter()
                 .enumerate()
                 .for_each(|(i, param)| {
+                    println!("adding var `{}` to `{}`", param.name.clone(), name.clone());
                     declare_variable(
                         &mut func_ctx,
                         param.param_type.clone(),
@@ -189,6 +189,8 @@ fn eval(ctx: &mut ExecutionContext, expression: Expression) -> VariableValue {
                     );
                 });
             // dbg!(&func_ctx.declared_variables);
+            println!("current context: {:#?}", &ctx);
+            println!("function {name} context: {:#?}", &func_ctx);
 
             interpret_block(func_ctx, target_func.ast.clone())
         }
