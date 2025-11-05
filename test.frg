@@ -1,1 +1,3 @@
-int frogs = 3 + 1
+int count_frogs = () {
+    int count = 5
+}

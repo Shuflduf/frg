@@ -1,21 +1,29 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use crate::ast::ast_nodes::*;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct VariableData {
     var_type: VarType,
     value: VariableValue,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum VariableValue {
     Int(i32),
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Clone)]
+struct FunctionData {
+    ctx: ExecutionContext,
+    ast: Vec<Statement>,
+}
+
+#[derive(Debug, Default, Clone)]
 struct ExecutionContext {
     declared_variables: HashMap<String, VariableData>,
+    declared_functions: HashMap<String, FunctionData>,
+    callable_functions: HashSet<String>,
 }
 
 fn interpret_block(mut ctx: ExecutionContext, ast: Vec<Statement>) {
@@ -26,6 +34,12 @@ fn interpret_block(mut ctx: ExecutionContext, ast: Vec<Statement>) {
                 name,
                 value,
             } => declare_variable(&mut ctx, var_type, name, value),
+            Statement::FunctionDeclaration {
+                return_type,
+                name,
+                params,
+                body,
+            } => declare_function(&mut ctx, return_type, name, params, body),
             _ => todo!(),
         }
     }
@@ -34,6 +48,21 @@ fn interpret_block(mut ctx: ExecutionContext, ast: Vec<Statement>) {
 
 pub fn interpret(ast: Vec<Statement>) {
     interpret_block(ExecutionContext::default(), ast);
+}
+
+fn declare_function(
+    ctx: &mut ExecutionContext,
+    _return_type: VarType,
+    name: String,
+    _params: Vec<Parameter>,
+    body: Vec<Statement>,
+) {
+    ctx.callable_functions.insert(name.clone());
+    let new_func = FunctionData {
+        ctx: ctx.clone(),
+        ast: body,
+    };
+    ctx.declared_functions.insert(name, new_func);
 }
 
 fn declare_variable(
