@@ -5,7 +5,7 @@ use crate::{
     lexer::{self, Token},
 };
 
-mod ast_nodes;
+pub mod ast_nodes;
 mod parse_conditional;
 mod parse_declaration;
 mod parse_function;

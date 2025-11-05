@@ -1,6 +1,7 @@
 use std::{env, fs};
 
 mod ast;
+mod interpreter;
 mod lexer;
 
 fn main() {
@@ -20,6 +21,7 @@ fn main() {
     println!("Tokens: {tokens:?}");
     let tree = ast::parse(tokens);
     println!("AST: {tree:#?}");
+    let result = interpreter::interpret(tree);
 }
 
 // #[cfg(tests)]

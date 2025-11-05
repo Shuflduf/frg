@@ -1,15 +1,9 @@
 use super::*;
 
 pub fn parse_vec(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
-    // let mut values = vec![];
     let values = parse_list_of_values(token_iter, lexer::Symbol::RightBracket);
     Expression::CompositeLiteral(CompositeLiteral::Vec(values))
 }
-
-// fn parse_set(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
-//     let values = parse_list_of_values(token_iter, lexer::Symbol::RightBrace)
-//     Expression::CompositeLiteral(CompositeLiteral::Set(values))
-// }
 
 fn composite_type(mut token_iter: Peekable<Iter<Token>>) -> CompositeLiteral {
     while let Some(token) = token_iter.peek() {
@@ -71,7 +65,6 @@ fn parse_list_of_values(
     token_iter: &mut Peekable<Iter<Token>>,
     closing_symbol: lexer::Symbol,
 ) -> Vec<Expression> {
-    // dbg!(token_iter.next());
     let mut values = vec![];
     let closing_token = lexer::Token::Symbol(closing_symbol);
     while let Some(token) = token_iter.peek() {
