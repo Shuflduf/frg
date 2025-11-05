@@ -156,6 +156,7 @@ fn eval(ctx: &mut ExecutionContext, expression: Expression) -> VariableValue {
         Expression::Literal(literal) => match literal {
             Literal::Int(new_int) => VariableValue::Int(new_int),
             Literal::Bool(new_bool) => VariableValue::Bool(new_bool),
+            Literal::Float(new_float) => VariableValue::Float(new_float),
             _ => todo!(),
         },
         Expression::Identifier(identifier) => ctx
@@ -171,17 +172,34 @@ fn eval(ctx: &mut ExecutionContext, expression: Expression) -> VariableValue {
             .clone(),
         Expression::BinaryOperation { left, op, right } => {
             let left = eval(ctx, *left);
+            let og_left = left.clone();
             let right = eval(ctx, *right);
             match left {
                 VariableValue::Int(left) => {
                     let VariableValue::Int(right) = right else {
-                        panic!("cant fucking")
+                        panic!("{og_left:?} and {right:?} cant be {op:?}")
                     };
                     match op {
                         BinaryOp::Add => VariableValue::Int(left + right),
                         BinaryOp::Subtract => VariableValue::Int(left - right),
                         BinaryOp::Multiply => VariableValue::Int(left * right),
                         BinaryOp::Divide => VariableValue::Int(left / right),
+                        BinaryOp::LessThan => VariableValue::Bool(left < right),
+                        BinaryOp::LessThanOrEqual => VariableValue::Bool(left <= right),
+                        BinaryOp::GreaterThan => VariableValue::Bool(left > right),
+                        BinaryOp::GreaterThanOrEqual => VariableValue::Bool(left >= right),
+                        BinaryOp::Equals => VariableValue::Bool(left == right),
+                    }
+                }
+                VariableValue::Float(left) => {
+                    let VariableValue::Float(right) = right else {
+                        panic!("{og_left:?} and {right:?} cant be {op:?}")
+                    };
+                    match op {
+                        BinaryOp::Add => VariableValue::Float(left + right),
+                        BinaryOp::Subtract => VariableValue::Float(left - right),
+                        BinaryOp::Multiply => VariableValue::Float(left * right),
+                        BinaryOp::Divide => VariableValue::Float(left / right),
                         BinaryOp::LessThan => VariableValue::Bool(left < right),
                         BinaryOp::LessThanOrEqual => VariableValue::Bool(left <= right),
                         BinaryOp::GreaterThan => VariableValue::Bool(left > right),
