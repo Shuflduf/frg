@@ -11,6 +11,7 @@ struct VariableData {
 #[derive(Debug, Clone)]
 enum VariableValue {
     Int(i32),
+    Bool(bool),
 }
 
 #[derive(Debug, Clone)]
@@ -24,6 +25,7 @@ struct ExecutionContext {
     declared_variables: HashMap<String, VariableData>,
     declared_functions: HashMap<String, FunctionData>,
     callable_functions: HashSet<String>,
+    continue_to_next_if: bool,
 }
 
 fn interpret_block(mut ctx: ExecutionContext, ast: Vec<Statement>) {
@@ -40,6 +42,24 @@ fn interpret_block(mut ctx: ExecutionContext, ast: Vec<Statement>) {
                 params,
                 body,
             } => declare_function(&mut ctx, return_type, name, params, body),
+            Statement::Conditional {
+                conditional_type,
+                body,
+            } => {
+                if let VariableValue::Bool(should_run) = match conditional_type {
+                    ConditionalType::If(expression) => {
+                        ctx.continue_to_next_if = true;
+                        eval(&mut ctx, expression)
+                    }
+                    ConditionalType::Elif(expression) => eval(&mut ctx, expression),
+                    ConditionalType::Else => VariableValue::Bool(true),
+                } {
+                    if should_run && ctx.continue_to_next_if {
+                        interpret_block(ctx.clone(), body);
+                        ctx.continue_to_next_if = false
+                    }
+                }
+            }
             _ => todo!(),
         }
     }
@@ -58,11 +78,13 @@ fn declare_function(
     body: Vec<Statement>,
 ) {
     ctx.callable_functions.insert(name.clone());
-    let new_func = FunctionData {
-        ctx: ctx.clone(),
-        ast: body,
-    };
-    ctx.declared_functions.insert(name, new_func);
+    ctx.declared_functions.insert(
+        name,
+        FunctionData {
+            ctx: ctx.clone(),
+            ast: body,
+        },
+    );
 }
 
 fn declare_variable(
@@ -79,16 +101,27 @@ fn declare_variable(
 fn eval(ctx: &mut ExecutionContext, expression: Expression) -> VariableValue {
     match expression {
         Expression::Literal(literal) => match literal {
-            Literal::Int(int) => VariableValue::Int(int),
+            Literal::Int(new_int) => VariableValue::Int(new_int),
+            Literal::Bool(new_bool) => VariableValue::Bool(new_bool),
             _ => todo!(),
         },
         Expression::BinaryOperation { left, op, right } => {
-            let VariableValue::Int(left) = eval(ctx, *left);
-            let VariableValue::Int(right) = eval(ctx, *right);
-
-            match op {
-                BinaryOp::Add => VariableValue::Int(left + right),
-                _ => todo!(),
+            if let VariableValue::Int(left) = eval(ctx, *left)
+                && let VariableValue::Int(right) = eval(ctx, *right)
+            {
+                match op {
+                    BinaryOp::Add => VariableValue::Int(left + right),
+                    BinaryOp::Subtract => VariableValue::Int(left - right),
+                    BinaryOp::Multiply => VariableValue::Int(left * right),
+                    BinaryOp::Divide => VariableValue::Int(left / right),
+                    BinaryOp::LessThan => VariableValue::Bool(left < right),
+                    BinaryOp::LessThanOrEqual => VariableValue::Bool(left <= right),
+                    BinaryOp::GreaterThan => VariableValue::Bool(left > right),
+                    BinaryOp::GreaterThanOrEqual => VariableValue::Bool(left >= right),
+                    BinaryOp::Equals => VariableValue::Bool(left == right),
+                }
+            } else {
+                todo!()
             }
         }
         _ => todo!(),
