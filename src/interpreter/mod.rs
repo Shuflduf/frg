@@ -45,21 +45,7 @@ fn interpret_block(mut ctx: ExecutionContext, ast: Vec<Statement>) {
             Statement::Conditional {
                 conditional_type,
                 body,
-            } => {
-                if let VariableValue::Bool(should_run) = match conditional_type {
-                    ConditionalType::If(expression) => {
-                        ctx.continue_to_next_if = true;
-                        eval(&mut ctx, expression)
-                    }
-                    ConditionalType::Elif(expression) => eval(&mut ctx, expression),
-                    ConditionalType::Else => VariableValue::Bool(true),
-                } {
-                    if should_run && ctx.continue_to_next_if {
-                        interpret_block(ctx.clone(), body);
-                        ctx.continue_to_next_if = false
-                    }
-                }
-            }
+            } => handle_conditionals(&mut ctx, conditional_type, body),
             _ => todo!(),
         }
     }
@@ -68,6 +54,26 @@ fn interpret_block(mut ctx: ExecutionContext, ast: Vec<Statement>) {
 
 pub fn interpret(ast: Vec<Statement>) {
     interpret_block(ExecutionContext::default(), ast);
+}
+
+fn handle_conditionals(
+    ctx: &mut ExecutionContext,
+    conditional_type: ConditionalType,
+    body: Vec<Statement>,
+) {
+    if let VariableValue::Bool(should_run) = match conditional_type {
+        ConditionalType::If(expression) => {
+            ctx.continue_to_next_if = true;
+            eval(ctx, expression)
+        }
+        ConditionalType::Elif(expression) => eval(ctx, expression),
+        ConditionalType::Else => VariableValue::Bool(true),
+    } {
+        if should_run && ctx.continue_to_next_if {
+            interpret_block(ctx.clone(), body);
+            ctx.continue_to_next_if = false
+        }
+    }
 }
 
 fn declare_function(
