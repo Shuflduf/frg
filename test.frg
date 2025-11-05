@@ -1,8 +1,8 @@
-int recursive = (int start) {
-    if start <= 0 {
-        return 0
+int func = (int number) {
+    if number <= 5 {
+        return 5
     }
-    return start + recursive(start - 1)
+    return number
 }
 
-int result = recursive(3)
+int result = func(7)

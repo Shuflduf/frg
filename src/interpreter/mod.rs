@@ -1,9 +1,10 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
 use crate::ast::ast_nodes::*;
 
 #[derive(Debug, Clone)]
 struct VariableData {
+    #[allow(dead_code)]
     var_type: VarType,
     value: VariableValue,
 }
@@ -18,8 +19,9 @@ enum VariableValue {
 #[derive(Debug, Clone)]
 struct FunctionData {
     ctx: ExecutionContext,
-    ast: Vec<Statement>,
+    ast: Box<Vec<Statement>>,
     params: Vec<Parameter>,
+    #[allow(dead_code)]
     return_type: VarType,
 }
 
@@ -32,7 +34,7 @@ struct ExecutionContext {
     continue_to_next_if: bool,
 }
 
-fn interpret_block(mut ctx: ExecutionContext, ast: Vec<Statement>) -> VariableValue {
+fn interpret_block(mut ctx: ExecutionContext, ast: Vec<Statement>) -> Option<VariableValue> {
     // println!("RUNNING BLOCK {:#?}", &ctx);
     for statement in ast {
         match statement {
@@ -54,13 +56,17 @@ fn interpret_block(mut ctx: ExecutionContext, ast: Vec<Statement>) -> VariableVa
             Statement::Conditional {
                 conditional_type,
                 body,
-            } => handle_conditionals(&mut ctx, conditional_type, body),
-            Statement::Return(expression) => return eval(&mut ctx, expression),
+            } => {
+                if let Some(early_return) = handle_conditionals(&mut ctx, conditional_type, body) {
+                    return Some(early_return);
+                }
+            }
+            Statement::Return(expression) => return Some(eval(&mut ctx, expression)),
             _ => todo!(),
         }
     }
-    dbg!(ctx);
-    VariableValue::Void
+    dbg!(ctx.declared_variables);
+    None
 }
 
 pub fn interpret(ast: Vec<Statement>) {
@@ -71,7 +77,7 @@ fn handle_conditionals(
     ctx: &mut ExecutionContext,
     conditional_type: ConditionalType,
     body: Vec<Statement>,
-) {
+) -> Option<VariableValue> {
     // println!("CONDITIONAL {:#?}", &ctx);
     if let VariableValue::Bool(should_run) = match conditional_type {
         ConditionalType::If(expression) => {
@@ -83,9 +89,12 @@ fn handle_conditionals(
         ConditionalType::Else => VariableValue::Bool(true),
     } {
         if should_run && ctx.continue_to_next_if {
-            interpret_block(ctx.clone(), body);
-            ctx.continue_to_next_if = false
+            if let Some(early_return) = interpret_block(ctx.clone(), body) {
+                return Some(early_return);
+            }
+            ctx.continue_to_next_if = false;
         }
+        None
     } else {
         panic!("use bools dumbass")
     }
@@ -102,7 +111,7 @@ fn declare_function(
         name,
         Box::new(FunctionData {
             ctx: ctx.clone(),
-            ast: body,
+            ast: Box::new(body),
             params,
             return_type,
         }),
@@ -138,10 +147,12 @@ fn eval(ctx: &mut ExecutionContext, expression: Expression) -> VariableValue {
         Expression::Identifier(identifier) => ctx
             .declared_variables
             .get(&identifier)
-            .expect(&format!(
-                "variable `{identifier}` doesnt exist {:?}",
-                &ctx.declared_variables
-            ))
+            .unwrap_or_else(|| {
+                panic!(
+                    "variable `{identifier}` doesnt exist {:?}",
+                    &ctx.declared_variables
+                )
+            })
             .value
             .clone(),
         Expression::BinaryOperation { left, op, right } => {
@@ -169,7 +180,7 @@ fn eval(ctx: &mut ExecutionContext, expression: Expression) -> VariableValue {
             let target_func = ctx
                 .declared_functions
                 .get(&name)
-                .expect(&format!("function `{name}` doesnt exist"));
+                .unwrap_or_else(|| panic!("function `{name}` doesnt exist"));
             let mut func_ctx = target_func.ctx.clone();
             func_ctx
                 .declared_functions
@@ -187,7 +198,10 @@ fn eval(ctx: &mut ExecutionContext, expression: Expression) -> VariableValue {
                         params[i].clone(),
                     );
                 });
-            interpret_block(func_ctx, target_func.ast.clone())
+            if let Some(returned_value) = interpret_block(func_ctx, *target_func.ast.clone()) {
+                return returned_value;
+            }
+            VariableValue::Void
         }
         _ => todo!(),
     }
