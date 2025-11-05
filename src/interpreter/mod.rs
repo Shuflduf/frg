@@ -20,6 +20,7 @@ struct FunctionData {
     ctx: ExecutionContext,
     ast: Vec<Statement>,
     params: Vec<Parameter>,
+    return_type: VarType,
 }
 
 #[derive(Debug, Default, Clone)]
@@ -28,11 +29,11 @@ struct ExecutionContext {
     declared_functions: HashMap<String, FunctionData>,
     // maybe use a tuple struct for this
     declared_structs: HashMap<String, HashMap<String, VarType>>,
-    callable_functions: HashSet<String>,
     continue_to_next_if: bool,
 }
 
 fn interpret_block(mut ctx: ExecutionContext, ast: Vec<Statement>) -> VariableValue {
+    // println!("RUNNING BLOCK {:#?}", &ctx);
     for statement in ast {
         match statement {
             Statement::VariableDeclaration {
@@ -68,8 +69,10 @@ fn handle_conditionals(
     conditional_type: ConditionalType,
     body: Vec<Statement>,
 ) {
+    // println!("CONDITIONAL {:#?}", &ctx);
     if let VariableValue::Bool(should_run) = match conditional_type {
         ConditionalType::If(expression) => {
+            // dbg!(&expression);
             ctx.continue_to_next_if = true;
             eval(ctx, expression)
         }
@@ -87,18 +90,18 @@ fn handle_conditionals(
 
 fn declare_function(
     ctx: &mut ExecutionContext,
-    _return_type: VarType,
+    return_type: VarType,
     name: String,
     params: Vec<Parameter>,
     body: Vec<Statement>,
 ) {
-    ctx.callable_functions.insert(name.clone());
     ctx.declared_functions.insert(
         name,
         FunctionData {
             ctx: ctx.clone(),
             ast: body,
             params,
+            return_type,
         },
     );
 }
@@ -107,9 +110,9 @@ fn declare_variable(
     ctx: &mut ExecutionContext,
     var_type: VarType,
     name: String,
-    value: Expression,
+    expression: Expression,
 ) {
-    let value = eval(ctx, value);
+    let value = eval(ctx, expression);
     ctx.declared_variables
         .insert(name, VariableData { value, var_type });
 }
@@ -123,6 +126,7 @@ fn declare_struct(ctx: &mut ExecutionContext, name: String, fields: Vec<Paramete
 }
 
 fn eval(ctx: &mut ExecutionContext, expression: Expression) -> VariableValue {
+    // println!("EVALING {:#?} {:#?}", &expression, &ctx.declared_variables);
     match expression {
         Expression::Literal(literal) => match literal {
             Literal::Int(new_int) => VariableValue::Int(new_int),
@@ -132,7 +136,10 @@ fn eval(ctx: &mut ExecutionContext, expression: Expression) -> VariableValue {
         Expression::Identifier(identifier) => ctx
             .declared_variables
             .get(&identifier)
-            .expect("variable doesnt exist")
+            .expect(&format!(
+                "variable `{identifier}` doesnt exist {:?}",
+                &ctx.declared_variables
+            ))
             .value
             .clone(),
         Expression::BinaryOperation { left, op, right } => {
@@ -155,13 +162,20 @@ fn eval(ctx: &mut ExecutionContext, expression: Expression) -> VariableValue {
             }
         }
         Expression::FunctionCall { name, args } => {
-            // let args: Vec<VariableValue> = args.iter().map(|arg| eval(ctx, *arg)).collect();
             let target_func = ctx
                 .declared_functions
                 .get(&name)
-                .expect("function {name} doesnt exist");
+                .expect(&format!("function `{name}` doesnt exist"))
+                .clone();
             let mut func_ctx = target_func.ctx.clone();
-
+            // TODO: make it like a pointer to itself or smth so it doesnt keep cloning for large recursive functions
+            declare_function(
+                &mut func_ctx,
+                target_func.return_type,
+                name,
+                target_func.params.clone(),
+                target_func.ast.clone(),
+            );
             target_func
                 .params
                 .iter()
@@ -174,6 +188,7 @@ fn eval(ctx: &mut ExecutionContext, expression: Expression) -> VariableValue {
                         args[i].clone(),
                     );
                 });
+            // dbg!(&func_ctx.declared_variables);
 
             interpret_block(func_ctx, target_func.ast.clone())
         }
