@@ -1,1 +1,1 @@
-int frogs = 3
+int frogs = 3 + 1
