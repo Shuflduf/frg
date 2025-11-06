@@ -13,6 +13,7 @@ pub enum Keyword {
     If,
     Elif,
     Else,
+    Loop,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -28,9 +29,13 @@ pub enum Symbol {
     Comma,
     Ampersand,
     Plus,
+    PlusEquals,
     Minus,
+    MinusEquals,
     FSlash,
+    FSlashEquals,
     Star,
+    StarEquals,
     Colon,
     Period,
     LessThan,
@@ -108,6 +113,22 @@ pub fn lex(input: &str) -> Vec<Token> {
                     token_list.pop();
                     Some(Token::Symbol(Symbol::GreaterThanOrEqual))
                 }
+                Some(Token::Symbol(Symbol::Plus)) => {
+                    token_list.pop();
+                    Some(Token::Symbol(Symbol::PlusEquals))
+                }
+                Some(Token::Symbol(Symbol::Minus)) => {
+                    token_list.pop();
+                    Some(Token::Symbol(Symbol::MinusEquals))
+                }
+                Some(Token::Symbol(Symbol::FSlash)) => {
+                    token_list.pop();
+                    Some(Token::Symbol(Symbol::FSlashEquals))
+                }
+                Some(Token::Symbol(Symbol::Star)) => {
+                    token_list.pop();
+                    Some(Token::Symbol(Symbol::StarEquals))
+                }
                 _ => Some(Token::Symbol(Symbol::Equals)),
             },
             '.' => {
@@ -136,6 +157,7 @@ pub fn lex(input: &str) -> Vec<Token> {
                 "if" => Token::Keyword(Keyword::If),
                 "else" => Token::Keyword(Keyword::Else),
                 "elif" => Token::Keyword(Keyword::Elif),
+                "loop" => Token::Keyword(Keyword::Loop),
                 _ => Token::Literal(if current_token.chars().next().unwrap().is_ascii_digit() {
                     Literal::Number(current_token)
                 } else {

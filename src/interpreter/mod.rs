@@ -1,54 +1,16 @@
-use std::collections::{HashMap, HashSet};
+use std::{
+    cell::RefCell,
+    collections::{HashMap, HashSet},
+};
 
 use crate::ast::ast_nodes::*;
+use context::*;
 
-#[derive(Debug, Clone)]
-struct VariableData {
-    #[allow(dead_code)]
-    var_type: VarType,
-    value: VariableValue,
-}
+mod assignment_ops;
+mod binary_ops;
+mod context;
 
-#[derive(Debug, Clone)]
-enum VariableValue {
-    Void,
-    Int(i32),
-    #[allow(dead_code)]
-    Str(String),
-    #[allow(dead_code)]
-    Float(f32),
-    Bool(bool),
-    #[allow(dead_code)]
-    Vec(Vec<VariableValue>),
-    #[allow(dead_code)]
-    Map(HashMap<VariableValue, VariableValue>),
-    #[allow(dead_code)]
-    Set(HashSet<VariableValue>),
-    #[allow(dead_code)]
-    Reference(Box<VariableValue>),
-    #[allow(dead_code)]
-    Struct(HashMap<String, VariableValue>),
-}
-
-#[derive(Debug, Clone)]
-struct FunctionData {
-    ctx: ExecutionContext,
-    ast: Vec<Statement>,
-    params: Vec<Parameter>,
-    #[allow(dead_code)]
-    return_type: VarType,
-}
-
-#[derive(Debug, Default, Clone)]
-struct ExecutionContext {
-    declared_variables: HashMap<String, Box<VariableData>>,
-    declared_functions: HashMap<String, Box<FunctionData>>,
-    // maybe use a tuple struct for this
-    declared_structs: HashMap<String, HashMap<String, VarType>>,
-    continue_to_next_if: bool,
-}
-
-fn interpret_block(mut ctx: ExecutionContext, ast: Vec<Statement>) -> Option<VariableValue> {
+fn interpret_block(mut ctx: ExecutionContext, ast: &Vec<Statement>) -> Option<VariableValue> {
     // println!("RUNNING BLOCK {:#?}", &ctx);
     for statement in ast {
         match statement {
@@ -58,24 +20,30 @@ fn interpret_block(mut ctx: ExecutionContext, ast: Vec<Statement>) -> Option<Var
                 value,
             } => {
                 let value = eval(&mut ctx, value);
-                declare_variable(&mut ctx, var_type, name, value);
+                declare_variable(&mut ctx, *var_type, *name, value);
             }
             Statement::FunctionDeclaration {
                 return_type,
                 name,
                 params,
                 body,
-            } => declare_function(&mut ctx, return_type, name, params, body),
-            Statement::StructDeclaration { name, fields } => declare_struct(&mut ctx, name, fields),
+            } => declare_function(&mut ctx, *return_type, *name, *params, *body),
+            Statement::StructDeclaration { name, fields } => {
+                declare_struct(&mut ctx, *name, *fields)
+            }
+            Statement::Assignment { name, value, op } => {
+                assignment_ops::eval_assignment_ops(&mut ctx, *name, *value, *op)
+            }
             Statement::Conditional {
                 conditional_type,
                 body,
             } => {
-                if let Some(early_return) = handle_conditionals(&mut ctx, conditional_type, body) {
+                if let Some(early_return) = handle_conditionals(&mut ctx, *conditional_type, *body)
+                {
                     return Some(early_return);
                 }
             }
-            Statement::Return(expression) => return Some(eval(&mut ctx, expression)),
+            Statement::Return(expression) => return Some(eval(&mut ctx, &expression)),
             _ => todo!(),
         }
     }
@@ -84,7 +52,7 @@ fn interpret_block(mut ctx: ExecutionContext, ast: Vec<Statement>) -> Option<Var
 }
 
 pub fn interpret(ast: Vec<Statement>) {
-    interpret_block(ExecutionContext::default(), ast);
+    interpret_block(ExecutionContext::default(), &ast);
 }
 
 fn handle_conditionals(
@@ -123,7 +91,7 @@ fn declare_function(
 ) {
     ctx.declared_functions.insert(
         name,
-        Box::new(FunctionData {
+        RefCell::new(FunctionData {
             ctx: ctx.clone(),
             ast: body,
             params,
@@ -139,7 +107,7 @@ fn declare_variable(
     value: VariableValue,
 ) {
     ctx.declared_variables
-        .insert(name, Box::new(VariableData { value, var_type }));
+        .insert(name, RefCell::new(VariableData { value, var_type }));
 }
 
 fn declare_struct(ctx: &mut ExecutionContext, name: String, fields: Vec<Parameter>) {
@@ -150,65 +118,30 @@ fn declare_struct(ctx: &mut ExecutionContext, name: String, fields: Vec<Paramete
     ctx.declared_structs.insert(name, struct_fields);
 }
 
-fn eval(ctx: &mut ExecutionContext, expression: Expression) -> VariableValue {
+fn eval(ctx: &mut ExecutionContext, expression: &Expression) -> VariableValue {
     // println!("EVALING {:#?} {:#?}", &expression, &ctx.declared_variables);
     match expression {
         Expression::Literal(literal) => match literal {
-            Literal::Int(new_int) => VariableValue::Int(new_int),
-            Literal::Bool(new_bool) => VariableValue::Bool(new_bool),
-            Literal::Float(new_float) => VariableValue::Float(new_float),
+            Literal::Int(new_int) => VariableValue::Int(*new_int),
+            Literal::Bool(new_bool) => VariableValue::Bool(*new_bool),
+            Literal::Float(new_float) => VariableValue::Float(*new_float),
             _ => todo!(),
         },
-        Expression::Identifier(identifier) => ctx
-            .declared_variables
-            .get(&identifier)
-            .unwrap_or_else(|| {
-                panic!(
-                    "variable `{identifier}` doesnt exist {:?}",
-                    &ctx.declared_variables
-                )
-            })
-            .value
-            .clone(),
+        Expression::Identifier(identifier) => {
+            ctx.declared_variables
+                .get(identifier)
+                .unwrap_or_else(|| {
+                    panic!(
+                        "variable `{identifier}` doesnt exist {:?}",
+                        &ctx.declared_variables
+                    )
+                })
+                .clone()
+                .into_inner()
+                .value
+        }
         Expression::BinaryOperation { left, op, right } => {
-            let left = eval(ctx, *left);
-            let og_left = left.clone();
-            let right = eval(ctx, *right);
-            match left {
-                VariableValue::Int(left) => {
-                    let VariableValue::Int(right) = right else {
-                        panic!("{og_left:?} and {right:?} cant be {op:?}")
-                    };
-                    match op {
-                        BinaryOp::Add => VariableValue::Int(left + right),
-                        BinaryOp::Subtract => VariableValue::Int(left - right),
-                        BinaryOp::Multiply => VariableValue::Int(left * right),
-                        BinaryOp::Divide => VariableValue::Int(left / right),
-                        BinaryOp::LessThan => VariableValue::Bool(left < right),
-                        BinaryOp::LessThanOrEqual => VariableValue::Bool(left <= right),
-                        BinaryOp::GreaterThan => VariableValue::Bool(left > right),
-                        BinaryOp::GreaterThanOrEqual => VariableValue::Bool(left >= right),
-                        BinaryOp::Equals => VariableValue::Bool(left == right),
-                    }
-                }
-                VariableValue::Float(left) => {
-                    let VariableValue::Float(right) = right else {
-                        panic!("{og_left:?} and {right:?} cant be {op:?}")
-                    };
-                    match op {
-                        BinaryOp::Add => VariableValue::Float(left + right),
-                        BinaryOp::Subtract => VariableValue::Float(left - right),
-                        BinaryOp::Multiply => VariableValue::Float(left * right),
-                        BinaryOp::Divide => VariableValue::Float(left / right),
-                        BinaryOp::LessThan => VariableValue::Bool(left < right),
-                        BinaryOp::LessThanOrEqual => VariableValue::Bool(left <= right),
-                        BinaryOp::GreaterThan => VariableValue::Bool(left > right),
-                        BinaryOp::GreaterThanOrEqual => VariableValue::Bool(left >= right),
-                        BinaryOp::Equals => VariableValue::Bool(left == right),
-                    }
-                }
-                _ => todo!(),
-            }
+            binary_ops::eval_binary_ops(ctx, **left, *op, **right)
         }
         Expression::FunctionCall { name, args } => {
             let params: Vec<VariableValue> =
@@ -217,11 +150,13 @@ fn eval(ctx: &mut ExecutionContext, expression: Expression) -> VariableValue {
                 .declared_functions
                 .get(&name)
                 .unwrap_or_else(|| panic!("function `{name}` doesnt exist"));
-            let mut func_ctx = target_func.ctx.clone();
+
+            let mut func_ctx = target_func.borrow().ctx.clone();
             func_ctx
                 .declared_functions
                 .insert(name.clone(), target_func.clone());
             target_func
+                .borrow()
                 .params
                 .iter()
                 .enumerate()
@@ -234,7 +169,9 @@ fn eval(ctx: &mut ExecutionContext, expression: Expression) -> VariableValue {
                         params[i].clone(),
                     );
                 });
-            if let Some(returned_value) = interpret_block(func_ctx, target_func.ast.clone()) {
+            if let Some(returned_value) =
+                interpret_block(func_ctx, target_func.borrow().ast.clone())
+            {
                 return returned_value;
             }
             VariableValue::Void

@@ -28,7 +28,11 @@ pub enum Statement {
     Return(Expression),
     /// existing_var = 5
     #[allow(dead_code)]
-    Assignment { name: String, value: Expression },
+    Assignment {
+        name: String,
+        value: Expression,
+        op: AssingmentOp,
+    },
     /// if true {}
     Conditional {
         conditional_type: ConditionalType,
@@ -41,6 +45,15 @@ pub enum ConditionalType {
     If(Expression),
     Elif(Expression),
     Else,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum AssingmentOp {
+    Equals,
+    PlusEquals,
+    MinusEquals,
+    TimesEquals,
+    DivideEquals,
 }
 
 #[derive(Debug, Clone, PartialEq)]

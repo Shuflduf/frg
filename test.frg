@@ -1,1 +1,7 @@
-int result = 5.0 + 2.0
+int counter = 1
+
+void increase = () {
+    counter += 1    
+}
+
+void result = increase()

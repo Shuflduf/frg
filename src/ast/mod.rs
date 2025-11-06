@@ -34,18 +34,12 @@ pub fn parse_next_statement(token_iter: &mut Peekable<Iter<Token>>) -> Option<St
             | Token::Keyword(lexer::Keyword::Else) => parse_conditional::parse(token_iter),
             Token::Keyword(_) => parse_declaration::parse(token_iter),
             // could be a bad idea
-            Token::Literal(lexer::Literal::Identifier(struct_name)) => {
-                token_iter.next();
-                let name = match token_iter.next() {
-                    Some(Token::Literal(lexer::Literal::Identifier(n))) => n,
-                    _ => panic!("identifier after type"),
-                };
-                expect_symbol(token_iter, lexer::Symbol::Equals);
-                let value = parse_struct::parse_data(token_iter);
-                Statement::VariableDeclaration {
-                    var_type: VarType::Struct(struct_name.to_string()),
-                    name: name.clone(),
-                    value,
+            Token::Literal(lexer::Literal::Identifier(_)) => {
+                if parse_struct::is_struct_definition(token_iter.clone()) {
+                    parse_struct::parse_declaration(token_iter)
+                } else {
+                    // TODO: more things would go here here attributes and shit
+                    parse_assignment(token_iter)
                 }
             }
             _ => return None,
@@ -85,6 +79,26 @@ fn parse_single_value(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
         Some(Token::Symbol(lexer::Symbol::LeftBrace)) => parse_list::parse_set_or_map(token_iter),
 
         _ => panic!("literal or identifier"),
+    }
+}
+
+fn parse_assignment(token_iter: &mut Peekable<Iter<Token>>) -> Statement {
+    let Token::Literal(lexer::Literal::Identifier(var_name)) = token_iter.next().unwrap() else {
+        unreachable!()
+    };
+    let op = match token_iter.next() {
+        Some(Token::Symbol(lexer::Symbol::Equals)) => AssingmentOp::Equals,
+        Some(Token::Symbol(lexer::Symbol::PlusEquals)) => AssingmentOp::PlusEquals,
+        Some(Token::Symbol(lexer::Symbol::MinusEquals)) => AssingmentOp::MinusEquals,
+        Some(Token::Symbol(lexer::Symbol::StarEquals)) => AssingmentOp::TimesEquals,
+        Some(Token::Symbol(lexer::Symbol::FSlashEquals)) => AssingmentOp::DivideEquals,
+        _ => panic!("assignment op expected after identifier"),
+    };
+    let value = parse_expression(token_iter);
+    Statement::Assignment {
+        name: var_name.into(),
+        value,
+        op,
     }
 }
 
