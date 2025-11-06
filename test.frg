@@ -1,14 +1,1 @@
-int counter = 1
-
-void increase = () {
-    counter += 1    
-}
-
-void result = increase()
-void result = increase()
-void result = increase()
-void result = increase()
-void result = increase()
-void result = increase()
-void result = increase()
-
+vec(int) numbers = [2, 3, 4, 5, 8, 9]

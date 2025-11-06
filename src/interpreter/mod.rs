@@ -13,6 +13,10 @@ mod context;
 mod declarations;
 mod functions;
 
+pub fn interpret(ast: Vec<Statement>) {
+    interpret_block(ExecutionContext::default(), &ast);
+}
+
 fn interpret_block(mut ctx: ExecutionContext, ast: &Vec<Statement>) -> Option<VariableValue> {
     // println!("RUNNING BLOCK {:#?}", &ctx);
     for statement in ast {
@@ -51,10 +55,6 @@ fn interpret_block(mut ctx: ExecutionContext, ast: &Vec<Statement>) -> Option<Va
     }
     dbg!(ctx.declared_variables);
     None
-}
-
-pub fn interpret(ast: Vec<Statement>) {
-    interpret_block(ExecutionContext::default(), &ast);
 }
 
 fn handle_conditionals(
@@ -109,6 +109,9 @@ fn eval(ctx: &mut ExecutionContext, expression: &Expression) -> VariableValue {
             binary_ops::eval_binary_ops(ctx, left, op, right)
         }
         Expression::FunctionCall { name, args } => run_function(ctx, name, args),
+        Expression::CompositeLiteral(comp_literal) => match comp_literal {
+            CompositeLiteral::Vec(vec_type) => {}
+        },
         _ => todo!(),
     }
 }

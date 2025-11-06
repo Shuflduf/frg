@@ -7,10 +7,12 @@ pub fn declare_function(
     params: &[Parameter],
     body: &[Statement],
 ) {
+    let mut function_context = ctx.clone();
+    function_context.continue_to_next_if = false;
     ctx.declared_functions.insert(
         name.to_string(),
         Rc::new(FunctionData {
-            ctx: ctx.clone(),
+            ctx: function_context,
             ast: body.to_vec(),
             params: params.to_vec(),
             return_type: return_type.clone(),

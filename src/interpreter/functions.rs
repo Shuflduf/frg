@@ -16,7 +16,7 @@ pub fn run_function(ctx: &mut ExecutionContext, name: &str, args: &[Expression])
         .iter()
         .enumerate()
         .for_each(|(i, param)| {
-            println!("adding var `{}` to `{}`", param.name.clone(), name);
+            // println!("adding var `{}` to `{}`", param.name.clone(), name);
             declarations::declare_variable(
                 &mut func_ctx,
                 &param.param_type.clone(),
