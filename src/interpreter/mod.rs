@@ -4,12 +4,13 @@ use std::{
     rc::Rc,
 };
 
-use crate::ast::ast_nodes::*;
+use crate::{ast::ast_nodes::*, interpreter::functions::run_function};
 use context::*;
 
 mod assignment_ops;
 mod binary_ops;
 mod context;
+mod functions;
 
 fn interpret_block(mut ctx: ExecutionContext, ast: &Vec<Statement>) -> Option<VariableValue> {
     // println!("RUNNING BLOCK {:#?}", &ctx);
@@ -146,37 +147,7 @@ fn eval(ctx: &mut ExecutionContext, expression: &Expression) -> VariableValue {
         Expression::BinaryOperation { left, op, right } => {
             binary_ops::eval_binary_ops(ctx, left, op, right)
         }
-        Expression::FunctionCall { name, args } => {
-            let params: Vec<VariableValue> = args.iter().map(|exp| eval(ctx, exp)).collect();
-            let target_func = ctx
-                .declared_functions
-                .get(name)
-                .unwrap_or_else(|| panic!("function `{name}` doesnt exist"));
-
-            let mut func_ctx = target_func.ctx.clone();
-            func_ctx
-                .declared_functions
-                .insert(name.clone(), target_func.clone());
-            target_func
-                .params
-                .iter()
-                .enumerate()
-                .for_each(|(i, param)| {
-                    println!("adding var `{}` to `{}`", param.name.clone(), name.clone());
-                    declare_variable(
-                        &mut func_ctx,
-                        &param.param_type.clone(),
-                        &param.name.clone(),
-                        params[i].clone(),
-                    );
-                });
-
-            let function_output = interpret_block(func_ctx, &target_func.ast);
-            if let Some(returned_value) = function_output {
-                return returned_value;
-            }
-            VariableValue::Void
-        }
+        Expression::FunctionCall { name, args } => run_function(ctx, name, args),
         _ => todo!(),
     }
 }
