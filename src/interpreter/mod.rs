@@ -20,26 +20,23 @@ fn interpret_block(mut ctx: ExecutionContext, ast: &Vec<Statement>) -> Option<Va
                 value,
             } => {
                 let value = eval(&mut ctx, value);
-                declare_variable(&mut ctx, *var_type, *name, value);
+                declare_variable(&mut ctx, var_type, name, value);
             }
             Statement::FunctionDeclaration {
                 return_type,
                 name,
                 params,
                 body,
-            } => declare_function(&mut ctx, *return_type, *name, *params, *body),
-            Statement::StructDeclaration { name, fields } => {
-                declare_struct(&mut ctx, *name, *fields)
-            }
+            } => declare_function(&mut ctx, return_type, name, params, body),
+            Statement::StructDeclaration { name, fields } => declare_struct(&mut ctx, name, fields),
             Statement::Assignment { name, value, op } => {
-                assignment_ops::eval_assignment_ops(&mut ctx, *name, *value, *op)
+                assignment_ops::eval_assignment_ops(&mut ctx, name, value, op)
             }
             Statement::Conditional {
                 conditional_type,
                 body,
             } => {
-                if let Some(early_return) = handle_conditionals(&mut ctx, *conditional_type, *body)
-                {
+                if let Some(early_return) = handle_conditionals(&mut ctx, conditional_type, body) {
                     return Some(early_return);
                 }
             }
@@ -57,8 +54,8 @@ pub fn interpret(ast: Vec<Statement>) {
 
 fn handle_conditionals(
     ctx: &mut ExecutionContext,
-    conditional_type: ConditionalType,
-    body: Vec<Statement>,
+    conditional_type: &ConditionalType,
+    body: &Vec<Statement>,
 ) -> Option<VariableValue> {
     // println!("CONDITIONAL {:#?}", &ctx);
     if let VariableValue::Bool(should_run) = match conditional_type {
@@ -84,13 +81,13 @@ fn handle_conditionals(
 
 fn declare_function(
     ctx: &mut ExecutionContext,
-    return_type: VarType,
-    name: String,
-    params: Vec<Parameter>,
-    body: Vec<Statement>,
+    return_type: &VarType,
+    name: &String,
+    params: &Vec<Parameter>,
+    body: &Vec<Statement>,
 ) {
     ctx.declared_functions.insert(
-        name,
+        name.clone(),
         RefCell::new(FunctionData {
             ctx: ctx.clone(),
             ast: body,
@@ -102,15 +99,20 @@ fn declare_function(
 
 fn declare_variable(
     ctx: &mut ExecutionContext,
-    var_type: VarType,
-    name: String,
+    var_type: &VarType,
+    name: &String,
     value: VariableValue,
 ) {
-    ctx.declared_variables
-        .insert(name, RefCell::new(VariableData { value, var_type }));
+    ctx.declared_variables.insert(
+        name.clone(),
+        RefCell::new(VariableData {
+            value,
+            var_type: var_type.clone(),
+        }),
+    );
 }
 
-fn declare_struct(ctx: &mut ExecutionContext, name: String, fields: Vec<Parameter>) {
+fn declare_struct(ctx: &mut ExecutionContext, name: &String, fields: &Vec<Parameter>) {
     let mut struct_fields = HashMap::new();
     fields.iter().for_each(|param| {
         struct_fields.insert(param.name.clone(), param.param_type.clone());

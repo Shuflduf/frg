@@ -31,12 +31,12 @@ pub enum VariableValue {
 }
 
 #[derive(Debug, Clone)]
-pub struct FunctionData {
+pub struct FunctionData<'a> {
     pub ctx: ExecutionContext,
-    pub ast: Vec<Statement>,
-    pub params: Vec<Parameter>,
+    pub ast: &'a Vec<Statement>,
+    pub params: &'a Vec<Parameter>,
     #[allow(dead_code)]
-    pub return_type: VarType,
+    pub return_type: &'a VarType,
 }
 
 #[derive(Debug, Default, Clone)]
