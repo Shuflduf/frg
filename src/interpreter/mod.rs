@@ -110,7 +110,10 @@ fn eval(ctx: &mut ExecutionContext, expression: &Expression) -> VariableValue {
         }
         Expression::FunctionCall { name, args } => run_function(ctx, name, args),
         Expression::CompositeLiteral(comp_literal) => match comp_literal {
-            CompositeLiteral::Vec(vec_type) => {}
+            CompositeLiteral::Vec(expressions) => {
+                VariableValue::Vec(expressions.iter().map(|expr| eval(ctx, expr)).collect())
+            }
+            _ => todo!(),
         },
         _ => todo!(),
     }
