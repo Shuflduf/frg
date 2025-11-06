@@ -2,13 +2,13 @@ use super::*;
 
 pub fn eval_assignment_ops(
     ctx: &mut ExecutionContext,
-    name: &String,
+    name: &str,
     value: &Expression,
     op: &AssingmentOp,
 ) {
     let value = eval(ctx, value);
     ctx.declared_variables
-        .entry(name.clone())
+        .entry(name.to_string())
         .and_modify(|var| {
             // AssingmentOp::Equals => var.value = value,
             match var.borrow_mut().value {

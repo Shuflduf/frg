@@ -1,11 +1,11 @@
-use std::cell::RefCell;
+use std::{cell::RefCell, rc::Rc};
 
 use super::*;
 
 #[derive(Debug, Clone)]
-pub struct VariableData<'a> {
+pub struct VariableData {
     #[allow(dead_code)]
-    pub var_type: &'a VarType,
+    pub var_type: VarType,
     pub value: VariableValue,
 }
 
@@ -31,19 +31,19 @@ pub enum VariableValue {
 }
 
 #[derive(Debug, Clone)]
-pub struct FunctionData<'a> {
-    pub ctx: ExecutionContext<'a>,
-    pub ast: &'a Vec<Statement>,
-    pub params: &'a Vec<Parameter>,
+pub struct FunctionData {
+    pub ctx: ExecutionContext,
+    pub ast: Vec<Statement>,
+    pub params: Vec<Parameter>,
     #[allow(dead_code)]
-    pub return_type: &'a VarType,
+    pub return_type: VarType,
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct ExecutionContext<'a> {
-    pub declared_variables: HashMap<String, RefCell<VariableData<'a>>>,
-    pub declared_functions: HashMap<String, RefCell<FunctionData<'a>>>,
+pub struct ExecutionContext {
+    pub declared_variables: HashMap<String, Rc<RefCell<VariableData>>>,
+    pub declared_functions: HashMap<String, Rc<FunctionData>>,
     // maybe use a tuple struct for this
-    pub declared_structs: HashMap<String, HashMap<String, VarType>>,
+    pub declared_structs: HashMap<String, Rc<HashMap<String, VarType>>>,
     pub continue_to_next_if: bool,
 }

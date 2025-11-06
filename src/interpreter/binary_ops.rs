@@ -2,9 +2,9 @@ use super::*;
 
 pub fn eval_binary_ops(
     ctx: &mut ExecutionContext,
-    left: Expression,
-    op: BinaryOp,
-    right: Expression,
+    left: &Expression,
+    op: &BinaryOp,
+    right: &Expression,
 ) -> VariableValue {
     let left = eval(ctx, left);
     let og_left = left.clone();

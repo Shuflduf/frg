@@ -1,6 +1,7 @@
 use std::{
     cell::RefCell,
     collections::{HashMap, HashSet},
+    rc::Rc,
 };
 
 use crate::ast::ast_nodes::*;
@@ -40,7 +41,7 @@ fn interpret_block(mut ctx: ExecutionContext, ast: &Vec<Statement>) -> Option<Va
                     return Some(early_return);
                 }
             }
-            Statement::Return(expression) => return Some(eval(&mut ctx, &expression)),
+            Statement::Return(expression) => return Some(eval(&mut ctx, expression)),
             _ => todo!(),
         }
     }
@@ -82,17 +83,17 @@ fn handle_conditionals(
 fn declare_function(
     ctx: &mut ExecutionContext,
     return_type: &VarType,
-    name: &String,
-    params: &Vec<Parameter>,
-    body: &Vec<Statement>,
+    name: &str,
+    params: &[Parameter],
+    body: &[Statement],
 ) {
     ctx.declared_functions.insert(
-        name.clone(),
-        RefCell::new(FunctionData {
+        name.to_string(),
+        Rc::new(FunctionData {
             ctx: ctx.clone(),
-            ast: body,
-            params,
-            return_type,
+            ast: body.to_vec(),
+            params: params.to_vec(),
+            return_type: return_type.clone(),
         }),
     );
 }
@@ -100,24 +101,25 @@ fn declare_function(
 fn declare_variable(
     ctx: &mut ExecutionContext,
     var_type: &VarType,
-    name: &String,
+    name: &str,
     value: VariableValue,
 ) {
     ctx.declared_variables.insert(
-        name.clone(),
-        RefCell::new(VariableData {
+        name.to_string(),
+        Rc::new(RefCell::new(VariableData {
             value,
             var_type: var_type.clone(),
-        }),
+        })),
     );
 }
 
-fn declare_struct(ctx: &mut ExecutionContext, name: &String, fields: &Vec<Parameter>) {
+fn declare_struct(ctx: &mut ExecutionContext, name: &str, fields: &[Parameter]) {
     let mut struct_fields = HashMap::new();
     fields.iter().for_each(|param| {
         struct_fields.insert(param.name.clone(), param.param_type.clone());
     });
-    ctx.declared_structs.insert(name, struct_fields);
+    ctx.declared_structs
+        .insert(name.to_string(), Rc::new(struct_fields));
 }
 
 fn eval(ctx: &mut ExecutionContext, expression: &Expression) -> VariableValue {
@@ -129,36 +131,33 @@ fn eval(ctx: &mut ExecutionContext, expression: &Expression) -> VariableValue {
             Literal::Float(new_float) => VariableValue::Float(*new_float),
             _ => todo!(),
         },
-        Expression::Identifier(identifier) => {
-            ctx.declared_variables
-                .get(identifier)
-                .unwrap_or_else(|| {
-                    panic!(
-                        "variable `{identifier}` doesnt exist {:?}",
-                        &ctx.declared_variables
-                    )
-                })
-                .clone()
-                .into_inner()
-                .value
-        }
+        Expression::Identifier(identifier) => ctx
+            .declared_variables
+            .get(identifier)
+            .unwrap_or_else(|| {
+                panic!(
+                    "variable `{identifier}` doesnt exist {:?}",
+                    &ctx.declared_variables
+                )
+            })
+            .borrow()
+            .value
+            .clone(),
         Expression::BinaryOperation { left, op, right } => {
-            binary_ops::eval_binary_ops(ctx, **left, *op, **right)
+            binary_ops::eval_binary_ops(ctx, left, op, right)
         }
         Expression::FunctionCall { name, args } => {
-            let params: Vec<VariableValue> =
-                args.iter().map(|exp| eval(ctx, exp.clone())).collect();
+            let params: Vec<VariableValue> = args.iter().map(|exp| eval(ctx, exp)).collect();
             let target_func = ctx
                 .declared_functions
-                .get(&name)
+                .get(name)
                 .unwrap_or_else(|| panic!("function `{name}` doesnt exist"));
 
-            let mut func_ctx = target_func.borrow().ctx.clone();
+            let mut func_ctx = target_func.ctx.clone();
             func_ctx
                 .declared_functions
                 .insert(name.clone(), target_func.clone());
             target_func
-                .borrow()
                 .params
                 .iter()
                 .enumerate()
@@ -166,14 +165,14 @@ fn eval(ctx: &mut ExecutionContext, expression: &Expression) -> VariableValue {
                     println!("adding var `{}` to `{}`", param.name.clone(), name.clone());
                     declare_variable(
                         &mut func_ctx,
-                        param.param_type.clone(),
-                        param.name.clone(),
+                        &param.param_type.clone(),
+                        &param.name.clone(),
                         params[i].clone(),
                     );
                 });
-            if let Some(returned_value) =
-                interpret_block(func_ctx, target_func.borrow().ast.clone())
-            {
+
+            let function_output = interpret_block(func_ctx, &target_func.ast);
+            if let Some(returned_value) = function_output {
                 return returned_value;
             }
             VariableValue::Void
