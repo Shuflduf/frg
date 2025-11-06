@@ -5,3 +5,10 @@ void increase = () {
 }
 
 void result = increase()
+void result = increase()
+void result = increase()
+void result = increase()
+void result = increase()
+void result = increase()
+void result = increase()
+
