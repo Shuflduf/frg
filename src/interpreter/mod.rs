@@ -10,6 +10,7 @@ use context::*;
 mod assignment_ops;
 mod binary_ops;
 mod context;
+mod declarations;
 mod functions;
 
 fn interpret_block(mut ctx: ExecutionContext, ast: &Vec<Statement>) -> Option<VariableValue> {
@@ -22,15 +23,17 @@ fn interpret_block(mut ctx: ExecutionContext, ast: &Vec<Statement>) -> Option<Va
                 value,
             } => {
                 let value = eval(&mut ctx, value);
-                declare_variable(&mut ctx, var_type, name, value);
+                declarations::declare_variable(&mut ctx, var_type, name, value);
             }
             Statement::FunctionDeclaration {
                 return_type,
                 name,
                 params,
                 body,
-            } => declare_function(&mut ctx, return_type, name, params, body),
-            Statement::StructDeclaration { name, fields } => declare_struct(&mut ctx, name, fields),
+            } => declarations::declare_function(&mut ctx, return_type, name, params, body),
+            Statement::StructDeclaration { name, fields } => {
+                declarations::declare_struct(&mut ctx, name, fields)
+            }
             Statement::Assignment { name, value, op } => {
                 assignment_ops::eval_assignment_ops(&mut ctx, name, value, op)
             }
@@ -79,48 +82,6 @@ fn handle_conditionals(
     } else {
         panic!("use bools dumbass")
     }
-}
-
-fn declare_function(
-    ctx: &mut ExecutionContext,
-    return_type: &VarType,
-    name: &str,
-    params: &[Parameter],
-    body: &[Statement],
-) {
-    ctx.declared_functions.insert(
-        name.to_string(),
-        Rc::new(FunctionData {
-            ctx: ctx.clone(),
-            ast: body.to_vec(),
-            params: params.to_vec(),
-            return_type: return_type.clone(),
-        }),
-    );
-}
-
-fn declare_variable(
-    ctx: &mut ExecutionContext,
-    var_type: &VarType,
-    name: &str,
-    value: VariableValue,
-) {
-    ctx.declared_variables.insert(
-        name.to_string(),
-        Rc::new(RefCell::new(VariableData {
-            value,
-            var_type: var_type.clone(),
-        })),
-    );
-}
-
-fn declare_struct(ctx: &mut ExecutionContext, name: &str, fields: &[Parameter]) {
-    let mut struct_fields = HashMap::new();
-    fields.iter().for_each(|param| {
-        struct_fields.insert(param.name.clone(), param.param_type.clone());
-    });
-    ctx.declared_structs
-        .insert(name.to_string(), Rc::new(struct_fields));
 }
 
 fn eval(ctx: &mut ExecutionContext, expression: &Expression) -> VariableValue {
