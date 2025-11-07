@@ -13,6 +13,7 @@ mod context;
 mod declarations;
 mod functions;
 mod loops;
+mod macros;
 
 pub fn interpret(ast: Vec<Statement>) {
     interpret_block(ExecutionContext::default(), &ast);

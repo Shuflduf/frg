@@ -2,6 +2,10 @@ use super::*;
 
 pub fn run_function(ctx: &mut ExecutionContext, name: &str, args: &[Expression]) -> VariableValue {
     let params: Vec<VariableValue> = args.iter().map(|exp| eval(ctx, exp)).collect();
+    let is_macro = name.ends_with("!");
+    if is_macro {
+        return macros::run_macro(ctx, name, args);
+    }
     let target_func = ctx
         .declared_functions
         .get(name)
