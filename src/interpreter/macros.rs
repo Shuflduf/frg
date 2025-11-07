@@ -1,3 +1,5 @@
+use std::io;
+
 use super::*;
 
 pub fn run_macro(ctx: &mut ExecutionContext, name: &str, args: &[Expression]) -> VariableValue {
@@ -9,8 +11,20 @@ pub fn run_macro(ctx: &mut ExecutionContext, name: &str, args: &[Expression]) ->
     match name {
         "print!" => print_macro(&args),
         "dbg!" => dbg_macro(&args),
+        "input!" => input_macro(&args),
         _ => todo!(),
     }
+}
+
+fn input_macro(args: &[VariableValue]) -> VariableValue {
+    println!("{}", args[0]);
+    let mut user_input = String::new();
+    io::stdin()
+        .read_line(&mut user_input)
+        .expect("failed to read input");
+
+    let trimmed = user_input.trim().to_string();
+    VariableValue::Str(trimmed)
 }
 
 fn dbg_macro(args: &[VariableValue]) -> VariableValue {

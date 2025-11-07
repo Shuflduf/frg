@@ -1,5 +1,2 @@
-vec(str) name = ["frog", "rocket"]
-
-print!(5.2)
-print!(name)
+str name = input!("whats your name:")
 dbg!(name)
