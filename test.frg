@@ -1,1 +1,5 @@
-int res = print!(5, 1, 8 + 2 2 2 2 + 8 - 91)
+vec(str) name = ["frog", "rocket"]
+
+print!(5.2)
+print!(name)
+dbg!(name)

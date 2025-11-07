@@ -40,8 +40,17 @@ pub fn parse_next_statement(token_iter: &mut Peekable<Iter<Token>>) -> Option<St
                 if parse_struct::is_struct_definition(token_iter.clone()) {
                     parse_struct::parse_declaration(token_iter)
                 } else {
+                    match parse_expression(token_iter) {
+                        Expression::FunctionCall { name, args } => {
+                            Statement::Expression(Expression::FunctionCall { name, args })
+                        }
+                        Expression::Identifier(identifier) => {
+                            parse_assignment(token_iter, &identifier)
+                        }
+                        _ => todo!(),
+                    }
                     // TODO: more things would go here here attributes and shit
-                    parse_assignment(token_iter)
+                    // parse_assignment(token_iter)
                 }
             }
             _ => return None,
@@ -84,10 +93,7 @@ fn parse_single_value(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
     }
 }
 
-fn parse_assignment(token_iter: &mut Peekable<Iter<Token>>) -> Statement {
-    let Token::Literal(lexer::Literal::Identifier(var_name)) = token_iter.next().unwrap() else {
-        unreachable!()
-    };
+fn parse_assignment(token_iter: &mut Peekable<Iter<Token>>, identifier: &str) -> Statement {
     let op = match token_iter.next() {
         Some(Token::Symbol(lexer::Symbol::Equals)) => AssingmentOp::Equals,
         Some(Token::Symbol(lexer::Symbol::PlusEquals)) => AssingmentOp::PlusEquals,
@@ -98,7 +104,7 @@ fn parse_assignment(token_iter: &mut Peekable<Iter<Token>>) -> Statement {
     };
     let value = parse_expression(token_iter);
     Statement::Assignment {
-        name: var_name.into(),
+        name: identifier.into(),
         value,
         op,
     }

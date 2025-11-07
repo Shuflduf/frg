@@ -1,4 +1,4 @@
-use std::{cell::RefCell, rc::Rc};
+use std::{cell::RefCell, fmt::Display, rc::Rc};
 
 use super::*;
 
@@ -13,12 +13,9 @@ pub struct VariableData {
 pub enum VariableValue {
     Void,
     Int(i32),
-    #[allow(dead_code)]
     Str(String),
-    #[allow(dead_code)]
     Float(f32),
     Bool(bool),
-    #[allow(dead_code)]
     Vec(Vec<VariableValue>),
     #[allow(dead_code)]
     Map(HashMap<VariableValue, VariableValue>),
@@ -28,6 +25,26 @@ pub enum VariableValue {
     Reference(Box<VariableValue>),
     #[allow(dead_code)]
     Struct(HashMap<String, VariableValue>),
+}
+impl Display for VariableValue {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Void => write!(f, "void"),
+            Self::Int(new_int) => write!(f, "{new_int}"),
+            Self::Str(new_str) => write!(f, "{new_str}"),
+            Self::Float(new_float) => write!(f, "{new_float}"),
+            Self::Bool(new_bool) => write!(f, "{new_bool}"),
+            Self::Vec(new_vec) => write!(
+                f,
+                "{:?}",
+                new_vec
+                    .iter()
+                    .map(|elem| elem.to_string())
+                    .collect::<Vec<String>>()
+            ),
+            _ => todo!(),
+        }
+    }
 }
 
 #[derive(Debug, Clone)]

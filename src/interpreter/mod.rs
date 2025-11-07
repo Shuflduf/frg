@@ -4,7 +4,7 @@ use std::{
     rc::Rc,
 };
 
-use crate::{ast::ast_nodes::*, interpreter::functions::run_function};
+use crate::ast::ast_nodes::*;
 use context::*;
 
 mod assignment_ops;
@@ -43,6 +43,9 @@ fn interpret_block(mut ctx: ExecutionContext, ast: &[Statement]) -> Option<Varia
             Statement::Assignment { name, value, op } => {
                 assignment_ops::eval_assignment_ops(&mut ctx, name, value, op)
             }
+            Statement::Expression(expr) => {
+                eval(&mut ctx, expr);
+            }
             Statement::Conditional {
                 conditional_type,
                 body,
@@ -61,10 +64,9 @@ fn interpret_block(mut ctx: ExecutionContext, ast: &[Statement]) -> Option<Varia
                 }
             }
             Statement::Return(expression) => return Some(eval(&mut ctx, expression)),
-            _ => todo!(),
         }
     }
-    dbg!(ctx.declared_variables);
+    // dbg!(ctx.declared_variables);
     None
 }
 
@@ -102,7 +104,7 @@ fn eval(ctx: &mut ExecutionContext, expression: &Expression) -> VariableValue {
             Literal::Int(new_int) => VariableValue::Int(*new_int),
             Literal::Bool(new_bool) => VariableValue::Bool(*new_bool),
             Literal::Float(new_float) => VariableValue::Float(*new_float),
-            _ => todo!(),
+            Literal::String(new_str) => VariableValue::Str(new_str.to_string()),
         },
         Expression::Identifier(identifier) => ctx
             .declared_variables
@@ -119,7 +121,7 @@ fn eval(ctx: &mut ExecutionContext, expression: &Expression) -> VariableValue {
         Expression::BinaryOperation { left, op, right } => {
             binary_ops::eval_binary_ops(ctx, left, op, right)
         }
-        Expression::FunctionCall { name, args } => run_function(ctx, name, args),
+        Expression::FunctionCall { name, args } => functions::run_function(ctx, name, args),
         Expression::CompositeLiteral(comp_literal) => match comp_literal {
             CompositeLiteral::Vec(expressions) => {
                 VariableValue::Vec(expressions.iter().map(|expr| eval(ctx, expr)).collect())

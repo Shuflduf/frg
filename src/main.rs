@@ -21,6 +21,7 @@ fn main() {
     println!("Tokens: {tokens:?}");
     let tree = ast::parse(tokens);
     println!("AST: {tree:#?}");
+    println!("Output:");
     interpreter::interpret(tree);
 }
 
