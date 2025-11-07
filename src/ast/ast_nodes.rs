@@ -38,6 +38,11 @@ pub enum Statement {
         conditional_type: ConditionalType,
         body: Vec<Statement>,
     },
+    Loop {
+        loop_over: Expression,
+        index_var: String,
+        body: Vec<Statement>,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -67,6 +72,8 @@ pub enum BinaryOp {
     GreaterThan,
     GreaterThanOrEqual,
     Equals,
+    /// numbers[0]
+    Index,
 }
 
 #[derive(Debug, Clone, PartialEq)]

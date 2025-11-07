@@ -12,12 +12,13 @@ mod binary_ops;
 mod context;
 mod declarations;
 mod functions;
+mod loops;
 
 pub fn interpret(ast: Vec<Statement>) {
     interpret_block(ExecutionContext::default(), &ast);
 }
 
-fn interpret_block(mut ctx: ExecutionContext, ast: &Vec<Statement>) -> Option<VariableValue> {
+fn interpret_block(mut ctx: ExecutionContext, ast: &[Statement]) -> Option<VariableValue> {
     // println!("RUNNING BLOCK {:#?}", &ctx);
     for statement in ast {
         match statement {
@@ -49,6 +50,15 @@ fn interpret_block(mut ctx: ExecutionContext, ast: &Vec<Statement>) -> Option<Va
                     return Some(early_return);
                 }
             }
+            Statement::Loop {
+                loop_over,
+                index_var,
+                body,
+            } => {
+                if let Some(early_return) = loops::eval_loop(&mut ctx, loop_over, index_var, body) {
+                    return Some(early_return);
+                }
+            }
             Statement::Return(expression) => return Some(eval(&mut ctx, expression)),
             _ => todo!(),
         }
@@ -60,7 +70,7 @@ fn interpret_block(mut ctx: ExecutionContext, ast: &Vec<Statement>) -> Option<Va
 fn handle_conditionals(
     ctx: &mut ExecutionContext,
     conditional_type: &ConditionalType,
-    body: &Vec<Statement>,
+    body: &[Statement],
 ) -> Option<VariableValue> {
     // println!("CONDITIONAL {:#?}", &ctx);
     if let VariableValue::Bool(should_run) = match conditional_type {

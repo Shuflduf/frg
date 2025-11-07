@@ -6,6 +6,7 @@ use crate::{
 };
 
 pub mod ast_nodes;
+mod loops;
 mod parse_conditional;
 mod parse_declaration;
 mod parse_function;
@@ -32,6 +33,7 @@ pub fn parse_next_statement(token_iter: &mut Peekable<Iter<Token>>) -> Option<St
             Token::Keyword(lexer::Keyword::If)
             | Token::Keyword(lexer::Keyword::Elif)
             | Token::Keyword(lexer::Keyword::Else) => parse_conditional::parse(token_iter),
+            Token::Keyword(lexer::Keyword::Loop) => loops::parse(token_iter),
             Token::Keyword(_) => parse_declaration::parse(token_iter),
             // could be a bad idea
             Token::Literal(lexer::Literal::Identifier(_)) => {
@@ -115,11 +117,25 @@ fn parse_expression(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
             Token::Symbol(lexer::Symbol::GreaterThan) => BinaryOp::GreaterThan,
             Token::Symbol(lexer::Symbol::GreaterThanOrEqual) => BinaryOp::GreaterThanOrEqual,
             Token::Symbol(lexer::Symbol::DoubleEquals) => BinaryOp::Equals,
+            Token::Symbol(lexer::Symbol::LeftBracket) => {
+                // dbg!(token_iter.next());
+                BinaryOp::Index
+            }
             _ => break,
         };
         append_operation(token_iter, operation, &mut expr);
     }
     expr
+}
+
+fn commas(token_iter: &mut Peekable<Iter<Token>>) {
+    while let Some(token) = token_iter.peek() {
+        if let Token::Symbol(lexer::Symbol::Comma) = token {
+            token_iter.next();
+        } else {
+            break;
+        }
+    }
 }
 
 fn append_operation(

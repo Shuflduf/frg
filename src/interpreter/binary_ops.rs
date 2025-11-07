@@ -24,6 +24,7 @@ pub fn eval_binary_ops(
                 BinaryOp::GreaterThan => VariableValue::Bool(left > right),
                 BinaryOp::GreaterThanOrEqual => VariableValue::Bool(left >= right),
                 BinaryOp::Equals => VariableValue::Bool(left == right),
+                BinaryOp::Index => panic!("cant index into int"),
             }
         }
         VariableValue::Float(left) => {
@@ -40,6 +41,16 @@ pub fn eval_binary_ops(
                 BinaryOp::GreaterThan => VariableValue::Bool(left > right),
                 BinaryOp::GreaterThanOrEqual => VariableValue::Bool(left >= right),
                 BinaryOp::Equals => VariableValue::Bool(left == right),
+                BinaryOp::Index => panic!("cant index into float"),
+            }
+        }
+        VariableValue::Vec(left) => {
+            let VariableValue::Int(right) = right else {
+                panic!("TODO: this error message")
+            };
+            match op {
+                BinaryOp::Index => left[right as usize].clone(),
+                _ => todo!(),
             }
         }
         _ => todo!(),

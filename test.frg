@@ -1,1 +1,6 @@
-vec(int) numbers = [2, 3, 4, 5, 8, 9]
+vec(int) numbers = [4, 7, 8]
+
+int sum = 0
+loop numbers, i {
+    sum += numbers[i]
+}
