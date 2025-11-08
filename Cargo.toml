@@ -9,4 +9,4 @@ edition = "2024"
 # lets fucking goo
 
 [lib]
-crate-type = ["cdylib"]
+crate-type = ["cdylib", "rlib"]
