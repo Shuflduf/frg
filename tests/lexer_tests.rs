@@ -1,4 +1,4 @@
-use frga::add;
+use frg::add;
 
 #[test]
 fn please() {

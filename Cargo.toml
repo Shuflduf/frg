@@ -8,5 +8,5 @@ edition = "2024"
 [dependencies]
 # lets fucking goo
 
-[lib]
-crate-type = ["cdylib"]
+# [lib]
+# crate-type = ["cdylib"]
