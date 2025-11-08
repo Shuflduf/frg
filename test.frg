@@ -1,1 +1,1 @@
-int sum = 7 + 2
+return 5

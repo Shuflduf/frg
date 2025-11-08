@@ -16,8 +16,8 @@ mod loops;
 mod macros;
 mod unary_ops;
 
-pub fn interpret(ast: Vec<Statement>) {
-    interpret_block(ExecutionContext::default(), &ast);
+pub fn interpret(ast: Vec<Statement>) -> Option<VariableValue> {
+    interpret_block(ExecutionContext::default(), &ast)
 }
 
 fn interpret_block(mut ctx: ExecutionContext, ast: &[Statement]) -> Option<VariableValue> {

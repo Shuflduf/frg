@@ -22,7 +22,8 @@ fn main() {
     let tree = ast::parse(tokens);
     println!("AST: {tree:#?}");
     println!("Output:");
-    interpreter::interpret(tree);
+    let return_value = interpreter::interpret(tree);
+    println!("Returned: {return_value:?}")
 }
 
 // #[cfg(tests)]
