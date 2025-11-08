@@ -9,7 +9,7 @@ use context::*;
 
 mod assignment_ops;
 mod binary_ops;
-mod context;
+pub mod context;
 mod declarations;
 mod functions;
 mod loops;
