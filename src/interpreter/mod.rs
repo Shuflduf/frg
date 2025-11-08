@@ -14,6 +14,7 @@ mod declarations;
 mod functions;
 mod loops;
 mod macros;
+mod unary_ops;
 
 pub fn interpret(ast: Vec<Statement>) {
     interpret_block(ExecutionContext::default(), &ast);
@@ -121,6 +122,7 @@ fn eval(ctx: &mut ExecutionContext, expression: &Expression) -> VariableValue {
         Expression::BinaryOperation { left, op, right } => {
             binary_ops::eval_binary_ops(ctx, left, op, right)
         }
+        Expression::UnaryOperation { op, expr } => unary_ops::eval_unary_ops(ctx, op, expr),
         Expression::FunctionCall { name, args } => functions::run_function(ctx, name, args),
         Expression::CompositeLiteral(comp_literal) => match comp_literal {
             CompositeLiteral::Vec(expressions) => {

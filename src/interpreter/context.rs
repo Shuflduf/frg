@@ -18,11 +18,11 @@ pub enum VariableValue {
     Bool(bool),
     Vec(Vec<VariableValue>),
     #[allow(dead_code)]
+    Reference(Rc<VariableValue>),
+    #[allow(dead_code)]
     Map(HashMap<VariableValue, VariableValue>),
     #[allow(dead_code)]
     Set(HashSet<VariableValue>),
-    #[allow(dead_code)]
-    Reference(Box<VariableValue>),
     #[allow(dead_code)]
     Struct(HashMap<String, VariableValue>),
 }

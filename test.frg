@@ -1,3 +1,4 @@
-int from = 5
-str to = str(from)
-dbg!(to)
+int var = 5
+int negative_var = -var
+
+print!(negative_var)

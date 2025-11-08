@@ -94,6 +94,10 @@ fn parse_single_value(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
         Some(Token::Literal(lit)) => parse_literal(lit),
         Some(Token::Symbol(lexer::Symbol::LeftBracket)) => parse_list::parse_vec(token_iter),
         Some(Token::Symbol(lexer::Symbol::LeftBrace)) => parse_list::parse_set_or_map(token_iter),
+        Some(Token::Symbol(lexer::Symbol::Minus)) => Expression::UnaryOperation {
+            op: UnaryOp::Negative,
+            expr: Box::new(parse_single_value(token_iter)),
+        },
 
         _ => panic!("literal or identifier"),
     }
