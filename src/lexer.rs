@@ -42,6 +42,7 @@ pub enum Symbol {
     LessThanOrEqual,
     GreaterThan,
     GreaterThanOrEqual,
+    Exclamation,
 }
 
 #[derive(Debug, PartialEq, Clone)]
@@ -100,6 +101,7 @@ pub fn lex(input: &str) -> Vec<Token> {
             ':' => Some(Token::Symbol(Symbol::Colon)),
             '<' => Some(Token::Symbol(Symbol::LessThan)),
             '>' => Some(Token::Symbol(Symbol::GreaterThan)),
+            '!' => Some(Token::Symbol(Symbol::Exclamation)),
             '=' => match token_list.last() {
                 Some(Token::Symbol(Symbol::Equals)) => {
                     token_list.pop();

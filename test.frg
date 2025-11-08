@@ -1,4 +1,3 @@
-int var = 5
-int negative_var = -var
+bool not = !true
 
-print!(negative_var)
+print!(not)

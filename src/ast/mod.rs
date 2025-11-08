@@ -72,16 +72,22 @@ pub fn parse(tokens: Vec<Token>) -> Vec<Statement> {
 }
 
 fn parse_single_value(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
-    match token_iter.next() {
+    match dbg!(token_iter.next()) {
         Some(Token::Literal(lexer::Literal::Identifier(id))) => {
+            let mut func_name = id.to_string();
+            if token_iter.peek() == Some(&&Token::Symbol(lexer::Symbol::Exclamation)) {
+                func_name.push('!');
+                token_iter.next();
+            }
             if token_iter.peek() == Some(&&Token::Symbol(lexer::Symbol::LeftParen)) {
                 let args = parse_function::parse_arguments(token_iter);
                 Expression::FunctionCall {
-                    name: id.clone(),
+                    name: func_name,
                     args,
                 }
             } else {
-                Expression::Identifier(id.clone())
+                parse_literal(&lexer::Literal::Identifier(id.clone()))
+                // Expression::Identifier(id.clone())
             }
         }
         Some(Token::Keyword(keyword)) => {
@@ -91,11 +97,15 @@ fn parse_single_value(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
                 expr: Box::new(args[0].clone()),
             }
         }
-        Some(Token::Literal(lit)) => parse_literal(lit),
+        // Some(Token::Literal(lit)) => parse_literal(lit),
         Some(Token::Symbol(lexer::Symbol::LeftBracket)) => parse_list::parse_vec(token_iter),
         Some(Token::Symbol(lexer::Symbol::LeftBrace)) => parse_list::parse_set_or_map(token_iter),
         Some(Token::Symbol(lexer::Symbol::Minus)) => Expression::UnaryOperation {
             op: UnaryOp::Negative,
+            expr: Box::new(parse_single_value(token_iter)),
+        },
+        Some(Token::Symbol(lexer::Symbol::Exclamation)) => Expression::UnaryOperation {
+            op: UnaryOp::Not,
             expr: Box::new(parse_single_value(token_iter)),
         },
 
@@ -166,6 +176,7 @@ fn append_operation(
 }
 
 fn parse_literal(literal: &lexer::Literal) -> Expression {
+    dbg!(literal);
     match literal {
         lexer::Literal::Number(new_num) => {
             if new_num.contains(".") {
@@ -178,6 +189,7 @@ fn parse_literal(literal: &lexer::Literal) -> Expression {
             Expression::Literal(Literal::String(new_str.to_string()))
         }
         lexer::Literal::Identifier(new_identifier) => {
+            dbg!(new_identifier);
             if new_identifier.as_str() == "true" {
                 Expression::Literal(Literal::Bool(true))
             } else if new_identifier.as_str() == "false" {
