@@ -1,2 +1,3 @@
-str name = input!("whats your name:")
-dbg!(name)
+int from = 5
+str to = str(from)
+dbg!(to)

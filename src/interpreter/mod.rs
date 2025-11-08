@@ -128,6 +128,7 @@ fn eval(ctx: &mut ExecutionContext, expression: &Expression) -> VariableValue {
             }
             _ => todo!(),
         },
+        Expression::Conversion { to, expr } => functions::convert(ctx, to, expr),
         _ => todo!(),
     }
 }

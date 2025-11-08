@@ -84,7 +84,13 @@ fn parse_single_value(token_iter: &mut Peekable<Iter<Token>>) -> Expression {
                 Expression::Identifier(id.clone())
             }
         }
-
+        Some(Token::Keyword(keyword)) => {
+            let args = parse_function::parse_arguments(token_iter);
+            Expression::Conversion {
+                to: parse_types::match_lexer_types(keyword),
+                expr: Box::new(args[0].clone()),
+            }
+        }
         Some(Token::Literal(lit)) => parse_literal(lit),
         Some(Token::Symbol(lexer::Symbol::LeftBracket)) => parse_list::parse_vec(token_iter),
         Some(Token::Symbol(lexer::Symbol::LeftBrace)) => parse_list::parse_set_or_map(token_iter),

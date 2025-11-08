@@ -117,6 +117,8 @@ pub enum Expression {
         object: Box<Expression>,
         field: String,
     },
+    /// int("5")
+    Conversion { to: VarType, expr: Box<Expression> },
 }
 
 #[derive(Debug, Clone, PartialEq)]
