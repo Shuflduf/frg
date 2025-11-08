@@ -1,3 +1,1 @@
-bool not = !true
-
-print!(not)
+int sum = 7 + 2
