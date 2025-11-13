@@ -1,11 +1,12 @@
 html {
   background-color: #303446;
+  color: #c6d0f5;
 }
 body {
   margin: 0;
 }
 .hero {
-  height: 480px;
+  height: 30rem;
 }
 .hero h1, h2 {
   color: #A6D189;
@@ -13,4 +14,10 @@ body {
 
 .hero h1 {
   font-size: 4rem;
+}
+
+.info {
+  padding: 1rem;
+  background-color: #292c3c;
+  height: 20rem;
 }
