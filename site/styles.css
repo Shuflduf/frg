@@ -1,0 +1,16 @@
+html {
+  background-color: #303446;
+}
+body {
+  margin: 0;
+}
+.hero {
+  height: 480px;
+}
+.hero h1, h2 {
+  color: #A6D189;
+}
+
+.hero h1 {
+  font-size: 4rem;
+}
