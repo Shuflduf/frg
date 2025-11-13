@@ -2,18 +2,21 @@
 <html>
 	<head>
 		<title>Frg</title>
+		<!-- <script type="module" src="script.js"> -->
+		<!-- </script> -->
 		<script type="module">
-			import init, { evaluate_frg } from "./pkg/frg.js"
-			async function run() {
-				await init();
-				
-				const result = evaluate_frg("return 5 + 3");
-				console.log(result);
-			}
+			import init, { evaluate_frg } from "./pkg/frg.js";
+			init()
 			
-			run();
+			document.getElementById("run-code-button").onclick = run
+			
+			function run() {
+				const result = evaluate_frg(document.getElementById("code-input").value)
+				console.log(result)
+			}
 		</script>
 		<link rel="stylesheet" href="styles.css">
+		<link rel="icon" href="favicon.ico">
 	</head>
 	<body>
 		<div class="hero">
@@ -27,6 +30,8 @@
 				<li>Inspired by C</li>
 				<li>Made in Rust</li>
 			</ul>
+			<input id="code-input">
+			<button id="run-code-button">RUN</button>
 		</div>
 	</body>
 </html>
