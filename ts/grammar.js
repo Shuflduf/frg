@@ -11,49 +11,38 @@ module.exports = grammar({
   name: "frg",
 
   rules: {
-    source_file: $ => repeat($._statement),
+    source_file: ($) => repeat($._statement),
 
-    _statement: $ => choice(
-      $.variable_declaration
-    ),
+    _statement: ($) => choice($.variable_declaration),
 
-    variable_declaration: $ => seq(
-      $.type,
-      $.identifier,
-      '=',
-      $.expression
-    ),
+    variable_declaration: ($) => seq($.type, $.identifier, "=", $.expression),
 
-    type: $ => choice(
-      'int',
-      'float',
-      'str',
-      'bool'
-    ),
+    type: ($) => choice("int", "float", "str", "bool", $.vec_type),
 
-    identifier: $ => /[a-zA-Z_][a-zA-Z0-9_]*/,
+    vec_type: ($) => seq("vec", "(", $.type, ")"),
 
-    expression: $ => choice(
-      $.binary_expression,
-      $.number_literal,
-      $.float_literal,
-      $.string_literal,
-    ),
+    identifier: ($) => /[a-zA-Z_][a-zA-Z0-9_]*/,
 
-    binary_expression: $ => choice(
-      prec.left(1, seq($.expression, choice('+', '-'), $.expression)),
-      prec.left(2, seq($.expression, choice('*', '/'), $.expression)),
-    ),
+    expression: ($) =>
+      choice(
+        $.binary_expression,
+        $.number_literal,
+        $.float_literal,
+        $.string_literal,
+      ),
 
+    binary_expression: ($) =>
+      choice(
+        prec.left(1, seq($.expression, choice("+", "-"), $.expression)),
+        prec.left(2, seq($.expression, choice("*", "/"), $.expression)),
+      ),
 
-    number_literal: $ => /\d+/,
+    number_literal: ($) => /\d+/,
 
-    float_literal: $ => /\d+\.\d+/,
+    float_literal: ($) => /\d+\.\d+/,
 
-    string_literal: $ => seq(
-      '"',
-      /[^"]*/,
-      '"'
-    ),
-  }
+    string_literal: ($) => seq('"', /[^"]*/, '"'),
+
+    vec_literal: ($) => seq("[", repeat(choice($.expression, ",")), "]"),
+  },
 });
