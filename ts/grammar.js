@@ -29,6 +29,7 @@ module.exports = grammar({
         $.number_literal,
         $.float_literal,
         $.string_literal,
+        $.vec_literal,
       ),
 
     binary_expression: ($) =>

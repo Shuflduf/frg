@@ -13,6 +13,7 @@ int number = 32
     (expression
       (number_literal))))
 
+
 ==================
 float variable declaration
 ==================
@@ -27,6 +28,7 @@ float pi = 3.1
     (identifier)
     (expression
       (float_literal))))
+
 
 ==================
 string variable declaration
@@ -66,3 +68,72 @@ int num = 4 + 3 * 8
               (number_literal))
             (expression
               (number_literal))))))))
+           
+
+==================
+normal vector
+==================
+
+vec(int) numbers = [2, 3, 4, 5, 4]
+
+---
+
+(source_file
+  (variable_declaration
+    (type
+      (vec_type
+        (type)))
+    (identifier)
+    (expression
+      (vec_literal
+        (expression (number_literal))
+        (expression (number_literal))
+        (expression (number_literal))
+        (expression (number_literal))
+        (expression (number_literal))))))
+
+
+==================
+slightly sillier vec
+==================
+
+vec(int) numbers = [2 3 4 5]
+
+---
+
+(source_file
+  (variable_declaration
+    (type
+      (vec_type
+        (type)))
+    (identifier)
+    (expression
+      (vec_literal
+        (expression (number_literal))
+        (expression (number_literal))
+        (expression (number_literal))
+        (expression (number_literal))))))
+
+
+==================
+very silly vec
+==================
+
+vec(int) numbers = [2 3,, 4 5,,, 4,,]
+
+---
+
+(source_file
+  (variable_declaration
+    (type
+      (vec_type
+        (type)))
+    (identifier)
+    (expression
+      (vec_literal
+        (expression (number_literal))
+        (expression (number_literal))
+        (expression (number_literal))
+        (expression (number_literal))
+        (expression (number_literal))))))
+
