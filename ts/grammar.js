@@ -34,9 +34,19 @@ module.exports = grammar({
     identifier: $ => /[a-zA-Z_][a-zA-Z0-9_]*/,
 
     expression: $ => choice(
-      $.number_literal
+      $.number_literal,
+      $.float_literal,
+      $.string_literal,
     ),
 
     number_literal: $ => /\d+/,
+
+    float_literal: $ => /\d+\.\d+/,
+
+    string_literal: $ => seq(
+      '"',
+      /[^"]*/,
+      '"'
+    ),
   }
 });

@@ -1,5 +1,5 @@
 ==================
-variable declaration
+int variable declaration
 ==================
 
 int number = 32
@@ -12,3 +12,33 @@ int number = 32
     (identifier)
     (expression
       (number_literal))))
+
+==================
+float variable declaration
+==================
+
+float pi = 3.1
+
+---
+
+(source_file
+  (variable_declaration
+    (type)
+    (identifier)
+    (expression
+      (float_literal))))
+
+==================
+string variable declaration
+==================
+
+str message = "mmmnm i love frogs"
+
+---
+
+(source_file
+  (variable_declaration
+    (type)
+    (identifier)
+    (expression
+      (string_literal))))
