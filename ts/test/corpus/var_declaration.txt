@@ -42,3 +42,27 @@ str message = "mmmnm i love frogs"
     (identifier)
     (expression
       (string_literal))))
+
+
+==================
+operator precedence
+==================
+
+int num = 4 + 3 * 8
+
+---
+
+(source_file
+  (variable_declaration
+    (type)
+    (identifier)
+    (expression
+      (binary_expression
+        (expression
+          (number_literal))
+        (expression
+          (binary_expression
+            (expression
+              (number_literal))
+            (expression
+              (number_literal))))))))

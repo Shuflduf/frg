@@ -34,10 +34,17 @@ module.exports = grammar({
     identifier: $ => /[a-zA-Z_][a-zA-Z0-9_]*/,
 
     expression: $ => choice(
+      $.binary_expression,
       $.number_literal,
       $.float_literal,
       $.string_literal,
     ),
+
+    binary_expression: $ => choice(
+      prec.left(1, seq($.expression, choice('+', '-'), $.expression)),
+      prec.left(2, seq($.expression, choice('*', '/'), $.expression)),
+    ),
+
 
     number_literal: $ => /\d+/,
 
