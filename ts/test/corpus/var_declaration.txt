@@ -1,0 +1,14 @@
+==================
+variable declaration
+==================
+
+int number = 32
+
+---
+
+(source_file
+  (variable_declaration
+    (type)
+    (identifier)
+    (expression
+      (number_literal))))
