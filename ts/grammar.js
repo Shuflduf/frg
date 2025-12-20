@@ -10,6 +10,8 @@
 module.exports = grammar({
   name: "frg",
 
+  extras: ($) => [/\s/, $.comment],
+
   conflicts: ($) => [
     [$.set_literal, $.map_literal, $.empty_collection],
     [$.set_literal, $.map_literal],
@@ -20,14 +22,29 @@ module.exports = grammar({
 
     _statement: ($) => choice($.variable_declaration),
 
+    comment: ($) => token(seq("//", /. */)),
+
     variable_declaration: ($) => seq($.type, $.identifier, "=", $.expression),
 
     type: ($) =>
-      choice("int", "float", "str", "bool", $.vec_type, $.set_type, $.map_type),
+      choice(
+        "void",
+        "int",
+        "float",
+        "str",
+        "bool",
+        $.vec_type,
+        $.set_type,
+        $.map_type,
+        $.function_type,
+      ),
 
     vec_type: ($) => seq("vec", "(", $.type, ")"),
     set_type: ($) => seq("set", "(", $.type, ")"),
     map_type: ($) => seq("map", "(", $.type, repeat(","), $.type, ")"),
+
+    function_type: ($) => prec.right(seq($.type, repeat1($.parameter_list))),
+    parameter_list: ($) => seq("(", repeat(choice($.type, ",")), ")"),
 
     identifier: ($) => /[a-zA-Z_][a-zA-Z0-9_]*/,
 
@@ -41,6 +58,7 @@ module.exports = grammar({
         $.map_literal,
         $.set_literal,
         $.empty_collection,
+        $.function_literal,
       ),
 
     binary_expression: ($) =>
@@ -56,9 +74,12 @@ module.exports = grammar({
     vec_literal: ($) => seq("[", repeat(choice($.expression, ",")), "]"),
     set_literal: ($) => seq("{", repeat(choice($.expression, ",")), "}"),
     map_literal: ($) => seq("{", repeat(choice($.map_entry, ",")), "}"),
-
+    map_entry: ($) => seq($.expression, repeat1(":"), $.expression),
     empty_collection: ($) => seq("{", repeat(","), "}"),
 
-    map_entry: ($) => seq($.expression, repeat1(":"), $.expression),
+    function_literal: ($) => seq($.parameter_declaration, $.block),
+    parameter_declaration: ($) =>
+      seq("(", repeat(choice($.identifier, ",")), ")"),
+    block: ($) => seq("{", repeat($._statement), optional($.expression), "}"),
   },
 });

@@ -28,3 +28,12 @@ void(&int) increment = (num) {
 int(int) plus_one = (num) {
 	num + 1
 }
+
+// type of function that returns a void function
+void()()
+
+// type of function that returns a function that returns map(int, int)
+map(int, int)()()
+
+// type of function that takes a map of strs to functions that return ints, which returns a function which takes a float and a str and returns an int
+int(float, str)(map(str, int()))
