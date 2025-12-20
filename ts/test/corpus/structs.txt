@@ -75,3 +75,42 @@ str name = jog.name
       (identifier))))
 
 
+==================
+struct with methods
+==================
+
+struct Frog = {
+  int position_y,
+  int jump_height,
+  void() jump = (self) {
+    self.position_y += self.jump_height
+  }
+}
+
+---
+
+(source_file
+  (struct_declaration
+    (identifier)
+    (struct_field
+      (type)
+      (identifier))
+    (struct_field
+      (type)
+      (identifier))
+    (struct_method
+      (function_type
+        (type)
+        (parameter_list))
+      (identifier)
+      (function_literal
+        (parameter_declaration
+          (identifier))
+        (block
+          (variable_assignment
+            (member_access
+              (identifier)
+              (identifier))
+            (member_access
+              (identifier)
+              (identifier))))))))

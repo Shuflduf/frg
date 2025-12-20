@@ -19,6 +19,7 @@ module.exports = grammar({
     [$.set_literal, $.if_statement],
     [$.set_literal, $.block],
     [$.type, $._expression],
+    [$.type, $.struct_method],
   ],
 
   rules: {
@@ -166,10 +167,12 @@ module.exports = grammar({
         $.identifier,
         "=",
         "{",
-        repeat(choice($.struct_field, ",")),
+        repeat(choice($.struct_field, $.struct_method, ",")),
         "}",
       ),
     struct_field: ($) => seq($.type, $.identifier),
+    struct_method: ($) =>
+      seq($.function_type, $.identifier, "=", $.function_literal),
 
     variable_assignment: ($) =>
       seq($._expression, choice("=", "+=", "-=", "*=", "/="), $._expression),
