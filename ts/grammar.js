@@ -53,6 +53,7 @@ module.exports = grammar({
 
     expression: ($) =>
       choice(
+        $.identifier,
         $.binary_expression,
         $.number_literal,
         $.float_literal,
@@ -62,6 +63,7 @@ module.exports = grammar({
         $.set_literal,
         $.empty_collection,
         $.function_literal,
+        $.function_call,
       ),
 
     binary_expression: ($) =>
@@ -84,6 +86,10 @@ module.exports = grammar({
     parameter_declaration: ($) =>
       seq("(", repeat(choice($.identifier, ",")), ")"),
     block: ($) => seq("{", repeat($._statement), optional($.expression), "}"),
+
+    // it would theoretically be possible to switch $.identifier for $.expression so you can do shit like 5()
+    function_call: ($) =>
+      prec(10, seq($.identifier, "(", repeat(choice($.expression, ",")), ")")),
 
     if_statement: ($) =>
       prec.right(
