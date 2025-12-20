@@ -18,13 +18,19 @@ module.exports = grammar({
     [$.set_literal, $.map_literal, $.empty_collection, $.block],
     [$.set_literal, $.if_statement],
     [$.set_literal, $.block],
+    [$.type, $.expression],
   ],
 
   rules: {
     source_file: ($) => repeat($._statement),
 
     _statement: ($) =>
-      choice($.variable_declaration, $.if_statement, $.return_statement),
+      choice(
+        $.variable_declaration,
+        $.if_statement,
+        $.return_statement,
+        $.struct_declaration,
+      ),
 
     comment: ($) => token(seq("//", /.*/)),
 
@@ -41,6 +47,7 @@ module.exports = grammar({
         $.set_type,
         $.map_type,
         $.function_type,
+        $.identifier,
       ),
 
     vec_type: ($) => seq("vec", "(", $.type, ")"),
@@ -117,5 +124,16 @@ module.exports = grammar({
     else_statement: ($) => seq(repeat("else"), repeat("if"), $.block),
 
     return_statement: ($) => seq("return", $.expression),
+
+    struct_declaration: ($) =>
+      seq(
+        "struct",
+        $.identifier,
+        "=",
+        "{",
+        repeat(choice($.struct_field, ",")),
+        "}",
+      ),
+    struct_field: ($) => seq($.type, $.identifier),
   },
 });
