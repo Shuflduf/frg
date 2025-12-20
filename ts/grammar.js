@@ -15,12 +15,15 @@ module.exports = grammar({
   conflicts: ($) => [
     [$.set_literal, $.map_literal, $.empty_collection],
     [$.set_literal, $.map_literal],
+    [$.set_literal, $.map_literal, $.empty_collection, $.block],
+    [$.set_literal, $.if_statement],
+    [$.set_literal, $.block],
   ],
 
   rules: {
     source_file: ($) => repeat($._statement),
 
-    _statement: ($) => choice($.variable_declaration),
+    _statement: ($) => choice($.variable_declaration, $.if_statement),
 
     comment: ($) => token(seq("//", /. */)),
 
@@ -81,5 +84,19 @@ module.exports = grammar({
     parameter_declaration: ($) =>
       seq("(", repeat(choice($.identifier, ",")), ")"),
     block: ($) => seq("{", repeat($._statement), optional($.expression), "}"),
+
+    if_statement: ($) =>
+      prec.right(
+        seq(
+          repeat("if"),
+          $.expression,
+          $.block,
+          repeat($.else_if_statement),
+          optional($.else_statement),
+        ),
+      ),
+    else_if_statement: ($) =>
+      seq(repeat("else"), repeat("if"), $.expression, $.block),
+    else_statement: ($) => seq(repeat("else"), repeat("if"), $.block),
   },
 });

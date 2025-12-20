@@ -1,0 +1,111 @@
+==================
+basic if statement
+==================
+
+if 5 {}
+
+---
+
+(source_file
+  (if_statement
+    (expression
+      (number_literal))
+    (block)))
+
+
+==================
+funny nested
+==================
+
+if 5 {
+	if 4 + 9 * 2 {
+		
+	} else if 1 - 92 {
+		
+	} else {
+		
+	}
+} else {
+	
+}
+
+---
+
+(source_file
+  (if_statement
+    (expression
+      (number_literal))
+    (block
+      (if_statement
+        (expression
+          (binary_expression
+            (expression
+              (number_literal))
+            (expression
+              (binary_expression
+                (expression
+                  (number_literal))
+                (expression
+                  (number_literal))))))
+        (block)
+        (else_if_statement
+          (expression
+            (binary_expression
+              (expression
+                (number_literal))
+              (expression
+                (number_literal))))
+          (block))
+        (else_statement
+          (block))))
+    (else_statement
+      (block))))
+
+
+==================
+funny nested but without keywords lmao
+==================
+
+5 {
+	4 + 9 * 2 {
+		
+	} 1 - 92 {
+		
+	} {
+		
+	}
+} {
+	
+}
+
+---
+
+(source_file
+  (if_statement
+    (expression
+      (number_literal))
+    (block
+      (if_statement
+        (expression
+          (binary_expression
+            (expression
+              (number_literal))
+            (expression
+              (binary_expression
+                (expression
+                  (number_literal))
+                (expression
+                  (number_literal))))))
+        (block)
+        (else_if_statement
+          (expression
+            (binary_expression
+              (expression
+                (number_literal))
+              (expression
+                (number_literal))))
+          (block))
+        (else_statement
+          (block))))
+    (else_statement
+      (block))))
