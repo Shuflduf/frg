@@ -200,3 +200,38 @@ set(int) losers = {}
     (expression
       (set_literal))))
 
+
+==================
+bool variable declaration
+==================
+
+bool has_bitches = false
+
+---
+
+(source_file
+  (variable_declaration
+    (type)
+    (identifier)
+    (expression
+      (bool_literal))))
+
+
+==================
+comparison
+==================
+
+bool taller_than_me = my_height < your_height
+
+---
+
+(source_file
+  (variable_declaration
+    (type)
+    (identifier)
+    (expression
+      (binary_expression
+        (expression
+          (identifier))
+        (expression
+          (identifier))))))
