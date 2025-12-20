@@ -78,6 +78,9 @@ module.exports = grammar({
         $.function_literal,
         $.function_call,
         $.reference,
+        $.dereference,
+        $.member_access,
+        $.index_access,
       ),
 
     binary_expression: ($) =>
@@ -114,7 +117,13 @@ module.exports = grammar({
     function_call: ($) =>
       prec(10, seq($.identifier, "(", repeat(choice($._expression, ",")), ")")),
 
-    reference: ($) => prec(4, seq("&", $._expression)),
+    reference: ($) => prec.right(10, seq("&", $._expression)),
+    dereference: ($) => prec.left(9, seq($._expression, ".*")),
+
+    member_access: ($) => prec.left(11, seq($._expression, ".", $.identifier)),
+
+    index_access: ($) =>
+      prec.left(11, seq($._expression, "[", $._expression, "]")),
 
     if_statement: ($) =>
       prec.right(
@@ -143,6 +152,7 @@ module.exports = grammar({
       ),
     struct_field: ($) => seq($.type, $.identifier),
 
-    variable_assignment: ($) => seq($._expression, "=", $._expression),
+    variable_assignment: ($) =>
+      seq($._expression, choice("=", "+=", "-=", "*=", "/="), $._expression),
   },
 });

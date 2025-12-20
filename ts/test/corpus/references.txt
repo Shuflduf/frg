@@ -1,0 +1,59 @@
+==================
+basic ref
+==================
+
+&int amount_of_cats = &4
+
+---
+
+(source_file
+  (variable_declaration
+    (type
+      (reference_type
+        (type)))
+    (identifier)
+    (reference
+      (number_literal))))
+
+
+==================
+variable assignment
+==================
+
+number_of_cats.* += 1
+
+---
+
+(source_file
+  (variable_assignment
+    (dereference
+      (identifier))
+    (number_literal)))	
+
+
+==================
+access array
+==================
+
+vec(int) nums = [1, 2, 3]
+
+nums[2] += number_of_cats.*
+
+---
+
+(source_file
+  (variable_declaration
+    (type
+      (vec_type
+        (type)))
+    (identifier)
+    (vec_literal
+      (number_literal)
+      (number_literal)
+      (number_literal)))
+  (variable_assignment
+    (index_access
+      (identifier)
+      (number_literal))
+    (dereference
+      (identifier))))

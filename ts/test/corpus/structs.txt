@@ -57,3 +57,19 @@ Person jog = {
         (identifier)
         (number_literal)))))
 
+
+==================
+member access
+==================
+
+str name = jog.name
+
+---
+
+(source_file
+  (variable_declaration
+    (type)
+    (identifier)
+    (member_access
+      (identifier)
+      (identifier))))
