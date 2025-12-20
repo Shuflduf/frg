@@ -49,16 +49,11 @@ Person jog = {
     (type
       (identifier))
     (identifier)
-    (expression
-      (map_literal
-        (map_entry
-          (expression
-            (identifier))
-          (expression
-            (string_literal)))
-        (map_entry
-          (expression
-            (identifier))
-          (expression
-            (number_literal)))))))
+    (map_literal
+      (map_entry
+        (identifier)
+        (string_literal))
+      (map_entry
+        (identifier)
+        (number_literal)))))
 

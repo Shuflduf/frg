@@ -13,10 +13,9 @@ void() main = () {}
         (type)
         (parameter_list)))
     (identifier)
-    (expression
-	(function_literal
+    (function_literal
       (parameter_declaration)
-      (block)))))
+      (block))))
 
 
 ==================
@@ -35,14 +34,12 @@ void()() gives_void_func = () { () {} }
         (parameter_list)
         (parameter_list)))
     (identifier)
-    (expression
-	(function_literal
+    (function_literal
       (parameter_declaration)
       (block
-        (expression
-          (function_literal
-            (parameter_declaration)
-            (block))))))))
+        (function_literal
+          (parameter_declaration)
+          (block))))))
 
 ==================
 very very silly func
@@ -69,20 +66,17 @@ int(float, str)(map(str, int())) average_c_developer = (get_score_map) { (my_int
                   (type)
                   (parameter_list))))))))
     (identifier)
-    (expression
-	(function_literal
-      (parameter_declaration
-        (identifier))
-      (block
-        (expression
-          (function_literal
-            (parameter_declaration
-              (identifier)
-              (identifier))
-            (block
-              (expression
-                (number_literal))))))))))
-	
+    (function_literal
+    (parameter_declaration
+      (identifier))
+    (block
+      (function_literal
+        (parameter_declaration
+          (identifier)
+          (identifier))
+        (block
+          (number_literal)))))))
+    
 
 ==================
 function call
@@ -96,10 +90,7 @@ int result = add(3, 2)
   (variable_declaration
     (type)
     (identifier)
-    (expression
-      (function_call
-        (identifier)
-        (expression
-          (number_literal))
-        (expression
-          (number_literal))))))
+    (function_call
+      (identifier)
+      (number_literal)
+      (number_literal))))

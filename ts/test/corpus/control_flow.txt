@@ -8,8 +8,7 @@ if 5 {}
 
 (source_file
   (if_statement
-    (expression
-      (number_literal))
+    (number_literal)
     (block)))
 
 
@@ -17,10 +16,10 @@ if 5 {}
 funny nested
 ==================
 
-if 5 {
-	if 4 + 9 * 2 {
+if true {
+	if 4 + 9 < 3 {
 		
-	} else if 1 - 92 {
+	} else if 1 > 92 {
 		
 	} else {
 		
@@ -33,28 +32,19 @@ if 5 {
 
 (source_file
   (if_statement
-    (expression
-      (number_literal))
+    (bool_literal)
     (block
       (if_statement
-        (expression
+        (binary_expression
           (binary_expression
-            (expression
-              (number_literal))
-            (expression
-              (binary_expression
-                (expression
-                  (number_literal))
-                (expression
-                  (number_literal))))))
+            (number_literal)
+            (number_literal))
+          (number_literal))
         (block)
         (else_if_statement
-          (expression
-            (binary_expression
-              (expression
-                (number_literal))
-              (expression
-                (number_literal))))
+          (binary_expression
+            (number_literal)
+            (number_literal))
           (block))
         (else_statement
           (block))))
@@ -66,10 +56,10 @@ if 5 {
 funny nested but without keywords lmao
 ==================
 
-5 {
-	4 + 9 * 2 {
+true {
+	 4 + 9 < 3 {
 		
-	} 1 - 92 {
+	} 1 > 92 {
 		
 	} {
 		
@@ -82,28 +72,19 @@ funny nested but without keywords lmao
 
 (source_file
   (if_statement
-    (expression
-      (number_literal))
+    (bool_literal)
     (block
       (if_statement
-        (expression
+        (binary_expression
           (binary_expression
-            (expression
-              (number_literal))
-            (expression
-              (binary_expression
-                (expression
-                  (number_literal))
-                (expression
-                  (number_literal))))))
+            (number_literal)
+            (number_literal))
+          (number_literal))
         (block)
         (else_if_statement
-          (expression
-            (binary_expression
-              (expression
-                (number_literal))
-              (expression
-                (number_literal))))
+          (binary_expression
+            (number_literal)
+            (number_literal))
           (block))
         (else_statement
           (block))))
