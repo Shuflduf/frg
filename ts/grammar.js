@@ -23,9 +23,10 @@ module.exports = grammar({
   rules: {
     source_file: ($) => repeat($._statement),
 
-    _statement: ($) => choice($.variable_declaration, $.if_statement),
+    _statement: ($) =>
+      choice($.variable_declaration, $.if_statement, $.return_statement),
 
-    comment: ($) => token(seq("//", /. */)),
+    comment: ($) => token(seq("//", /.*/)),
 
     variable_declaration: ($) => seq($.type, $.identifier, "=", $.expression),
 
@@ -114,5 +115,7 @@ module.exports = grammar({
     else_if_statement: ($) =>
       seq(repeat("else"), repeat("if"), $.expression, $.block),
     else_statement: ($) => seq(repeat("else"), repeat("if"), $.block),
+
+    return_statement: ($) => seq("return", $.expression),
   },
 });
