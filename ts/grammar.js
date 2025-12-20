@@ -77,24 +77,26 @@ module.exports = grammar({
         $.empty_collection,
         $.function_literal,
         $.function_call,
-        $.reference,
         $.dereference,
         $.member_access,
         $.index_access,
+        $.unary_expression,
+        $.range,
       ),
 
     binary_expression: ($) =>
       choice(
         prec.left(
-          0,
+          6,
           seq(
             $._expression,
             choice(">", "<", ">=", "<=", "==", "!="),
             $._expression,
           ),
         ),
-        prec.left(1, seq($._expression, choice("+", "-"), $._expression)),
-        prec.left(2, seq($._expression, choice("*", "/"), $._expression)),
+        prec.left(11, seq($._expression, choice("+", "-"), $._expression)),
+        prec.left(12, seq($._expression, choice("*", "/"), $._expression)),
+        prec.left(5, seq($._expression, "&&", $._expression)),
       ),
 
     number_literal: ($) => /\d+/,
@@ -115,15 +117,32 @@ module.exports = grammar({
 
     // it would theoretically be possible to switch $.identifier for $._expression so you can do shit like 5()
     function_call: ($) =>
-      prec(10, seq($.identifier, "(", repeat(choice($._expression, ",")), ")")),
+      prec(15, seq($.identifier, "(", repeat(choice($._expression, ",")), ")")),
 
-    reference: ($) => prec.right(10, seq("&", $._expression)),
-    dereference: ($) => prec.left(9, seq($._expression, ".*")),
+    unary_expression: ($) =>
+      choice(
+        prec(14, seq("&", $._expression)),
+        prec(13, seq("-", $._expression)),
+        prec(13, seq("!", $._expression)),
+      ),
+    // reference: ($) => prec.right(14, ),
 
-    member_access: ($) => prec.left(11, seq($._expression, ".", $.identifier)),
+    dereference: ($) => prec.left(16, seq($._expression, ".*")),
+    member_access: ($) => prec.left(16, seq($._expression, ".", $.identifier)),
 
     index_access: ($) =>
       prec.left(11, seq($._expression, "[", $._expression, "]")),
+
+    range: ($) =>
+      prec.left(
+        3,
+        seq(
+          optional($._expression),
+          "..",
+          optional("="),
+          optional($._expression),
+        ),
+      ),
 
     if_statement: ($) =>
       prec.right(
