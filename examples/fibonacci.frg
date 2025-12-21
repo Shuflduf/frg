@@ -1,4 +1,4 @@
-int() fibonacci = (index) {
+int(int) fibonacci = (index) {
     if index <= 1 {
         return index
     } else {

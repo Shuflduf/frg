@@ -22,7 +22,7 @@ void() main = () {
 }
 
 void(&int) increment = (num) {
-	*num += 1
+	num.* += 1
 }
 
 int(int) plus_one = (num) {
