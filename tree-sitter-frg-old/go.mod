@@ -1,4 +1,4 @@
-module github.com/tree-sitter/tree-sitter-frg
+module github.com/shuflduf/frg
 
 go 1.22
 

@@ -16,7 +16,7 @@
   "metadata": {
     "version": "0.1.0",
     "license": "MIT",
-    "description": "Frg grammar for tree-sitter",
+    "description": "i like frogs fr",
     "authors": [
       {
         "name": "Shuflduf",
@@ -24,7 +24,7 @@
       }
     ],
     "links": {
-      "repository": "https://github.com/tree-sitter/tree-sitter-frg"
+      "repository": "https://github.com/Shuflduf/frg"
     }
   },
   "bindings": {

@@ -1,13 +1,13 @@
 [package]
 name = "tree-sitter-frg"
-description = "Frg grammar for tree-sitter"
+description = "i like frogs fr"
 version = "0.1.0"
 authors = ["Shuflduf <shuflduf@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 keywords = ["incremental", "parsing", "tree-sitter", "frg"]
 categories = ["parser-implementations", "parsing", "text-editors"]
-repository = "https://github.com/tree-sitter/tree-sitter-frg"
+repository = "https://github.com/shuflduf/frg"
 edition = "2021"
 autoexamples = false
 

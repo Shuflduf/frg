@@ -1,4 +1,4 @@
-"""Frg grammar for tree-sitter"""
+"""i like frogs fr"""
 
 from importlib.resources import files as _files
 

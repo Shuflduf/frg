@@ -6,11 +6,12 @@ version = "1.0.0"
 edition = "2024"
 
 [dependencies]
+# rust-sitter = "0.4.5"
 tree-sitter = "0.26.3"
-wasm-bindgen = "0.2.105"
 
 [build-dependencies]
-cc = "1.2"
+cc = "1.2.50"
+# rust-sitter-tool = "0.4.5"
 
-[lib]
-crate-type = ["cdylib", "rlib"]
+# [lib]
+# crate-type = ["cdylib", "rlib"]

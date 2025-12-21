@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 3.13)
 
 project(tree-sitter-frg
         VERSION "0.1.0"
-        DESCRIPTION "Frg grammar for tree-sitter"
-        HOMEPAGE_URL "https://github.com/tree-sitter/tree-sitter-frg"
+        DESCRIPTION "i like frogs fr"
+        HOMEPAGE_URL "https://github.com/shuflduf/frg"
         LANGUAGES C)
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" ON)

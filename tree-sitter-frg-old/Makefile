@@ -3,7 +3,7 @@ $(error Windows is not supported)
 endif
 
 LANGUAGE_NAME := tree-sitter-frg
-HOMEPAGE_URL := https://github.com/tree-sitter/tree-sitter-frg
+HOMEPAGE_URL := https://github.com/shuflduf/frg
 VERSION := 0.1.0
 
 # repository

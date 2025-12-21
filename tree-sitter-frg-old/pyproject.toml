@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tree-sitter-frg"
-description = "Frg grammar for tree-sitter"
+description = "i like frogs fr"
 version = "0.1.0"
 keywords = ["incremental", "parsing", "tree-sitter", "frg"]
 classifiers = [
@@ -19,7 +19,7 @@ license.text = "MIT"
 readme = "README.md"
 
 [project.urls]
-Homepage = "https://github.com/tree-sitter/tree-sitter-frg"
+Homepage = "https://github.com/shuflduf/frg"
 
 [project.optional-dependencies]
 core = ["tree-sitter~=0.24"]

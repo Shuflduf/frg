@@ -1,7 +1,7 @@
 use tree_sitter::{Language, Parser};
 
 unsafe extern "C" {
-    fn tree_sitter_froog() -> Language;
+    fn tree_sitter_frg() -> Language;
 }
 
 fn main() {
@@ -10,12 +10,15 @@ fn main() {
 
 #[test]
 fn test_parser() {
-    let language = unsafe { tree_sitter_froog() };
+    let language = unsafe { tree_sitter_frg() };
     let mut parser = Parser::new();
     parser.set_language(&language).unwrap();
 
     let source_code = "int val = 5 * 3";
     let tree = parser.parse(source_code, None).unwrap();
 
-    assert_eq!(tree.root_node().to_sexp(), "(source_file)");
+    assert_eq!(
+        tree.root_node().to_sexp(),
+        "(source_file (variable_declaration (type) (identifier) (binary_expression (number_literal) (number_literal))))"
+    );
 }
