@@ -1,3 +1,5 @@
+use std::{env, fs};
+
 use tree_sitter::{Language, Parser};
 
 unsafe extern "C" {
@@ -5,20 +7,15 @@ unsafe extern "C" {
 }
 
 fn main() {
-    println!("Hello, world!");
-}
+    let args = env::args().collect::<Vec<String>>();
 
-#[test]
-fn test_parser() {
+    let file_path = &args.get(1).map_or("examples/test.frg", |v| v);
+    let input = fs::read_to_string(file_path).unwrap();
+
     let language = unsafe { tree_sitter_frg() };
     let mut parser = Parser::new();
     parser.set_language(&language).unwrap();
 
-    let source_code = "int val = 5 * 3";
-    let tree = parser.parse(source_code, None).unwrap();
-
-    assert_eq!(
-        tree.root_node().to_sexp(),
-        "(source_file (variable_declaration (type) (identifier) (binary_expression (number_literal) (number_literal))))"
-    );
+    let tree = parser.parse(input, None).unwrap();
+    println!("{}", tree.root_node())
 }
