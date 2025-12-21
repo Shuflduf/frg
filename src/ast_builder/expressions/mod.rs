@@ -1,15 +1,14 @@
 use super::*;
 
 mod binary_operation;
+mod function_literal;
 mod literal;
 mod unary_operation;
 
 pub fn parse(cursor: &mut TreeCursor, code: &str) -> Expression {
     // cursor.goto_first_child();
-    println!("expr {}", cursor.node());
 
     let expression_name = cursor.node().kind();
-    println!("{}", expression_name);
 
     let expr = match expression_name {
         "binary_expression" => Expression::BinaryOperation(binary_operation::parse(cursor, code)),
@@ -17,6 +16,7 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> Expression {
         "int_literal" | "string_literal" | "float_literal" => {
             Expression::Literal(literal::parse(cursor, code))
         }
+        "function_literal" => Expression::FunctionLiteral(function_literal::parse(cursor, code)),
         _ => todo!(),
     };
 

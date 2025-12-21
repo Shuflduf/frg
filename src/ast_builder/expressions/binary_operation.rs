@@ -1,7 +1,6 @@
 use super::*;
 
 pub fn parse(cursor: &mut TreeCursor, code: &str) -> BinaryOperation {
-    println!("binary op {}", cursor.node());
     cursor.goto_first_child();
     let left = Box::new(expressions::parse(cursor, code));
 

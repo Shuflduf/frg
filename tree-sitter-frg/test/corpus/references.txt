@@ -1,0 +1,155 @@
+==================
+basic ref
+==================
+
+&int amount_of_cats = &4
+
+---
+
+(source_file
+  (variable_declaration
+    (type
+      (reference_type
+        (type)))
+    (identifier)
+    (unary_expression
+      (int_literal))))
+
+
+==================
+variable assignment
+==================
+
+int_literal.* += 1
+
+---
+
+(source_file
+  (variable_assignment
+    (dereference
+      (identifier))
+    (int_literal)))	
+
+
+==================
+access array
+==================
+
+vec(int) nums = [1, 2, 3]
+
+nums[2] += int_literal.*
+
+---
+
+(source_file
+  (variable_declaration
+    (type
+      (vec_type
+        (type)))
+    (identifier)
+    (vec_literal
+      (int_literal)
+      (int_literal)
+      (int_literal)))
+  (variable_assignment
+    (index_access
+      (identifier)
+      (int_literal))
+    (dereference
+      (identifier))))
+
+
+==================
+crazy bullshit
+==================
+
+&people[get_index()].pets[0].* += calculate(x.* + y[2] - z.age / 3 * 2) >= threshold && active
+
+---
+
+(source_file
+  (variable_assignment
+    (dereference
+      (index_access
+        (member_access
+          (index_access
+            (unary_expression
+              (identifier))
+            (function_call
+              (identifier)))
+          (identifier))
+        (int_literal)))
+    (binary_expression
+      (binary_expression
+        (function_call
+          (identifier)
+          (binary_expression
+            (index_access
+              (binary_expression
+                (dereference
+                  (identifier))
+                (identifier))
+              (int_literal))
+            (binary_expression
+              (binary_expression
+                (member_access
+                  (identifier)
+                  (identifier))
+                (int_literal))
+              (int_literal))))
+        (identifier))
+      (identifier))))
+
+
+==================
+vec of references
+==================
+
+vec(&int) nums = [&1, &2, &3]
+
+nums[2].* += int_literal.*
+
+---
+
+(source_file
+  (variable_declaration
+    (type
+      (vec_type
+        (type
+          (reference_type
+            (type)))))
+    (identifier)
+    (vec_literal
+      (unary_expression
+        (int_literal))
+      (unary_expression
+        (int_literal))
+      (unary_expression
+        (int_literal))))
+  (variable_assignment
+    (dereference
+      (index_access
+        (identifier)
+        (int_literal)))
+    (dereference
+      (identifier))))
+
+
+
+==================
+slice into string via range
+==================
+
+str slice = full_text[2..=3]
+
+---
+
+(source_file
+  (variable_declaration
+    (type)
+    (identifier)
+    (index_access
+      (identifier)
+      (range
+        (int_literal)
+        (int_literal)))))

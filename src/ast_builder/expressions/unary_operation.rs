@@ -1,7 +1,6 @@
 use super::*;
 
 pub fn parse(cursor: &mut TreeCursor, code: &str) -> UnaryOperation {
-    println!("unary op {}", cursor.node());
     cursor.goto_first_child();
     let op_symbol = cursor.node().kind();
 

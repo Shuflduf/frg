@@ -5,7 +5,6 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> Literal {
 
     let raw_variable = &code[cursor.node().byte_range()];
     let literal_kind = cursor.node().kind();
-    println!("RAW {raw_variable}");
     let literal_var = match literal_kind {
         "int_literal" => Literal::Int(raw_variable.parse().unwrap()),
         "float_literal" => Literal::Float(raw_variable.parse().unwrap()),

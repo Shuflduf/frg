@@ -1,0 +1,219 @@
+==================
+int variable declaration
+==================
+
+int int_literal = 32
+
+---
+
+(source_file
+  (variable_declaration
+    (type)
+    (identifier)
+    (int_literal)))
+
+
+==================
+float variable declaration
+==================
+
+float pi = 3.1
+
+---
+
+(source_file
+  (variable_declaration
+    (type)
+    (identifier)
+    (float_literal)))
+
+
+==================
+string variable declaration
+==================
+
+str message = "mmmnm i love frogs"
+
+---
+
+(source_file
+  (variable_declaration
+    (type)
+    (identifier)
+    (string_literal)))
+
+
+==================
+operator precedence
+==================
+
+int num = 4 + 3 * 8
+
+---
+
+(source_file
+  (variable_declaration
+    (type)
+    (identifier)
+    (binary_expression
+      (int_literal)
+      (binary_expression
+        (int_literal)
+        (int_literal)))))
+           
+
+==================
+normal vector
+==================
+
+vec(int) int_literal = [2, 3, 4, 5, 4]
+
+---
+
+(source_file
+  (variable_declaration
+    (type
+      (vec_type
+        (type)))
+    (identifier)
+    (vec_literal
+      (int_literal)
+      (int_literal)
+      (int_literal)
+      (int_literal)
+      (int_literal))))
+
+
+==================
+slightly sillier vec
+==================
+
+vec(int) int_literal = [2 3 4 5]
+
+---
+
+(source_file
+  (variable_declaration
+    (type
+      (vec_type
+        (type)))
+    (identifier)
+    (vec_literal
+      (int_literal)
+      (int_literal)
+      (int_literal)
+      (int_literal))))
+
+
+==================
+very silly vec
+==================
+
+vec(int) int_literal = [2 3,, 4 5,,, 4,,]
+
+---
+
+(source_file
+  (variable_declaration
+    (type
+      (vec_type
+        (type)))
+    (identifier)
+    (vec_literal
+      (int_literal)
+      (int_literal)
+      (int_literal)
+      (int_literal)
+      (int_literal))))
+
+
+==================
+map declaration
+==================
+
+map(str, int) team_scores = { "yellow": 2, "red": 5 }
+
+---
+
+(source_file
+  (variable_declaration
+    (type
+      (map_type
+        (type)
+        (type)))
+    (identifier)
+    (map_literal
+      (map_entry
+        (string_literal)
+        (int_literal))
+      (map_entry
+        (string_literal)
+        (int_literal)))))
+
+==================
+set declaration
+==================
+
+set(int) passing_teams = { 2, 4, 5 }
+
+---
+
+(source_file
+  (variable_declaration
+    (type
+      (set_type
+        (type)))
+    (identifier)
+    (set_literal
+      (int_literal)
+      (int_literal)
+      (int_literal))))
+
+
+==================
+empty set
+==================
+
+set(int) losers = {}
+
+---
+
+(source_file
+  (variable_declaration
+    (type
+      (set_type
+        (type)))
+    (identifier)
+    (set_literal)))
+
+
+==================
+bool variable declaration
+==================
+
+bool has_bitches = false
+
+---
+
+(source_file
+  (variable_declaration
+    (type)
+    (identifier)
+    (bool_literal)))
+
+
+==================
+comparison
+==================
+
+bool taller_than_me = my_height < your_height
+
+---
+
+(source_file
+  (variable_declaration
+    (type)
+    (identifier)
+    (binary_expression
+      (identifier)
+      (identifier))))

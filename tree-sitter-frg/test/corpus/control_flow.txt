@@ -1,0 +1,92 @@
+==================
+basic if statement
+==================
+
+if 5 {}
+
+---
+
+(source_file
+  (if_statement
+    (int_literal)
+    (block)))
+
+
+==================
+funny nested
+==================
+
+if true {
+	if 4 + 9 < 3 {
+		
+	} else if 1 > 92 {
+		
+	} else {
+		
+	}
+} else {
+	
+}
+
+---
+
+(source_file
+  (if_statement
+    (bool_literal)
+    (block
+      (if_statement
+        (binary_expression
+          (binary_expression
+            (int_literal)
+            (int_literal))
+          (int_literal))
+        (block)
+        (else_if_statement
+          (binary_expression
+            (int_literal)
+            (int_literal))
+          (block))
+        (else_statement
+          (block))))
+    (else_statement
+      (block))))
+
+
+==================
+funny nested but without keywords lmao
+==================
+
+true {
+	 4 + 9 < 3 {
+		
+	} 1 > 92 {
+		
+	} {
+		
+	}
+} {
+	
+}
+
+---
+
+(source_file
+  (if_statement
+    (bool_literal)
+    (block
+      (if_statement
+        (binary_expression
+          (binary_expression
+            (int_literal)
+            (int_literal))
+          (int_literal))
+        (block)
+        (else_if_statement
+          (binary_expression
+            (int_literal)
+            (int_literal))
+          (block))
+        (else_statement
+          (block))))
+    (else_statement
+      (block))))

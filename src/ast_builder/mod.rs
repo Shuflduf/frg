@@ -13,12 +13,17 @@ pub enum Literal {
 
 #[derive(Debug)]
 pub enum VarType {
+    Void,
     Int,
     Float,
     Str,
     StructDec,
     Struct(String),
     Reference(Box<VarType>),
+    Function {
+        return_type: Box<VarType>,
+        param_types: Vec<VarType>,
+    },
 }
 
 #[derive(Debug)]
@@ -56,6 +61,12 @@ pub struct UnaryOperation {
 }
 
 #[derive(Debug)]
+pub struct FunctionLiteral {
+    params: Vec<String>,
+    body: Vec<Statement>,
+}
+
+#[derive(Debug)]
 pub enum Expression {
     Identifier(String),
     Literal(Literal),
@@ -66,6 +77,7 @@ pub enum Expression {
         expr: Box<Expression>,
         identifier: String,
     },
+    FunctionLiteral(FunctionLiteral),
 }
 
 #[derive(Debug)]
@@ -81,21 +93,27 @@ pub enum Statement {
 }
 
 pub fn build(ts_tree: &Tree, code: &str) -> Vec<Statement> {
+    let mut cursor = ts_tree.walk();
+    block(&mut cursor, code)
+}
+
+fn block(cursor: &mut TreeCursor, code: &str) -> Vec<Statement> {
     let mut statements = vec![];
-    let mut tree_pos = ts_tree.walk();
-    tree_pos.goto_first_child();
+    cursor.goto_first_child();
     // for ts_statement in tree_pos.node(
     // while let current_node = tree_pos.node() {}
     loop {
-        let current_node_kind = tree_pos.node().kind();
+        let current_node_kind = cursor.node().kind();
         statements.push(match current_node_kind {
-            "variable_declaration" => statements::parse(&mut tree_pos, code, current_node_kind),
+            "variable_declaration" => statements::parse(cursor, code, current_node_kind),
+            "}" => break,
+            // "block"
             _ => todo!(),
         });
 
         // println!("{current_node}");
 
-        if !tree_pos.goto_next_sibling() {
+        if !cursor.goto_next_sibling() {
             println!("k im done");
             break;
         }
