@@ -3,6 +3,7 @@ use wasm_bindgen::prelude::wasm_bindgen;
 pub mod ast;
 pub mod interpreter;
 pub mod lexer;
+pub mod parser;
 
 #[wasm_bindgen]
 pub fn evaluate_frg(source_code: String) -> String {
