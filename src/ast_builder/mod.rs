@@ -20,7 +20,7 @@ pub enum VarType {
 }
 
 #[derive(Debug)]
-pub enum BinaryOp {
+pub enum BinaryOperator {
     Add,
     Subtract,
     Multiply,
@@ -34,25 +34,31 @@ pub enum BinaryOp {
 }
 
 #[derive(Debug)]
-pub enum UnaryOp {
+pub enum UnaryOperator {
     Reference,
     Negative,
     Not,
 }
 
 #[derive(Debug)]
+pub struct BinaryOperation {
+    left: Box<Expression>,
+    op: BinaryOperator,
+    right: Box<Expression>,
+}
+
+#[derive(Debug)]
+pub struct UnaryOperation {
+    op: UnaryOperator,
+    expr: Box<Expression>,
+}
+
+#[derive(Debug)]
 pub enum Expression {
     Identifier(String),
     Literal(Literal),
-    BinaryOperation {
-        left: Box<Expression>,
-        op: BinaryOp,
-        right: Box<Expression>,
-    },
-    UnaryOp {
-        op: UnaryOp,
-        expr: Box<Expression>,
-    },
+    BinaryOperation(BinaryOperation),
+    UnaryOperation(UnaryOperation),
     Dereference(Box<Expression>),
     MemberAccess {
         expr: Box<Expression>,
