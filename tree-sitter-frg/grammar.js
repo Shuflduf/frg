@@ -68,7 +68,7 @@ module.exports = grammar({
       choice(
         $.identifier,
         $.binary_expression,
-        $.number_literal,
+        $.int_literal,
         $.float_literal,
         $.string_literal,
         $.bool_literal,
@@ -100,7 +100,7 @@ module.exports = grammar({
         prec.left(5, seq($._expression, "&&", $._expression)),
       ),
 
-    number_literal: ($) => /\d+/,
+    int_literal: ($) => /\d+/,
     float_literal: ($) => /\d+\.\d+/,
     string_literal: ($) => seq('"', /[^"]*/, '"'),
     bool_literal: ($) => choice("true", "false"),

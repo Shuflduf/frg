@@ -44,15 +44,15 @@
           "named": true
         },
         {
+          "type": "int_literal",
+          "named": true
+        },
+        {
           "type": "map_literal",
           "named": true
         },
         {
           "type": "member_access",
-          "named": true
-        },
-        {
-          "type": "number_literal",
           "named": true
         },
         {
@@ -127,15 +127,15 @@
           "named": true
         },
         {
+          "type": "int_literal",
+          "named": true
+        },
+        {
           "type": "map_literal",
           "named": true
         },
         {
           "type": "member_access",
-          "named": true
-        },
-        {
-          "type": "number_literal",
           "named": true
         },
         {
@@ -227,15 +227,15 @@
           "named": true
         },
         {
+          "type": "int_literal",
+          "named": true
+        },
+        {
           "type": "map_literal",
           "named": true
         },
         {
           "type": "member_access",
-          "named": true
-        },
-        {
-          "type": "number_literal",
           "named": true
         },
         {
@@ -310,15 +310,15 @@
           "named": true
         },
         {
+          "type": "int_literal",
+          "named": true
+        },
+        {
           "type": "map_literal",
           "named": true
         },
         {
           "type": "member_access",
-          "named": true
-        },
-        {
-          "type": "number_literal",
           "named": true
         },
         {
@@ -409,15 +409,15 @@
           "named": true
         },
         {
+          "type": "int_literal",
+          "named": true
+        },
+        {
           "type": "map_literal",
           "named": true
         },
         {
           "type": "member_access",
-          "named": true
-        },
-        {
-          "type": "number_literal",
           "named": true
         },
         {
@@ -538,15 +538,15 @@
           "named": true
         },
         {
+          "type": "int_literal",
+          "named": true
+        },
+        {
           "type": "map_literal",
           "named": true
         },
         {
           "type": "member_access",
-          "named": true
-        },
-        {
-          "type": "number_literal",
           "named": true
         },
         {
@@ -617,15 +617,15 @@
           "named": true
         },
         {
+          "type": "int_literal",
+          "named": true
+        },
+        {
           "type": "map_literal",
           "named": true
         },
         {
           "type": "member_access",
-          "named": true
-        },
-        {
-          "type": "number_literal",
           "named": true
         },
         {
@@ -696,15 +696,15 @@
           "named": true
         },
         {
+          "type": "int_literal",
+          "named": true
+        },
+        {
           "type": "map_literal",
           "named": true
         },
         {
           "type": "member_access",
-          "named": true
-        },
-        {
-          "type": "number_literal",
           "named": true
         },
         {
@@ -805,15 +805,15 @@
           "named": true
         },
         {
+          "type": "int_literal",
+          "named": true
+        },
+        {
           "type": "map_literal",
           "named": true
         },
         {
           "type": "member_access",
-          "named": true
-        },
-        {
-          "type": "number_literal",
           "named": true
         },
         {
@@ -914,15 +914,15 @@
           "named": true
         },
         {
+          "type": "int_literal",
+          "named": true
+        },
+        {
           "type": "map_literal",
           "named": true
         },
         {
           "type": "member_access",
-          "named": true
-        },
-        {
-          "type": "number_literal",
           "named": true
         },
         {
@@ -1008,15 +1008,15 @@
           "named": true
         },
         {
+          "type": "int_literal",
+          "named": true
+        },
+        {
           "type": "map_literal",
           "named": true
         },
         {
           "type": "member_access",
-          "named": true
-        },
-        {
-          "type": "number_literal",
           "named": true
         },
         {
@@ -1087,15 +1087,15 @@
           "named": true
         },
         {
+          "type": "int_literal",
+          "named": true
+        },
+        {
           "type": "map_literal",
           "named": true
         },
         {
           "type": "member_access",
-          "named": true
-        },
-        {
-          "type": "number_literal",
           "named": true
         },
         {
@@ -1318,15 +1318,15 @@
           "named": true
         },
         {
+          "type": "int_literal",
+          "named": true
+        },
+        {
           "type": "map_literal",
           "named": true
         },
         {
           "type": "member_access",
-          "named": true
-        },
-        {
-          "type": "number_literal",
           "named": true
         },
         {
@@ -1397,15 +1397,15 @@
           "named": true
         },
         {
+          "type": "int_literal",
+          "named": true
+        },
+        {
           "type": "map_literal",
           "named": true
         },
         {
           "type": "member_access",
-          "named": true
-        },
-        {
-          "type": "number_literal",
           "named": true
         },
         {
@@ -1476,15 +1476,15 @@
           "named": true
         },
         {
+          "type": "int_literal",
+          "named": true
+        },
+        {
           "type": "map_literal",
           "named": true
         },
         {
           "type": "member_access",
-          "named": true
-        },
-        {
-          "type": "number_literal",
           "named": true
         },
         {
@@ -1559,15 +1559,15 @@
           "named": true
         },
         {
+          "type": "int_literal",
+          "named": true
+        },
+        {
           "type": "map_literal",
           "named": true
         },
         {
           "type": "member_access",
-          "named": true
-        },
-        {
-          "type": "number_literal",
           "named": true
         },
         {
@@ -1758,12 +1758,12 @@
     "named": false
   },
   {
-    "type": "map",
-    "named": false
+    "type": "int_literal",
+    "named": true
   },
   {
-    "type": "number_literal",
-    "named": true
+    "type": "map",
+    "named": false
   },
   {
     "type": "return",

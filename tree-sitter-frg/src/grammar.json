@@ -277,7 +277,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "number_literal"
+          "name": "int_literal"
         },
         {
           "type": "SYMBOL",
@@ -469,7 +469,7 @@
         }
       ]
     },
-    "number_literal": {
+    "int_literal": {
       "type": "PATTERN",
       "value": "\\d+"
     },
