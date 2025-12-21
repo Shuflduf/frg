@@ -94,6 +94,7 @@ pub fn build(ts_tree: &Tree, code: &str) -> Vec<Statement> {
         // println!("{current_node}");
 
         if !tree_pos.goto_next_sibling() {
+            println!("k im done");
             break;
         }
     }

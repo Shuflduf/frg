@@ -1,12 +1,12 @@
 use super::*;
 
 pub fn parse(cursor: &mut TreeCursor, code: &str) -> BinaryOperation {
+    println!("binary op {}", cursor.node());
     cursor.goto_first_child();
     let left = Box::new(expressions::parse(cursor, code));
 
     cursor.goto_next_sibling();
     let op_symbol = cursor.node().kind();
-    println!("{op_symbol}");
     let op = match op_symbol {
         "*" => BinaryOperator::Multiply,
         _ => todo!(),

@@ -11,8 +11,8 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> VariableDeclaration {
     cursor.goto_next_sibling();
     let identifier = code[cursor.node().byte_range()].to_string();
 
-    cursor.goto_next_sibling();
     // skip "="
+    cursor.goto_next_sibling();
     cursor.goto_next_sibling();
 
     let value = expressions::parse(cursor, code);
