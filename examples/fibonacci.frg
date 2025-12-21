@@ -1,4 +1,4 @@
-int fibonacci = (int index) {
+int(int) fibonacci = (index) {
     if index <= 1 {
         return index
     } else {
@@ -7,5 +7,5 @@ int fibonacci = (int index) {
 }
 
 int result = fibonacci(10)
-print!("10th fibonacci is", result)
+// print!("10th fibonacci is", result)
 return result
