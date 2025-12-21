@@ -18,7 +18,7 @@ fn main() {
     parser.set_language(&language).unwrap();
 
     let treesitter_tree = parser.parse(&input, None).unwrap();
-    // println!("{}", treesitter_tree.root_node().child(0).unwrap());
+    println!("{}", treesitter_tree.root_node().to_string());
     let ast = ast_builder::build(&treesitter_tree, &input);
     println!("{ast:?}")
 }

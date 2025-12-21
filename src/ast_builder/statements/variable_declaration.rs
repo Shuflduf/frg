@@ -1,5 +1,3 @@
-use std::ops::Deref;
-
 use tree_sitter::TreeCursor;
 
 // use crate::ast_builder::{expressions, types, VariableDeclaration};

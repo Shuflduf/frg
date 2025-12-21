@@ -1,2 +1,2 @@
-int number = -5 * 3
+&int number = -5 * 3
 str name = "frog"

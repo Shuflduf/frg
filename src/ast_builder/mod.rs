@@ -16,6 +16,7 @@ pub enum VarType {
     Str,
     StructDec,
     Struct(String),
+    Reference(Box<VarType>),
 }
 
 #[derive(Debug)]
