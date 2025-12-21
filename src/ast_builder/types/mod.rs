@@ -10,6 +10,7 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> VarType {
     let var_type = match type_name {
         "int" => VarType::Int,
         "str" => VarType::Str,
+        "float" => VarType::Float,
         "reference_type" => reference::parse(cursor, code),
         _ => todo!(),
     };

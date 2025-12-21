@@ -14,7 +14,9 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> Expression {
     let expr = match expression_name {
         "binary_expression" => Expression::BinaryOperation(binary_operation::parse(cursor, code)),
         "unary_expression" => Expression::UnaryOperation(unary_operation::parse(cursor, code)),
-        "int_literal" | "string_literal" => Expression::Literal(literal::parse(cursor, code)),
+        "int_literal" | "string_literal" | "float_literal" => {
+            Expression::Literal(literal::parse(cursor, code))
+        }
         _ => todo!(),
     };
 

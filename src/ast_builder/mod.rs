@@ -7,12 +7,14 @@ mod types;
 #[derive(Debug)]
 pub enum Literal {
     Int(i32),
+    Float(f32),
     Str(String),
 }
 
 #[derive(Debug)]
 pub enum VarType {
     Int,
+    Float,
     Str,
     StructDec,
     Struct(String),
