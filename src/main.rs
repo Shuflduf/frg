@@ -1,6 +1,7 @@
 use std::{env, fs};
-
 use tree_sitter::{Language, Parser};
+
+mod ast_builder;
 
 unsafe extern "C" {
     fn tree_sitter_frg() -> Language;
@@ -16,6 +17,8 @@ fn main() {
     let mut parser = Parser::new();
     parser.set_language(&language).unwrap();
 
-    let tree = parser.parse(input, None).unwrap();
-    println!("{}", tree.root_node())
+    let treesitter_tree = parser.parse(&input, None).unwrap();
+    // println!("{}", treesitter_tree.root_node().child(0).unwrap());
+    let ast = ast_builder::build(&treesitter_tree, &input);
+    println!("{ast:?}")
 }
