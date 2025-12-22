@@ -10,3 +10,7 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> Expression {
     cursor.goto_parent();
     expr
 }
+
+pub fn transpile(expr: &Expression) -> String {
+    "return 5 * 3;".into()
+}

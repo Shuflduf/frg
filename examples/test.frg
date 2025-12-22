@@ -1,11 +1,2 @@
-int(int) fibonacci = (index) {
-    if index <= 1 {
-        return index
-    } else {
-        return fibonacci(index - 1) + fibonacci(index - 2)
-    }
-}
+int val = 5 * 3
 
-int result = fibonacci(10)
-print("10th fibonacci is", result)
-return result

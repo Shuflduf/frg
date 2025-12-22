@@ -4,7 +4,7 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> IndexAccess {
     cursor.goto_first_child();
 
     let expr = Box::new(expressions::parse(cursor, code));
-    println!("expr {:?}", expr);
+    // println!("expr {:?}", expr);
 
     // skip "["
     cursor.goto_next_sibling();

@@ -1,16 +1,13 @@
+use std::fmt::format;
+
 use super::*;
 
 pub fn parse(cursor: &mut TreeCursor, code: &str) -> BinaryOperation {
     cursor.goto_first_child();
-    println!("code check 1 {}", &code[cursor.node().byte_range()]);
     let left = Box::new(expressions::parse(cursor, code));
 
-    println!("left {left:?}");
     cursor.goto_next_sibling();
-    println!("code check 2 {}", &code[cursor.node().byte_range()]);
     let op_symbol = cursor.node().kind();
-    println!("huh {op_symbol:?}");
-    // println!("huh {:?}", cursor.node().range());
     let op = match op_symbol {
         "+" => BinaryOperator::Add,
         "-" => BinaryOperator::Subtract,
@@ -30,7 +27,17 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> BinaryOperation {
     // let op = match cursor.nod
 
     cursor.goto_parent();
-    println!("{left:?} {op:?} {right:?}");
     BinaryOperation { left, op, right }
     // todo!()
+}
+
+pub fn transpile(binary_op: &BinaryOperation) -> String {
+    let left = expressions::transpile(&binary_op.left);
+    let right = expressions::transpile(&binary_op.right);
+    let op = match binary_op.op {
+        BinaryOperator::Add => "+",
+        BinaryOperator::Multiply => "*",
+        _ => todo!(),
+    };
+    return format!("({left} {op} {right})");
 }

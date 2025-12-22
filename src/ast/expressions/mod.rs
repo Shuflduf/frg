@@ -12,7 +12,8 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> Expression {
 
     let expression_name = cursor.node().kind();
 
-    let expr = match expression_name {
+    // cursor.goto_parent();
+    match expression_name {
         "identifier" => Expression::Identifier(code[cursor.node().byte_range()].to_string()),
         "binary_expression" => Expression::BinaryOperation(binary_operation::parse(cursor, code)),
         "unary_expression" => Expression::UnaryOperation(unary_operation::parse(cursor, code)),
@@ -23,9 +24,14 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> Expression {
         "function_call" => Expression::FunctionCall(function_call::parse(cursor, code)),
         "index_access" => Expression::IndexAccess(index_access::parse(cursor, code)),
         _ => todo!(),
-    };
-
-    // cursor.goto_parent();
-    expr
+    }
     // todo!()
+}
+
+pub fn transpile(expr: &Expression) -> String {
+    match expr {
+        Expression::Literal(lit) => literal::transpile(lit),
+        Expression::BinaryOperation(binary_op) => binary_operation::transpile(binary_op),
+        _ => todo!("{expr:?}"),
+    }
 }

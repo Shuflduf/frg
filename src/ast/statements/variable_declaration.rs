@@ -25,3 +25,9 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> VariableDeclaration {
         value,
     }
 }
+
+pub fn transpile(var_decl: &VariableDeclaration) -> String {
+    let var_name = &var_decl.identifier;
+    let value = expressions::transpile(&var_decl.value);
+    format!("let mut {var_name} = {value};")
+}
