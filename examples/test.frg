@@ -1,1 +1,5 @@
-main[0]("fuck",, , 8/2)
+if true {
+    
+} else if 4 > 2 {
+    
+}

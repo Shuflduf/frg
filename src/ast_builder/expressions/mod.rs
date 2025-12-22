@@ -17,7 +17,7 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> Expression {
         "identifier" => Expression::Identifier(code[cursor.node().byte_range()].to_string()),
         "binary_expression" => Expression::BinaryOperation(binary_operation::parse(cursor, code)),
         "unary_expression" => Expression::UnaryOperation(unary_operation::parse(cursor, code)),
-        "int_literal" | "string_literal" | "float_literal" => {
+        "int_literal" | "string_literal" | "float_literal" | "bool_literal" => {
             Expression::Literal(literal::parse(cursor, code))
         }
         "function_literal" => Expression::FunctionLiteral(function_literal::parse(cursor, code)),
