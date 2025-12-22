@@ -106,8 +106,8 @@ pub struct VariableDeclaration {
 pub struct IfStatement {
     condition: Expression,
     body: Vec<Statement>,
-    else_if_body: Vec<(Expression, Vec<Statement>)>,
-    else_body: Option<Box<Statement>>,
+    else_ifs: Vec<(Expression, Vec<Statement>)>,
+    else_body: Vec<Statement>,
 }
 
 #[derive(Debug)]
@@ -151,5 +151,6 @@ fn parse_block(cursor: &mut TreeCursor, code: &str) -> Vec<Statement> {
             break;
         }
     }
+    cursor.goto_parent();
     statements
 }

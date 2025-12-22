@@ -1,5 +1,10 @@
 if true {
-    
-} else if 4 > 2 {
-    
+  
+} else if 5 > 2 {
+    str thing = "A"
+} else {
+    int val = 4  
 }
+
+
+
