@@ -125,11 +125,8 @@ pub fn build(ts_tree: &Tree, code: &str) -> Vec<Statement> {
 fn parse_block(cursor: &mut TreeCursor, code: &str) -> Vec<Statement> {
     let mut statements = vec![];
     cursor.goto_first_child();
-    // for ts_statement in tree_pos.node(
-    // while let current_node = tree_pos.node() {}
     loop {
         let current_node_kind = cursor.node().kind();
-        // println!("{current_node_kind}");
         statements.push(match current_node_kind {
             "{" => {
                 cursor.goto_next_sibling();
@@ -147,7 +144,6 @@ fn parse_block(cursor: &mut TreeCursor, code: &str) -> Vec<Statement> {
         // println!("{current_node}");
 
         if !cursor.goto_next_sibling() {
-            println!("k im done");
             break;
         }
     }

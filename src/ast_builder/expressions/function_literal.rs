@@ -3,11 +3,11 @@ use super::*;
 pub fn parse(cursor: &mut TreeCursor, code: &str) -> FunctionLiteral {
     cursor.goto_first_child();
     let params = parameter_names(cursor, code);
+
     cursor.goto_next_sibling();
     cursor.goto_first_child();
-    // skip "{"
-    cursor.goto_next_sibling();
     let body = parse_block(cursor, code);
+
     cursor.goto_parent();
 
     cursor.goto_parent();

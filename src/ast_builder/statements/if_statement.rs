@@ -3,15 +3,11 @@ use super::*;
 pub fn parse(cursor: &mut TreeCursor, code: &str) -> IfStatement {
     cursor.goto_first_child();
     skip_keywords(cursor);
-    // cursor.goto_next_sibling();
-
     let condition = expressions::parse(cursor, code);
 
     cursor.goto_next_sibling();
     let body = parse_block(cursor, code);
 
-    // cursor.goto_next_sibling();
-    // println!("please {}", cursor.node());
     let mut else_ifs = vec![];
     let mut else_body = vec![];
     while cursor.goto_next_sibling() {
@@ -25,8 +21,6 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> IfStatement {
             _ => todo!(),
         }
     }
-    // println!("IF {}", cursor.node());
-    // }
 
     cursor.goto_parent();
     IfStatement {
@@ -35,7 +29,6 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> IfStatement {
         else_ifs,
         else_body,
     }
-    // todo!()
 }
 
 fn skip_keywords(cursor: &mut TreeCursor) {
@@ -51,7 +44,6 @@ fn skip_keywords(cursor: &mut TreeCursor) {
 fn parse_else_if(cursor: &mut TreeCursor, code: &str) -> (Expression, Vec<Statement>) {
     cursor.goto_first_child();
     skip_keywords(cursor);
-
     let condition = expressions::parse(cursor, code);
 
     cursor.goto_next_sibling();
@@ -64,7 +56,6 @@ fn parse_else_if(cursor: &mut TreeCursor, code: &str) -> (Expression, Vec<Statem
 fn parse_else(cursor: &mut TreeCursor, code: &str) -> Vec<Statement> {
     cursor.goto_first_child();
     skip_keywords(cursor);
-
     let body = parse_block(cursor, code);
 
     cursor.goto_parent();

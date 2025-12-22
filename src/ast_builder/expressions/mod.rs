@@ -12,7 +12,6 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> Expression {
 
     let expression_name = cursor.node().kind();
 
-    println!("{expression_name}");
     let expr = match expression_name {
         "identifier" => Expression::Identifier(code[cursor.node().byte_range()].to_string()),
         "binary_expression" => Expression::BinaryOperation(binary_operation::parse(cursor, code)),

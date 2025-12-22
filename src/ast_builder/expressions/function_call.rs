@@ -7,8 +7,6 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> FunctionCall {
     cursor.goto_next_sibling();
     let params = parameters(cursor, code);
 
-    println!("FUNCTIONING {}", cursor.node());
-
     cursor.goto_parent();
     FunctionCall { function, params }
 }

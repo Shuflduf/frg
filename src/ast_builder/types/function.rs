@@ -7,7 +7,6 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> VarType {
 
     cursor.goto_next_sibling();
     let param_types = parameter_list(cursor, code);
-    println!("{param_types:?}");
 
     cursor.goto_parent();
     VarType::Function {
