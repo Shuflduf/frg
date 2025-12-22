@@ -5,7 +5,6 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> IfStatement {
     skip_keywords(cursor);
     // cursor.goto_next_sibling();
 
-    println!("{:?}", cursor.node().range());
     let condition = expressions::parse(cursor, code);
 
     cursor.goto_next_sibling();
@@ -17,7 +16,6 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> IfStatement {
     let mut else_body = vec![];
     while cursor.goto_next_sibling() {
         let node_name = cursor.node().kind();
-        println!("a {node_name}");
         match node_name {
             "else_if_statement" => else_ifs.push(parse_else_if(cursor, code)),
             "else_statement" => {
@@ -55,7 +53,6 @@ fn parse_else_if(cursor: &mut TreeCursor, code: &str) -> (Expression, Vec<Statem
     skip_keywords(cursor);
 
     let condition = expressions::parse(cursor, code);
-    println!("elif {condition:?}");
 
     cursor.goto_next_sibling();
     let body = parse_block(cursor, code);
