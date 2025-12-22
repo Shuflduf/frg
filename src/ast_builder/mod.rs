@@ -61,9 +61,21 @@ pub struct UnaryOperation {
 }
 
 #[derive(Debug)]
+pub struct IndexAccess {
+    expr: Box<Expression>,
+    target_index: Box<Expression>,
+}
+
+#[derive(Debug)]
 pub struct FunctionLiteral {
     params: Vec<String>,
     body: Vec<Statement>,
+}
+
+#[derive(Debug)]
+pub struct FunctionCall {
+    function: Box<Expression>,
+    params: Vec<Expression>,
 }
 
 #[derive(Debug)]
@@ -72,12 +84,14 @@ pub enum Expression {
     Literal(Literal),
     BinaryOperation(BinaryOperation),
     UnaryOperation(UnaryOperation),
+    IndexAccess(IndexAccess),
     Dereference(Box<Expression>),
     MemberAccess {
         expr: Box<Expression>,
         identifier: String,
     },
     FunctionLiteral(FunctionLiteral),
+    FunctionCall(FunctionCall),
 }
 
 #[derive(Debug)]
@@ -90,6 +104,7 @@ pub struct VariableDeclaration {
 #[derive(Debug)]
 pub enum Statement {
     VariableDeclaration(VariableDeclaration),
+    Expression(Expression),
 }
 
 pub fn build(ts_tree: &Tree, code: &str) -> Vec<Statement> {
@@ -104,8 +119,10 @@ fn block(cursor: &mut TreeCursor, code: &str) -> Vec<Statement> {
     // while let current_node = tree_pos.node() {}
     loop {
         let current_node_kind = cursor.node().kind();
+        // println!("{current_node_kind}");
         statements.push(match current_node_kind {
             "variable_declaration" => statements::parse(cursor, code, current_node_kind),
+            "function_call" => Statement::Expression(expressions::parse(cursor, code)),
             "}" => break,
             // "block"
             _ => todo!(),

@@ -8,6 +8,7 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> BinaryOperation {
     let op_symbol = cursor.node().kind();
     let op = match op_symbol {
         "*" => BinaryOperator::Multiply,
+        "/" => BinaryOperator::Divide,
         _ => todo!(),
     };
 

@@ -1,2 +1,1 @@
-void() main = (fuck, shit) {}
-int thing = 5
+main[0]("fuck",, , 8/2)

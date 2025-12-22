@@ -31,6 +31,10 @@
         {
           "type": "SYMBOL",
           "name": "variable_assignment"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "_expression"
         }
       ]
     },
@@ -716,7 +720,7 @@
         "members": [
           {
             "type": "SYMBOL",
-            "name": "identifier"
+            "name": "_expression"
           },
           {
             "type": "STRING",
@@ -1164,20 +1168,34 @@
       "block"
     ],
     [
-      "set_literal",
-      "if_statement"
-    ],
-    [
-      "set_literal",
-      "block"
-    ],
-    [
       "type",
       "_expression"
     ],
     [
       "type",
       "struct_method"
+    ],
+    [
+      "_statement",
+      "if_statement"
+    ],
+    [
+      "_statement",
+      "block"
+    ],
+    [
+      "_statement",
+      "set_literal"
+    ],
+    [
+      "_statement",
+      "set_literal",
+      "if_statement"
+    ],
+    [
+      "_statement",
+      "set_literal",
+      "block"
     ]
   ],
   "precedences": [],

@@ -16,10 +16,13 @@ module.exports = grammar({
     [$.set_literal, $.map_literal, $.empty_collection],
     [$.set_literal, $.map_literal],
     [$.set_literal, $.map_literal, $.empty_collection, $.block],
-    [$.set_literal, $.if_statement],
-    [$.set_literal, $.block],
     [$.type, $._expression],
     [$.type, $.struct_method],
+    [$._statement, $.if_statement],
+    [$._statement, $.block],
+    [$._statement, $.set_literal],
+    [$._statement, $.set_literal, $.if_statement],
+    [$._statement, $.set_literal, $.block],
   ],
 
   rules: {
@@ -32,6 +35,7 @@ module.exports = grammar({
         $.return_statement,
         $.struct_declaration,
         $.variable_assignment,
+        $._expression,
       ),
 
     comment: ($) => token(seq("//", /.*/)),
@@ -118,7 +122,10 @@ module.exports = grammar({
 
     // it would theoretically be possible to switch $.identifier for $._expression so you can do shit like 5()
     function_call: ($) =>
-      prec(15, seq($.identifier, "(", repeat(choice($._expression, ",")), ")")),
+      prec(
+        15,
+        seq($._expression, "(", repeat(choice($._expression, ",")), ")"),
+      ),
 
     unary_expression: ($) =>
       choice(
