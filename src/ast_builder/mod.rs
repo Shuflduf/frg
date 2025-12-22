@@ -115,6 +115,7 @@ pub enum Statement {
     VariableDeclaration(VariableDeclaration),
     Expression(Expression),
     IfStatement(IfStatement),
+    ReturnStatement(Expression),
 }
 
 pub fn build(ts_tree: &Tree, code: &str) -> Vec<Statement> {
@@ -128,14 +129,15 @@ fn parse_block(cursor: &mut TreeCursor, code: &str) -> Vec<Statement> {
     loop {
         let current_node_kind = cursor.node().kind();
         statements.push(match current_node_kind {
+            "variable_declaration" | "if_statement" | "return_statement" => {
+                statements::parse(cursor, code, current_node_kind)
+            }
+            "function_call" => Statement::Expression(expressions::parse(cursor, code)),
+            // "return_statement" => Statement::ReturnStatement(statements)
             "{" => {
                 cursor.goto_next_sibling();
                 continue;
             }
-            "variable_declaration" | "if_statement" => {
-                statements::parse(cursor, code, current_node_kind)
-            }
-            "function_call" => Statement::Expression(expressions::parse(cursor, code)),
             "}" => break,
             // "block"
             _ => todo!("{current_node_kind}"),
