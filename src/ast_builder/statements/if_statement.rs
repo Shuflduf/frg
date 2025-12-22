@@ -3,6 +3,7 @@ use super::*;
 pub fn parse(cursor: &mut TreeCursor, code: &str) -> IfStatement {
     cursor.goto_first_child();
     skip_keywords(cursor);
+    println!("ocndition {:?}", cursor.node().range());
     let condition = expressions::parse(cursor, code);
 
     cursor.goto_next_sibling();

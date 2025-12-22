@@ -7,5 +7,5 @@ int(int) fibonacci = (index) {
 }
 
 int result = fibonacci(10)
-print!("10th fibonacci is", result)
+print("10th fibonacci is", result)
 return result

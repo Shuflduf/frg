@@ -10,7 +10,7 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> FunctionLiteral {
 
     cursor.goto_parent();
 
-    cursor.goto_parent();
+    // cursor.goto_parent();
     FunctionLiteral { params, body }
 }
 

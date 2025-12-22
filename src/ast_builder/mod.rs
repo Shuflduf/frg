@@ -38,7 +38,7 @@ pub enum BinaryOperator {
     GreaterThan,
     GreaterThanOrEqual,
     Equals,
-    Index,
+    NotEquals,
 }
 
 #[derive(Debug)]
@@ -120,6 +120,7 @@ pub enum Statement {
 
 pub fn build(ts_tree: &Tree, code: &str) -> Vec<Statement> {
     let mut cursor = ts_tree.walk();
+    println!("{}", cursor.node());
     parse_block(&mut cursor, code)
 }
 
@@ -128,6 +129,8 @@ fn parse_block(cursor: &mut TreeCursor, code: &str) -> Vec<Statement> {
     cursor.goto_first_child();
     loop {
         let current_node_kind = cursor.node().kind();
+        println!("MAIN {current_node_kind}");
+
         statements.push(match current_node_kind {
             "variable_declaration" | "if_statement" | "return_statement" => {
                 statements::parse(cursor, code, current_node_kind)
