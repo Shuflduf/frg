@@ -1,11 +1,12 @@
 use super::*;
 
 mod binary_operation;
-pub mod builtin;
+mod builtin;
 mod function_call;
 mod function_literal;
 mod index_access;
 mod literal;
+mod map_literal;
 mod unary_operation;
 
 pub fn parse(cursor: &mut TreeCursor, code: &str) -> Expression {
@@ -25,6 +26,7 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> Expression {
         "function_call" => Expression::FunctionCall(function_call::parse(cursor, code)),
         "index_access" => Expression::IndexAccess(index_access::parse(cursor, code)),
         "builtin" => Expression::BuiltinCall(builtin::parse(cursor, code)),
+        "map_literal" => Expression::MapLiteral(map_literal::parse(cursor, code)),
         _ => todo!(),
     }
     // todo!()

@@ -94,6 +94,7 @@ pub enum Expression {
     FunctionLiteral(FunctionLiteral),
     FunctionCall(FunctionCall),
     BuiltinCall(BuiltinCall),
+    MapLiteral(Vec<(String, Expression)>),
 }
 
 #[derive(Debug)]
