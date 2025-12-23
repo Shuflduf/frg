@@ -153,16 +153,14 @@ fn parse_block(cursor: &mut TreeCursor, code: &str) -> Vec<Statement> {
             "variable_declaration" | "if_statement" | "return_statement" => {
                 statements::parse(cursor, code, current_node_kind)
             }
-            "function_call" | "builtin" | "int_literal" => {
-                Statement::Expression(expressions::parse(cursor, code))
-            }
-            // "return_statement" => Statement::ReturnStatement(statements)
+            "function_call" | "builtin" | "int_literal" | "string_literal" | "float_literal"
+            | "bool_literal" | "unary_expression" | "binary_expression" | "function_literal"
+            | "index_access" => Statement::Expression(expressions::parse(cursor, code)),
             "{" => {
                 cursor.goto_next_sibling();
                 continue;
             }
             "}" => break,
-            // "block"
             _ => todo!("{current_node_kind}"),
         });
 
