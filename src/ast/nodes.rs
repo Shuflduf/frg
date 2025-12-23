@@ -21,6 +21,7 @@ pub enum VarType {
     },
     Vec(Box<VarType>),
     Set(Box<VarType>),
+    Map((Box<VarType>, Box<VarType>)),
 }
 
 #[derive(Debug)]

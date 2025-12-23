@@ -38,6 +38,18 @@ pub fn transpile(map_lit: &MapLiteral) -> String {
     for entry in map_lit {
         let key = &entry.0;
         let value = expressions::transpile(&entry.1);
+        fields_str.push_str(&format!("({key}, {value}), "));
+    }
+    fields_str.pop();
+    fields_str.pop();
+    format!("std::collections::HashMap::from([{fields_str}])")
+}
+
+pub fn transpile_struct(map_lit: &MapLiteral) -> String {
+    let mut fields_str = String::new();
+    for entry in map_lit {
+        let key = &entry.0;
+        let value = expressions::transpile(&entry.1);
         fields_str.push_str(&format!("{key}: {value}, "));
     }
     fields_str.pop();
