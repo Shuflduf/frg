@@ -24,7 +24,10 @@ fn parameter_list(cursor: &mut TreeCursor, code: &str) -> Vec<VarType> {
     loop {
         match cursor.node().kind() {
             ")" => break,
-            "," => continue,
+            "," => {
+                cursor.goto_next_sibling();
+                continue;
+            }
             "type" => param_types.push(types::parse(cursor, code)),
             _ => panic!("unexpected token in param types"),
         }

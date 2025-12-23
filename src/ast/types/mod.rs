@@ -1,3 +1,4 @@
+
 use super::*;
 
 mod function;
@@ -19,4 +20,25 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> VarType {
 
     cursor.goto_parent();
     var_type
+}
+
+pub fn transpile(var_type: &VarType) -> String {
+    let s = match &var_type {
+        VarType::Void => "()",
+        VarType::Int => "i32",
+        VarType::Float => "f32",
+        VarType::Str => "&str",
+        VarType::Reference(ref_type) => &format!("&{}", transpile(ref_type)),
+        VarType::Struct(struct_name) => struct_name,
+        VarType::Function {
+            return_type,
+            param_types,
+        } => &format!(
+            "fn({}) -> {}",
+            expressions::transpile_list(&param_types.iter().map(transpile).collect()),
+            transpile(return_type),
+        ),
+        _ => todo!("{var_type:?}"),
+    };
+    s.to_string()
 }

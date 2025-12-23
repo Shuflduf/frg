@@ -1,5 +1,8 @@
-int() five = () {
-    5
+struct Person = {
+	str name,
+	int age,
 }
+
+
 
 

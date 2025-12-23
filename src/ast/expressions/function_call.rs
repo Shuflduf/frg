@@ -17,7 +17,7 @@ pub fn transpile(func_call: &FunctionCall) -> String {
         &func_call
             .params
             .iter()
-            .map(|p| expressions::transpile(p))
+            .map(expressions::transpile)
             .collect(),
     );
     format!("{func_name}({params})")
