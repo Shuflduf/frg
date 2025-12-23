@@ -9,6 +9,7 @@ mod index_access;
 mod literal;
 mod map_literal;
 mod member_access;
+mod set_literal;
 mod unary_operation;
 mod vec_literal;
 
@@ -33,6 +34,7 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> Expression {
         "vec_literal" => Expression::VecLiteral(vec_literal::parse(cursor, code)),
         "dereference" => Expression::Dereference(dereference::parse(cursor, code)),
         "member_access" => Expression::MemberAccess(member_access::parse(cursor, code)),
+        "set_literal" => Expression::SetLiteral(set_literal::parse(cursor, code)),
         _ => todo!("{expression_name}"),
     }
     // todo!()
@@ -51,6 +53,7 @@ pub fn transpile(expr: &Expression) -> String {
         Expression::Dereference(inner) => dereference::transpile(inner),
         Expression::UnaryOperation(unary_op) => unary_operation::transpile(unary_op),
         Expression::MemberAccess(mem_acc) => member_access::transpile(mem_acc),
+        Expression::SetLiteral(set_lit) => set_literal::transpile(set_lit),
         _ => todo!("{expr:?}"),
     }
 }

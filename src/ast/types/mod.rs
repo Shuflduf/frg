@@ -2,6 +2,7 @@ use super::*;
 
 mod function;
 mod reference;
+mod set;
 mod vec;
 
 pub fn parse(cursor: &mut TreeCursor, code: &str) -> VarType {
@@ -17,6 +18,7 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> VarType {
         "function_type" => function::parse(cursor, code),
         "identifier" => VarType::Struct(code[cursor.node().byte_range()].to_string()),
         "vec_type" => vec::parse(cursor, code),
+        "set_type" => set::parse(cursor, code),
         _ => todo!("{type_name}"),
     };
 
@@ -42,6 +44,7 @@ pub fn transpile(var_type: &VarType) -> String {
             transpile(return_type),
         ),
         VarType::Vec(inner_type) => &vec::transpile(inner_type),
+        VarType::Set(inner_type) => &set::transpile(inner_type),
         _ => todo!("{var_type:?}"),
     };
     s.to_string()

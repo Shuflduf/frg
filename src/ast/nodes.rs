@@ -20,6 +20,7 @@ pub enum VarType {
         param_types: Vec<VarType>,
     },
     Vec(Box<VarType>),
+    Set(Box<VarType>),
 }
 
 #[derive(Debug)]
@@ -94,6 +95,7 @@ pub enum Expression {
     BuiltinCall(BuiltinCall),
     MapLiteral(Vec<(String, Expression)>),
     VecLiteral(Vec<Expression>),
+    SetLiteral(Vec<Expression>),
 }
 
 #[derive(Debug)]
