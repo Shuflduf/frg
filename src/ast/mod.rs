@@ -30,20 +30,24 @@ fn parse_block(cursor: &mut TreeCursor, code: &str) -> Vec<Statement> {
         let current_node_kind = cursor.node().kind();
 
         statements.push(match current_node_kind {
-            "variable_declaration" | "if_statement" | "return_statement" | "struct_declaration" => {
-                statements::parse(cursor, code, current_node_kind)
-            }
+            "variable_declaration"
+            | "if_statement"
+            | "return_statement"
+            | "struct_declaration"
+            | "variable_assignment" => statements::parse(cursor, code, current_node_kind),
+
             "function_call" | "builtin" | "int_literal" | "string_literal" | "float_literal"
             | "bool_literal" | "unary_expression" | "binary_expression" | "function_literal"
             | "index_access" | "map_literal" | "set_literal" => {
                 Statement::Expression(expressions::parse(cursor, code))
             }
+
             "{" | "comment" => {
                 cursor.goto_next_sibling();
                 continue;
             }
             "}" => break,
-            _ => todo!("{current_node_kind}"),
+            _ => todo!("cant parse {current_node_kind}"),
         });
 
         // println!("{current_node}");

@@ -119,10 +119,20 @@ pub struct StructDeclaration {
 }
 
 #[derive(Debug)]
+pub enum AssignmentOp {
+    Equals,
+    PlusEquals,
+    MinusEquals,
+    TimesEquals,
+    DivideEquals,
+}
+
+#[derive(Debug)]
 pub enum Statement {
     VariableDeclaration(VariableDeclaration),
     Expression(Expression),
     IfStatement(IfStatement),
     ReturnStatement(Expression),
     StructDeclaration((String, Vec<(VarType, String)>)),
+    VariableAssignment((Expression, AssignmentOp, Expression)),
 }

@@ -5,6 +5,7 @@ use super::*;
 mod if_statement;
 mod return_statement;
 mod struct_declaration;
+mod variable_assignment;
 mod variable_declaration;
 
 pub fn parse(cursor: &mut TreeCursor, code: &str, statement_name: &str) -> Statement {
@@ -17,6 +18,9 @@ pub fn parse(cursor: &mut TreeCursor, code: &str, statement_name: &str) -> State
         "struct_declaration" => {
             Statement::StructDeclaration(struct_declaration::parse(cursor, code))
         }
+        "variable_assignment" => {
+            Statement::VariableAssignment(variable_assignment::parse(cursor, code))
+        }
         _ => todo!(),
     }
 }
@@ -28,5 +32,7 @@ pub fn transpile(statement: &Statement) -> String {
         Statement::ReturnStatement(expr) => return_statement::transpile(expr),
         Statement::Expression(expr) => format!("{};", expressions::transpile(expr)),
         Statement::StructDeclaration(struct_decl) => struct_declaration::transpile(struct_decl),
+        Statement::VariableAssignment(var_ass) => variable_assignment::transpile(var_ass),
+        _ => todo!("{statement:?}"),
     }
 }

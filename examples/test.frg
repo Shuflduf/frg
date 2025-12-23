@@ -1,12 +1,9 @@
-struct Person = {
-	str name,
-	int age,
-}
+int value = 0
+value += 1
 
-Person josch = {
-	name: "jojgsc",
-	age: 82,
-}
+@print("{value}")
+
+
 
 
 
