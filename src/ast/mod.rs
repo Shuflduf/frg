@@ -38,7 +38,7 @@ fn parse_block(cursor: &mut TreeCursor, code: &str) -> Vec<Statement> {
             | "index_access" | "map_literal" | "set_literal" => {
                 Statement::Expression(expressions::parse(cursor, code))
             }
-            "{" => {
+            "{" | "comment" => {
                 cursor.goto_next_sibling();
                 continue;
             }

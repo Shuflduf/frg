@@ -13,6 +13,7 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> StructDecl {
     cursor.goto_next_sibling();
     let fields = get_fields(cursor, code);
 
+    cursor.goto_parent();
     (struct_name, fields)
 }
 
