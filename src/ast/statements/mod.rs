@@ -33,6 +33,5 @@ pub fn transpile(statement: &Statement) -> String {
         Statement::Expression(expr) => format!("{};", expressions::transpile(expr)),
         Statement::StructDeclaration(struct_decl) => struct_declaration::transpile(struct_decl),
         Statement::VariableAssignment(var_ass) => variable_assignment::transpile(var_ass),
-        _ => todo!("{statement:?}"),
     }
 }

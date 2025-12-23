@@ -1,7 +1,4 @@
-int value = 0
-value += 1
-
-@print("{value}")
+vec(int) nums = [1, 2, 3]
 
 
 

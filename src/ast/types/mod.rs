@@ -2,6 +2,7 @@ use super::*;
 
 mod function;
 mod reference;
+mod vec;
 
 pub fn parse(cursor: &mut TreeCursor, code: &str) -> VarType {
     cursor.goto_first_child();
@@ -15,6 +16,7 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> VarType {
         "reference_type" => reference::parse(cursor, code),
         "function_type" => function::parse(cursor, code),
         "identifier" => VarType::Struct(code[cursor.node().byte_range()].to_string()),
+        "vec_type" => vec::parse(cursor, code),
         _ => todo!("{type_name}"),
     };
 
@@ -39,6 +41,7 @@ pub fn transpile(var_type: &VarType) -> String {
             expressions::transpile_list(&param_types.iter().map(transpile).collect()),
             transpile(return_type),
         ),
+        VarType::Vec(inner_type) => &vec::transpile(inner_type),
         _ => todo!("{var_type:?}"),
     };
     s.to_string()

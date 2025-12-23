@@ -8,6 +8,7 @@ mod index_access;
 mod literal;
 mod map_literal;
 mod unary_operation;
+mod vec_literal;
 
 pub fn parse(cursor: &mut TreeCursor, code: &str) -> Expression {
     // cursor.goto_first_child();
@@ -27,7 +28,8 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> Expression {
         "index_access" => Expression::IndexAccess(index_access::parse(cursor, code)),
         "builtin" => Expression::BuiltinCall(builtin::parse(cursor, code)),
         "map_literal" => Expression::MapLiteral(map_literal::parse(cursor, code)),
-        _ => todo!(),
+        "vec_literal" => Expression::VecLiteral(vec_literal::parse(cursor, code)),
+        _ => todo!("{expression_name}"),
     }
     // todo!()
 }
@@ -41,6 +43,7 @@ pub fn transpile(expr: &Expression) -> String {
         Expression::FunctionCall(func_call) => function_call::transpile(func_call),
         Expression::BuiltinCall(builtin_call) => builtin::transpile(builtin_call),
         Expression::MapLiteral(map_lit) => map_literal::transpile(map_lit),
+        Expression::VecLiteral(vec_lit) => vec_literal::transpile(vec_lit),
         _ => todo!("{expr:?}"),
     }
 }
