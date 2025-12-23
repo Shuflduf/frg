@@ -112,9 +112,16 @@ pub struct IfStatement {
 }
 
 #[derive(Debug)]
+pub struct StructDeclaration {
+    pub name: String,
+    pub fields: (String, VarType),
+}
+
+#[derive(Debug)]
 pub enum Statement {
     VariableDeclaration(VariableDeclaration),
     Expression(Expression),
     IfStatement(IfStatement),
     ReturnStatement(Expression),
+    StructDeclaration((String, Vec<(VarType, String)>)),
 }

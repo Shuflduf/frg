@@ -1,4 +1,3 @@
-
 use super::*;
 
 mod function;
@@ -27,8 +26,9 @@ pub fn transpile(var_type: &VarType) -> String {
         VarType::Void => "()",
         VarType::Int => "i32",
         VarType::Float => "f32",
-        VarType::Str => "&str",
-        VarType::Reference(ref_type) => &format!("&{}", transpile(ref_type)),
+        // could be a mistake
+        VarType::Str => "&'static str",
+        VarType::Reference(ref_type) => &format!("&'static {}", transpile(ref_type)),
         VarType::Struct(struct_name) => struct_name,
         VarType::Function {
             return_type,

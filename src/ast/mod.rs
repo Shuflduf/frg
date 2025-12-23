@@ -31,7 +31,7 @@ fn parse_block(cursor: &mut TreeCursor, code: &str) -> Vec<Statement> {
         println!("MAIN {current_node_kind}");
 
         statements.push(match current_node_kind {
-            "variable_declaration" | "if_statement" | "return_statement" => {
+            "variable_declaration" | "if_statement" | "return_statement" | "struct_declaration" => {
                 statements::parse(cursor, code, current_node_kind)
             }
             "function_call" | "builtin" | "int_literal" | "string_literal" | "float_literal"
