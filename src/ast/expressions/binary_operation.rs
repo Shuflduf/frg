@@ -34,8 +34,15 @@ pub fn transpile(binary_op: &BinaryOperation) -> String {
     let right = expressions::transpile(&binary_op.right);
     let op = match binary_op.op {
         BinaryOperator::Add => "+",
+        BinaryOperator::Subtract => "-",
         BinaryOperator::Multiply => "*",
-        _ => todo!(),
+        BinaryOperator::Divide => "/",
+        BinaryOperator::LessThan => "<",
+        BinaryOperator::LessThanOrEqual => "<=",
+        BinaryOperator::GreaterThan => ">",
+        BinaryOperator::GreaterThanOrEqual => ">=",
+        BinaryOperator::Equals => "==",
+        BinaryOperator::NotEquals => "!=",
     };
-    return format!("({left} {op} {right})");
+    return format!("{left} {op} {right}");
 }

@@ -22,6 +22,8 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> Literal {
 pub fn transpile(lit: &Literal) -> String {
     match lit {
         Literal::Int(int) => int.to_string(),
-        _ => todo!("{lit:?}"),
+        Literal::Float(float) => float.to_string(),
+        Literal::Str(lit_str) => lit_str.clone(),
+        Literal::Bool(lit_bool) => (if *lit_bool { "true" } else { "false" }).to_string(),
     }
 }

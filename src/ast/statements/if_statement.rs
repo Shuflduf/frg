@@ -1,3 +1,5 @@
+use crate::ast;
+
 use super::*;
 
 pub fn parse(cursor: &mut TreeCursor, code: &str) -> IfStatement {
@@ -32,7 +34,21 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> IfStatement {
 }
 
 pub fn transpile(if_state: &IfStatement) -> String {
-    "if 5 > 3 {}".into()
+    let condition = expressions::transpile(&if_state.condition);
+    let body = ast::transpile(&if_state.body);
+    let mut if_str = format!("if ({condition}) {{\n{body}\n}}");
+    for else_if in &if_state.else_ifs {
+        let else_if_condition = expressions::transpile(&else_if.0);
+        let else_if_body = ast::transpile(&else_if.1);
+        if_str.push_str(&format!(
+            " else if {else_if_condition} {{\n{else_if_body}\n}}"
+        ));
+    }
+    if if_state.else_body.len() > 0 {
+        let else_body = ast::transpile(&if_state.body);
+        if_str.push_str(&format!(" else {{\n{else_body}\n}}"));
+    }
+    if_str
 }
 
 fn skip_keywords(cursor: &mut TreeCursor) {
