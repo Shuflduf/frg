@@ -19,7 +19,11 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> FunctionLiteral {
 pub fn transpile(lit: &FunctionLiteral) -> String {
     let params = expressions::transpile_list(&lit.params);
 
-    let body = ast::transpile(&lit.body);
+    let mut body = ast::transpile(&lit.body);
+    if let Some(Statement::Expression(_)) = lit.body.last() {
+        // remove ";"
+        body.pop();
+    }
     format!("|{params}| {{\n{body}\n}}")
 }
 
