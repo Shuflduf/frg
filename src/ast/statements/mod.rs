@@ -22,8 +22,6 @@ pub fn transpile(statement: &Statement) -> String {
         Statement::VariableDeclaration(var_decl) => variable_declaration::transpile(var_decl),
         Statement::IfStatement(if_state) => if_statement::transpile(if_state),
         Statement::ReturnStatement(expr) => return_statement::transpile(expr),
-        // "if_statement" => Statement::IfStatement(if_statement::parse(cursor, code)),
-        // "return_statement" => Statement::ReturnStatement(return_statement::parse(cursor, code)),
-        _ => todo!(),
+        Statement::Expression(expr) => format!("{};", expressions::transpile(expr)),
     }
 }

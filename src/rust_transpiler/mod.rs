@@ -1,11 +1,6 @@
-use crate::ast::{Statement, statements};
+use crate::ast::{self, Statement};
 
-pub fn transpile(ast: &Vec<Statement>) -> String {
-    let mut code = String::new();
-    for statement in ast {
-        let new_line = statements::transpile(statement);
-        code.push('\n');
-        code.push_str(&new_line);
-    }
-    code
+pub fn transpile(statements: &Vec<Statement>) -> String {
+    let code = ast::transpile(statements);
+    format!("fn main() {{\n{code}\n}}")
 }

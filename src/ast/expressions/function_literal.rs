@@ -1,3 +1,5 @@
+use crate::ast;
+
 use super::*;
 
 pub fn parse(cursor: &mut TreeCursor, code: &str) -> FunctionLiteral {
@@ -12,6 +14,13 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> FunctionLiteral {
 
     // cursor.goto_parent();
     FunctionLiteral { params, body }
+}
+
+pub fn transpile(lit: &FunctionLiteral) -> String {
+    let params = expressions::transpile_list(&lit.params);
+
+    let body = ast::transpile(&lit.body);
+    format!("|{params}| {{\n{body}\n}}")
 }
 
 fn parameter_names(cursor: &mut TreeCursor, code: &str) -> Vec<String> {

@@ -11,6 +11,18 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> FunctionCall {
     FunctionCall { function, params }
 }
 
+pub fn transpile(func_call: &FunctionCall) -> String {
+    let func_name = expressions::transpile(&func_call.function);
+    let params = expressions::transpile_list(
+        &func_call
+            .params
+            .iter()
+            .map(|p| expressions::transpile(p))
+            .collect(),
+    );
+    format!("{func_name}({params})")
+}
+
 fn parameters(cursor: &mut TreeCursor, code: &str) -> Vec<Expression> {
     let mut params = vec![];
     loop {

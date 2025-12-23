@@ -1,2 +1,1 @@
-int val = 5 * 3
-
+int res = thing(5, 3)

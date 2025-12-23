@@ -31,7 +31,21 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> Expression {
 pub fn transpile(expr: &Expression) -> String {
     match expr {
         Expression::Literal(lit) => literal::transpile(lit),
+        Expression::Identifier(identifier) => identifier.clone(),
         Expression::BinaryOperation(binary_op) => binary_operation::transpile(binary_op),
+        Expression::FunctionLiteral(lit) => function_literal::transpile(lit),
+        Expression::FunctionCall(func_call) => function_call::transpile(func_call),
         _ => todo!("{expr:?}"),
     }
+}
+
+pub fn transpile_list(values: &Vec<String>) -> String {
+    let mut list = String::new();
+    for value in values {
+        list.push_str(value);
+        list.push_str(", ");
+    }
+    list.pop();
+    list.pop();
+    list
 }

@@ -1,8 +1,8 @@
 use tree_sitter::{Tree, TreeCursor};
 
-pub mod expressions;
-pub mod statements;
-pub mod types;
+mod expressions;
+mod statements;
+mod types;
 
 #[derive(Debug)]
 pub enum Literal {
@@ -121,6 +121,17 @@ pub enum Statement {
 pub fn build(ts_tree: &Tree, code: &str) -> Vec<Statement> {
     let mut cursor = ts_tree.walk();
     parse_block(&mut cursor, code)
+}
+
+pub fn transpile(statements: &Vec<Statement>) -> String {
+    let mut code = String::new();
+    for statement in statements {
+        let new_line = statements::transpile(statement);
+        code.push_str(&new_line);
+        code.push('\n');
+    }
+    code.pop();
+    code
 }
 
 fn parse_block(cursor: &mut TreeCursor, code: &str) -> Vec<Statement> {
