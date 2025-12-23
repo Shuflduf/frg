@@ -94,3 +94,18 @@ int result = add(3, 2)
       (identifier)
       (int_literal)
       (int_literal))))
+
+
+==================
+builtin call
+==================
+
+@print("ofdjksd {}", 5)
+
+---
+
+(source_file
+  (builtin
+    (identifier)
+    (string_literal)
+    (int_literal)))

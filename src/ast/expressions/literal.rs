@@ -23,7 +23,7 @@ pub fn transpile(lit: &Literal) -> String {
     match lit {
         Literal::Int(int) => int.to_string(),
         Literal::Float(float) => float.to_string(),
-        Literal::Str(lit_str) => lit_str.clone(),
+        Literal::Str(lit_str) => format!("\"{}\"", lit_str.clone()),
         Literal::Bool(lit_bool) => (if *lit_bool { "true" } else { "false" }).to_string(),
     }
 }

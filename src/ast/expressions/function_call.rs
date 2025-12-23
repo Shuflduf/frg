@@ -23,7 +23,7 @@ pub fn transpile(func_call: &FunctionCall) -> String {
     format!("{func_name}({params})")
 }
 
-fn parameters(cursor: &mut TreeCursor, code: &str) -> Vec<Expression> {
+pub fn parameters(cursor: &mut TreeCursor, code: &str) -> Vec<Expression> {
     let mut params = vec![];
     loop {
         let node_kind = cursor.node().kind();

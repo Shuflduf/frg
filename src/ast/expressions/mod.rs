@@ -1,6 +1,7 @@
 use super::*;
 
 mod binary_operation;
+pub mod builtin;
 mod function_call;
 mod function_literal;
 mod index_access;
@@ -23,6 +24,7 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> Expression {
         "function_literal" => Expression::FunctionLiteral(function_literal::parse(cursor, code)),
         "function_call" => Expression::FunctionCall(function_call::parse(cursor, code)),
         "index_access" => Expression::IndexAccess(index_access::parse(cursor, code)),
+        "builtin" => Expression::BuiltinCall(builtin::parse(cursor, code)),
         _ => todo!(),
     }
     // todo!()
@@ -35,6 +37,7 @@ pub fn transpile(expr: &Expression) -> String {
         Expression::BinaryOperation(binary_op) => binary_operation::transpile(binary_op),
         Expression::FunctionLiteral(lit) => function_literal::transpile(lit),
         Expression::FunctionCall(func_call) => function_call::transpile(func_call),
+        Expression::BuiltinCall(builtin_call) => builtin::transpile(builtin_call),
         _ => todo!("{expr:?}"),
     }
 }

@@ -87,6 +87,7 @@ module.exports = grammar({
         $.index_access,
         $.unary_expression,
         $.range,
+        $.builtin,
       ),
 
     binary_expression: ($) =>
@@ -151,6 +152,9 @@ module.exports = grammar({
           optional($._expression),
         ),
       ),
+
+    builtin: ($) =>
+      seq("@", $.identifier, "(", repeat(choice($._expression, ",")), ")"),
 
     if_statement: ($) =>
       prec.right(

@@ -16,6 +16,10 @@
           "named": true
         },
         {
+          "type": "builtin",
+          "named": true
+        },
+        {
           "type": "dereference",
           "named": true
         },
@@ -92,6 +96,10 @@
         },
         {
           "type": "bool_literal",
+          "named": true
+        },
+        {
+          "type": "builtin",
           "named": true
         },
         {
@@ -183,6 +191,89 @@
     "fields": {}
   },
   {
+    "type": "builtin",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "binary_expression",
+          "named": true
+        },
+        {
+          "type": "bool_literal",
+          "named": true
+        },
+        {
+          "type": "builtin",
+          "named": true
+        },
+        {
+          "type": "dereference",
+          "named": true
+        },
+        {
+          "type": "empty_collection",
+          "named": true
+        },
+        {
+          "type": "float_literal",
+          "named": true
+        },
+        {
+          "type": "function_call",
+          "named": true
+        },
+        {
+          "type": "function_literal",
+          "named": true
+        },
+        {
+          "type": "identifier",
+          "named": true
+        },
+        {
+          "type": "index_access",
+          "named": true
+        },
+        {
+          "type": "int_literal",
+          "named": true
+        },
+        {
+          "type": "map_literal",
+          "named": true
+        },
+        {
+          "type": "member_access",
+          "named": true
+        },
+        {
+          "type": "range",
+          "named": true
+        },
+        {
+          "type": "set_literal",
+          "named": true
+        },
+        {
+          "type": "string_literal",
+          "named": true
+        },
+        {
+          "type": "unary_expression",
+          "named": true
+        },
+        {
+          "type": "vec_literal",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "dereference",
     "named": true,
     "fields": {},
@@ -196,6 +287,10 @@
         },
         {
           "type": "bool_literal",
+          "named": true
+        },
+        {
+          "type": "builtin",
           "named": true
         },
         {
@@ -279,6 +374,10 @@
         },
         {
           "type": "bool_literal",
+          "named": true
+        },
+        {
+          "type": "builtin",
           "named": true
         },
         {
@@ -378,6 +477,10 @@
         },
         {
           "type": "bool_literal",
+          "named": true
+        },
+        {
+          "type": "builtin",
           "named": true
         },
         {
@@ -502,6 +605,10 @@
           "named": true
         },
         {
+          "type": "builtin",
+          "named": true
+        },
+        {
           "type": "dereference",
           "named": true
         },
@@ -589,6 +696,10 @@
           "named": true
         },
         {
+          "type": "builtin",
+          "named": true
+        },
+        {
           "type": "dereference",
           "named": true
         },
@@ -665,6 +776,10 @@
         },
         {
           "type": "bool_literal",
+          "named": true
+        },
+        {
+          "type": "builtin",
           "named": true
         },
         {
@@ -777,6 +892,10 @@
           "named": true
         },
         {
+          "type": "builtin",
+          "named": true
+        },
+        {
           "type": "dereference",
           "named": true
         },
@@ -886,6 +1005,10 @@
           "named": true
         },
         {
+          "type": "builtin",
+          "named": true
+        },
+        {
           "type": "dereference",
           "named": true
         },
@@ -980,6 +1103,10 @@
           "named": true
         },
         {
+          "type": "builtin",
+          "named": true
+        },
+        {
           "type": "dereference",
           "named": true
         },
@@ -1056,6 +1183,10 @@
         },
         {
           "type": "bool_literal",
+          "named": true
+        },
+        {
+          "type": "builtin",
           "named": true
         },
         {
@@ -1151,6 +1282,10 @@
         },
         {
           "type": "bool_literal",
+          "named": true
+        },
+        {
+          "type": "builtin",
           "named": true
         },
         {
@@ -1358,6 +1493,10 @@
           "named": true
         },
         {
+          "type": "builtin",
+          "named": true
+        },
+        {
           "type": "dereference",
           "named": true
         },
@@ -1437,6 +1576,10 @@
           "named": true
         },
         {
+          "type": "builtin",
+          "named": true
+        },
+        {
           "type": "dereference",
           "named": true
         },
@@ -1513,6 +1656,10 @@
         },
         {
           "type": "bool_literal",
+          "named": true
+        },
+        {
+          "type": "builtin",
           "named": true
         },
         {
@@ -1596,6 +1743,10 @@
         },
         {
           "type": "bool_literal",
+          "named": true
+        },
+        {
+          "type": "builtin",
           "named": true
         },
         {
@@ -1778,6 +1929,10 @@
   },
   {
     "type": ">=",
+    "named": false
+  },
+  {
+    "type": "@",
     "named": false
   },
   {
