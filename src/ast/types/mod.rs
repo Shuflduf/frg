@@ -31,7 +31,7 @@ pub fn transpile(var_type: &VarType) -> String {
         VarType::Float => "f32",
         // could be a mistake
         VarType::Str => "&'static str",
-        VarType::Reference(ref_type) => &format!("&'static {}", transpile(ref_type)),
+        VarType::Reference(ref_type) => &format!("&mut {}", transpile(ref_type)),
         VarType::Struct(struct_name) => struct_name,
         VarType::Function {
             return_type,

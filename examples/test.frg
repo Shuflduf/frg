@@ -1,5 +1,8 @@
-vec(int) nums = [1, 2, 3]
+&int count = &3
+count.* += 4
 
+&str name = &"josch"
+name.* = "gaming"
 
 
 

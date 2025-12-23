@@ -2,6 +2,7 @@ use super::*;
 
 mod binary_operation;
 mod builtin;
+mod dereference;
 mod function_call;
 mod function_literal;
 mod index_access;
@@ -29,6 +30,7 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> Expression {
         "builtin" => Expression::BuiltinCall(builtin::parse(cursor, code)),
         "map_literal" => Expression::MapLiteral(map_literal::parse(cursor, code)),
         "vec_literal" => Expression::VecLiteral(vec_literal::parse(cursor, code)),
+        "dereference" => Expression::Dereference(dereference::parse(cursor, code)),
         _ => todo!("{expression_name}"),
     }
     // todo!()
@@ -44,6 +46,8 @@ pub fn transpile(expr: &Expression) -> String {
         Expression::BuiltinCall(builtin_call) => builtin::transpile(builtin_call),
         Expression::MapLiteral(map_lit) => map_literal::transpile(map_lit),
         Expression::VecLiteral(vec_lit) => vec_literal::transpile(vec_lit),
+        Expression::Dereference(inner) => dereference::transpile(inner),
+        Expression::UnaryOperation(unary_op) => unary_operation::transpile(unary_op),
         _ => todo!("{expr:?}"),
     }
 }

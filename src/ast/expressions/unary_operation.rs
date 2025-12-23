@@ -17,3 +17,13 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> UnaryOperation {
 
     UnaryOperation { op, expr }
 }
+
+pub fn transpile(unary_op: &UnaryOperation) -> String {
+    let op = match unary_op.op {
+        UnaryOperator::Reference => "&mut ",
+        UnaryOperator::Negative => "-",
+        UnaryOperator::Not => "!",
+    };
+    let expr = expressions::transpile(&unary_op.expr);
+    format!("{op}{expr}")
+}
