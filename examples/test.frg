@@ -1,19 +1,6 @@
-&str name = &"josch"
-name.* = "gaming"
-
-void(&str) update = (to_update) {
-    to_update.* = "shit"
-}
-
-update(name)
-
-update = (to_update) {
-    to_update.* = "fuck"
-}
-
-update(name)
-
-@print("{name}")
+vec(int) nums = [1 2, 3,,, 4]
+nums.push(5)
+@print("{nums:?}")
 
 
 

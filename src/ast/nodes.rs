@@ -88,10 +88,7 @@ pub enum Expression {
     UnaryOperation(UnaryOperation),
     IndexAccess(IndexAccess),
     Dereference(Box<Expression>),
-    MemberAccess {
-        expr: Box<Expression>,
-        identifier: String,
-    },
+    MemberAccess((Box<Expression>, String)),
     FunctionLiteral(FunctionLiteral),
     FunctionCall(FunctionCall),
     BuiltinCall(BuiltinCall),

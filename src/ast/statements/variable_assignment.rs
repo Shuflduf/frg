@@ -23,6 +23,9 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> VarAss {
 
 pub fn transpile(var_ass: &VarAss) -> String {
     let left = expressions::transpile(&var_ass.0);
+    let right = expressions::transpile(&var_ass.2);
+
+    // if let VarType::Vec(_) = var_ass.
     let op = match &var_ass.1 {
         AssignmentOp::Equals => "=",
         AssignmentOp::PlusEquals => "+=",
@@ -30,7 +33,6 @@ pub fn transpile(var_ass: &VarAss) -> String {
         AssignmentOp::TimesEquals => "*=",
         AssignmentOp::DivideEquals => "/=",
     };
-    let right = expressions::transpile(&var_ass.2);
 
     format!("{left} {op} {right};")
 }
