@@ -7,7 +7,7 @@ mod function_call;
 mod function_literal;
 mod index_access;
 mod literal;
-mod map_literal;
+pub mod map_literal;
 mod member_access;
 mod set_literal;
 mod unary_operation;
