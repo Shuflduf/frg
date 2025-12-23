@@ -40,6 +40,7 @@ pub fn transpile(expr: &Expression) -> String {
         Expression::FunctionLiteral(lit) => function_literal::transpile(lit),
         Expression::FunctionCall(func_call) => function_call::transpile(func_call),
         Expression::BuiltinCall(builtin_call) => builtin::transpile(builtin_call),
+        Expression::MapLiteral(map_lit) => map_literal::transpile(map_lit),
         _ => todo!("{expr:?}"),
     }
 }

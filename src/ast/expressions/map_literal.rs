@@ -32,3 +32,15 @@ fn parse_map_entry(cursor: &mut TreeCursor, code: &str) -> (String, Expression) 
     cursor.goto_parent();
     (field_name, expr)
 }
+
+pub fn transpile(map_lit: &MapLiteral) -> String {
+    let mut fields_str = String::new();
+    for entry in map_lit {
+        let key = &entry.0;
+        let value = expressions::transpile(&entry.1);
+        fields_str.push_str(&format!("{key}: {value}, "));
+    }
+    fields_str.pop();
+    fields_str.pop();
+    format!("{{ {fields_str} }}")
+}

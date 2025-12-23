@@ -28,7 +28,6 @@ fn parse_block(cursor: &mut TreeCursor, code: &str) -> Vec<Statement> {
     cursor.goto_first_child();
     loop {
         let current_node_kind = cursor.node().kind();
-        println!("MAIN {current_node_kind}");
 
         statements.push(match current_node_kind {
             "variable_declaration" | "if_statement" | "return_statement" | "struct_declaration" => {

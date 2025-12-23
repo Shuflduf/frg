@@ -30,5 +30,10 @@ pub fn transpile(var_decl: &VariableDeclaration) -> String {
     let var_name = &var_decl.identifier;
     let value = expressions::transpile(&var_decl.value);
     let type_str = types::transpile(&var_decl.var_type);
+    let value = if let VarType::Struct(struct_name) = &var_decl.var_type {
+        format!("{struct_name} {value}")
+    } else {
+        value
+    };
     format!("let mut {var_name}: {type_str} = {value};")
 }
