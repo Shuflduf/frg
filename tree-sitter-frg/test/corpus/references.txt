@@ -7,13 +7,16 @@ basic ref
 ---
 
 (source_file
-  (variable_declaration
-    (type
-      (reference_type
-        (type)))
-    (identifier)
-    (unary_expression
-      (int_literal))))
+  (statement
+    (variable_declaration
+      (type
+        (reference_type
+          (type)))
+      (identifier)
+      (expression
+        (unary_expression
+          (expression
+            (int_literal)))))))
 
 
 ==================
@@ -25,10 +28,14 @@ int_literal.* += 1
 ---
 
 (source_file
-  (variable_assignment
-    (dereference
-      (identifier))
-    (int_literal)))	
+  (statement
+    (variable_assignment
+      (expression
+        (dereference
+          (expression
+            (identifier))))
+      (expression
+        (int_literal)))))
 
 
 ==================
@@ -42,21 +49,32 @@ nums[2] += int_literal.*
 ---
 
 (source_file
-  (variable_declaration
-    (type
-      (vec_type
-        (type)))
-    (identifier)
-    (vec_literal
-      (int_literal)
-      (int_literal)
-      (int_literal)))
-  (variable_assignment
-    (index_access
+  (statement
+    (variable_declaration
+      (type
+        (vec_type
+          (type)))
       (identifier)
-      (int_literal))
-    (dereference
-      (identifier))))
+      (expression
+        (vec_literal
+          (expression
+            (int_literal))
+          (expression
+            (int_literal))
+          (expression
+            (int_literal))))))
+  (statement
+    (variable_assignment
+      (expression
+        (index_access
+          (expression
+            (identifier))
+          (expression
+            (int_literal))))
+      (expression
+        (dereference
+          (expression
+            (identifier)))))))
 
 
 ==================
@@ -68,37 +86,66 @@ crazy bullshit
 ---
 
 (source_file
-  (variable_assignment
-    (dereference
-      (index_access
-        (member_access
-          (index_access
-            (unary_expression
-              (identifier))
-            (function_call
-              (identifier)))
-          (identifier))
-        (int_literal)))
-    (binary_expression
-      (binary_expression
-        (function_call
-          (identifier)
-          (binary_expression
+  (statement
+    (variable_assignment
+      (expression
+        (dereference
+          (expression
             (index_access
-              (binary_expression
-                (dereference
-                  (identifier))
-                (identifier))
-              (int_literal))
-            (binary_expression
-              (binary_expression
+              (expression
                 (member_access
-                  (identifier)
-                  (identifier))
-                (int_literal))
-              (int_literal))))
-        (identifier))
-      (identifier))))
+                  (expression
+                    (index_access
+                      (expression
+                        (unary_expression
+                          (expression
+                            (identifier))))
+                      (expression
+                        (function_call
+                          (expression
+                            (identifier))))))
+                  (identifier)))
+              (expression
+                (int_literal))))))
+      (expression
+        (binary_expression
+          (expression
+            (binary_expression
+              (expression
+                (function_call
+                  (expression
+                    (identifier))
+                  (expression
+                    (binary_expression
+                      (expression
+                        (index_access
+                          (expression
+                            (binary_expression
+                              (expression
+                                (dereference
+                                  (expression
+                                    (identifier))))
+                              (expression
+                                (identifier))))
+                          (expression
+                            (int_literal))))
+                      (expression
+                        (binary_expression
+                          (expression
+                            (binary_expression
+                              (expression
+                                (member_access
+                                  (expression
+                                    (identifier))
+                                  (identifier)))
+                              (expression
+                                (int_literal))))
+                          (expression
+                            (int_literal))))))))
+              (expression
+                (identifier))))
+          (expression
+            (identifier)))))))
 
 
 ==================
@@ -112,29 +159,42 @@ nums[2].* += int_literal.*
 ---
 
 (source_file
-  (variable_declaration
-    (type
-      (vec_type
-        (type
-          (reference_type
-            (type)))))
-    (identifier)
-    (vec_literal
-      (unary_expression
-        (int_literal))
-      (unary_expression
-        (int_literal))
-      (unary_expression
-        (int_literal))))
-  (variable_assignment
-    (dereference
-      (index_access
-        (identifier)
-        (int_literal)))
-    (dereference
-      (identifier))))
-
-
+  (statement
+    (variable_declaration
+      (type
+        (vec_type
+          (type
+            (reference_type
+              (type)))))
+      (identifier)
+      (expression
+        (vec_literal
+          (expression
+            (unary_expression
+              (expression
+                (int_literal))))
+          (expression
+            (unary_expression
+              (expression
+                (int_literal))))
+          (expression
+            (unary_expression
+              (expression
+                (int_literal))))))))
+  (statement
+    (variable_assignment
+      (expression
+        (dereference
+          (expression
+            (index_access
+              (expression
+                (identifier))
+              (expression
+                (int_literal))))))
+      (expression
+        (dereference
+          (expression
+            (identifier)))))))
 
 ==================
 slice into string via range
@@ -145,11 +205,18 @@ str slice = full_text[2..=3]
 ---
 
 (source_file
-  (variable_declaration
-    (type)
-    (identifier)
-    (index_access
+  (statement
+    (variable_declaration
+      (type)
       (identifier)
-      (range
-        (int_literal)
-        (int_literal)))))
+      (expression
+        (index_access
+          (expression
+            (identifier))
+          (expression
+            (range
+              (expression
+                (int_literal))
+              (expression
+                (int_literal)))))))))  
+ 

@@ -7,9 +7,11 @@ if 5 {}
 ---
 
 (source_file
-  (if_statement
-    (int_literal)
-    (block)))
+  (statement
+    (if_statement
+      (expression
+        (int_literal))
+      (block))))
 
 
 ==================
@@ -31,25 +33,36 @@ if true {
 ---
 
 (source_file
-  (if_statement
-    (bool_literal)
-    (block
-      (if_statement
-        (binary_expression
-          (binary_expression
-            (int_literal)
-            (int_literal))
-          (int_literal))
-        (block)
-        (else_if_statement
-          (binary_expression
-            (int_literal)
-            (int_literal))
-          (block))
-        (else_statement
-          (block))))
-    (else_statement
-      (block))))
+  (statement
+    (if_statement
+      (expression
+        (bool_literal))
+      (block
+        (statement
+          (if_statement
+            (expression
+              (binary_expression
+                (expression
+                  (binary_expression
+                    (expression
+                      (int_literal))
+                    (expression
+                      (int_literal))))
+                (expression
+                  (int_literal))))
+            (block)
+            (else_if_statement
+              (expression
+                (binary_expression
+                  (expression
+                    (int_literal))
+                  (expression
+                    (int_literal))))
+              (block))
+            (else_statement
+              (block)))))
+      (else_statement
+        (block)))))
 
 
 ==================
@@ -71,22 +84,33 @@ true {
 ---
 
 (source_file
-  (if_statement
-    (bool_literal)
-    (block
-      (if_statement
-        (binary_expression
-          (binary_expression
-            (int_literal)
-            (int_literal))
-          (int_literal))
-        (block)
-        (else_if_statement
-          (binary_expression
-            (int_literal)
-            (int_literal))
-          (block))
-        (else_statement
-          (block))))
-    (else_statement
-      (block))))
+  (statement
+    (if_statement
+      (expression
+        (bool_literal))
+      (block
+        (statement
+          (if_statement
+            (expression
+              (binary_expression
+                (expression
+                  (binary_expression
+                    (expression
+                      (int_literal))
+                    (expression
+                      (int_literal))))
+                (expression
+                  (int_literal))))
+            (block)
+            (else_if_statement
+              (expression
+                (binary_expression
+                  (expression
+                    (int_literal))
+                  (expression
+                    (int_literal))))
+              (block))
+            (else_statement
+              (block)))))
+      (else_statement
+        (block)))))

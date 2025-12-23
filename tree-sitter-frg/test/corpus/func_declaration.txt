@@ -7,15 +7,17 @@ void() main = () {}
 ---
 
 (source_file
-  (variable_declaration
-    (type
-      (function_type
-        (type)
-        (parameter_list)))
-    (identifier)
-    (function_literal
-      (parameter_declaration)
-      (block))))
+  (statement
+    (variable_declaration
+      (type
+        (function_type
+          (type)
+          (parameter_list)))
+      (identifier)
+      (expression
+        (function_literal
+          (parameter_declaration)
+          (block))))))
 
 
 ==================
@@ -27,19 +29,24 @@ void()() gives_void_func = () { () {} }
 ---
 
 (source_file
-  (variable_declaration
-    (type
-      (function_type
-        (type)
-        (parameter_list)
-        (parameter_list)))
-    (identifier)
-    (function_literal
-      (parameter_declaration)
-      (block
+  (statement
+    (variable_declaration
+      (type
+        (function_type
+          (type)
+          (parameter_list)
+          (parameter_list)))
+      (identifier)
+      (expression
         (function_literal
           (parameter_declaration)
-          (block))))))
+          (block
+            (statement
+              (expression
+                (function_literal
+                  (parameter_declaration)
+                  (block))))))))))
+
 
 ==================
 very very silly func
@@ -50,33 +57,39 @@ int(float, str)(map(str, int())) average_c_developer = (get_score_map) { (my_int
 ---
 
 (source_file
-  (variable_declaration
-    (type
-      (function_type
-        (type)
-        (parameter_list
+  (statement
+    (variable_declaration
+      (type
+        (function_type
           (type)
-          (type))
-        (parameter_list
-          (type
-            (map_type
-              (type)
-              (type
-                (function_type
-                  (type)
-                  (parameter_list))))))))
-    (identifier)
-    (function_literal
-    (parameter_declaration
-      (identifier))
-    (block
-      (function_literal
-        (parameter_declaration
-          (identifier)
-          (identifier))
-        (block
-          (int_literal)))))))
-    
+          (parameter_list
+            (type)
+            (type))
+          (parameter_list
+            (type
+              (map_type
+                (type)
+                (type
+                  (function_type
+                    (type)
+                    (parameter_list))))))))
+      (identifier)
+      (expression
+        (function_literal
+          (parameter_declaration
+            (identifier))
+          (block
+            (statement
+              (expression
+                (function_literal
+                  (parameter_declaration
+                    (identifier)
+                    (identifier))
+                  (block
+                    (statement
+                      (expression
+                        (int_literal)))))))))))))
+
 
 ==================
 function call
@@ -87,13 +100,18 @@ int result = add(3, 2)
 ---
 
 (source_file
-  (variable_declaration
-    (type)
-    (identifier)
-    (function_call
+  (statement
+    (variable_declaration
+      (type)
       (identifier)
-      (int_literal)
-      (int_literal))))
+      (expression
+        (function_call
+          (expression
+            (identifier))
+          (expression
+            (int_literal))
+          (expression
+            (int_literal)))))))
 
 
 ==================
@@ -105,7 +123,11 @@ builtin call
 ---
 
 (source_file
-  (builtin
-    (identifier)
-    (string_literal)
-    (int_literal)))
+  (statement
+    (expression
+      (builtin
+        (identifier)
+        (expression
+          (string_literal))
+        (expression
+          (int_literal))))))

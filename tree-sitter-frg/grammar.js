@@ -16,31 +16,31 @@ module.exports = grammar({
     [$.set_literal, $.map_literal, $.empty_collection],
     [$.set_literal, $.map_literal],
     [$.set_literal, $.map_literal, $.empty_collection, $.block],
-    [$.type, $._expression],
+    [$.type, $.expression],
     [$.type, $.struct_method],
-    [$._statement, $.if_statement],
-    [$._statement, $.block],
-    [$._statement, $.set_literal],
-    [$._statement, $.set_literal, $.if_statement],
-    [$._statement, $.set_literal, $.block],
+    [$.statement, $.if_statement],
+    [$.statement, $.block],
+    [$.statement, $.set_literal],
+    [$.statement, $.set_literal, $.if_statement],
+    [$.statement, $.set_literal, $.block],
   ],
 
   rules: {
-    source_file: ($) => repeat($._statement),
+    source_file: ($) => repeat($.statement),
 
-    _statement: ($) =>
+    statement: ($) =>
       choice(
         $.variable_declaration,
         $.if_statement,
         $.return_statement,
         $.struct_declaration,
         $.variable_assignment,
-        $._expression,
+        $.expression,
       ),
 
     comment: ($) => token(seq("//", /.*/)),
 
-    variable_declaration: ($) => seq($.type, $.identifier, "=", $._expression),
+    variable_declaration: ($) => seq($.type, $.identifier, "=", $.expression),
 
     type: ($) =>
       choice(
@@ -68,7 +68,7 @@ module.exports = grammar({
 
     reference_type: ($) => prec(1, seq("&", $.type)),
 
-    _expression: ($) =>
+    expression: ($) =>
       choice(
         $.identifier,
         $.binary_expression,
@@ -95,14 +95,14 @@ module.exports = grammar({
         prec.left(
           6,
           seq(
-            $._expression,
+            $.expression,
             choice(">", "<", ">=", "<=", "==", "!="),
-            $._expression,
+            $.expression,
           ),
         ),
-        prec.left(11, seq($._expression, choice("+", "-"), $._expression)),
-        prec.left(12, seq($._expression, choice("*", "/"), $._expression)),
-        prec.left(5, seq($._expression, "&&", $._expression)),
+        prec.left(11, seq($.expression, choice("+", "-"), $.expression)),
+        prec.left(12, seq($.expression, choice("*", "/"), $.expression)),
+        prec.left(5, seq($.expression, "&&", $.expression)),
       ),
 
     int_literal: ($) => /\d+/,
@@ -110,67 +110,64 @@ module.exports = grammar({
     string_literal: ($) => seq('"', /[^"]*/, '"'),
     bool_literal: ($) => choice("true", "false"),
 
-    vec_literal: ($) => seq("[", repeat(choice($._expression, ",")), "]"),
-    set_literal: ($) => seq("{", repeat(choice($._expression, ",")), "}"),
+    vec_literal: ($) => seq("[", repeat(choice($.expression, ",")), "]"),
+    set_literal: ($) => seq("{", repeat(choice($.expression, ",")), "}"),
     map_literal: ($) => seq("{", repeat(choice($.map_entry, ",")), "}"),
-    map_entry: ($) => seq($._expression, repeat1(":"), $._expression),
+    map_entry: ($) => seq($.expression, repeat1(":"), $.expression),
     empty_collection: ($) => seq("{", repeat(","), "}"),
 
     function_literal: ($) => seq($.parameter_declaration, $.block),
     parameter_declaration: ($) =>
       seq("(", repeat(choice($.identifier, ",")), ")"),
-    block: ($) => seq("{", repeat($._statement), optional($._expression), "}"),
+    block: ($) => seq("{", repeat($.statement), optional($.expression), "}"),
 
-    // it would theoretically be possible to switch $.identifier for $._expression so you can do shit like 5()
+    // it would theoretically be possible to switch $.identifier for $.expression so you can do shit like 5()
     function_call: ($) =>
-      prec(
-        15,
-        seq($._expression, "(", repeat(choice($._expression, ",")), ")"),
-      ),
+      prec(15, seq($.expression, "(", repeat(choice($.expression, ",")), ")")),
 
     unary_expression: ($) =>
       choice(
-        prec(14, seq("&", $._expression)),
-        prec(13, seq("-", $._expression)),
-        prec(13, seq("!", $._expression)),
+        prec(14, seq("&", $.expression)),
+        prec(13, seq("-", $.expression)),
+        prec(13, seq("!", $.expression)),
       ),
     // reference: ($) => prec.right(14, ),
 
-    dereference: ($) => prec.left(16, seq($._expression, ".*")),
-    member_access: ($) => prec.left(16, seq($._expression, ".", $.identifier)),
+    dereference: ($) => prec.left(16, seq($.expression, ".*")),
+    member_access: ($) => prec.left(16, seq($.expression, ".", $.identifier)),
 
     index_access: ($) =>
-      prec.left(11, seq($._expression, "[", $._expression, "]")),
+      prec.left(11, seq($.expression, "[", $.expression, "]")),
 
     range: ($) =>
       prec.left(
         3,
         seq(
-          optional($._expression),
+          optional($.expression),
           "..",
           optional("="),
-          optional($._expression),
+          optional($.expression),
         ),
       ),
 
     builtin: ($) =>
-      seq("@", $.identifier, "(", repeat(choice($._expression, ",")), ")"),
+      seq("@", $.identifier, "(", repeat(choice($.expression, ",")), ")"),
 
     if_statement: ($) =>
       prec.right(
         seq(
           repeat("if"),
-          $._expression,
+          $.expression,
           $.block,
           repeat($.else_if_statement),
           optional($.else_statement),
         ),
       ),
     else_if_statement: ($) =>
-      seq(repeat("else"), repeat("if"), $._expression, $.block),
+      seq(repeat("else"), repeat("if"), $.expression, $.block),
     else_statement: ($) => seq(repeat("else"), repeat("if"), $.block),
 
-    return_statement: ($) => seq("return", $._expression),
+    return_statement: ($) => seq("return", $.expression),
 
     struct_declaration: ($) =>
       seq(
@@ -186,6 +183,6 @@ module.exports = grammar({
       seq($.function_type, $.identifier, "=", $.function_literal),
 
     variable_assignment: ($) =>
-      seq($._expression, choice("=", "+=", "-=", "*=", "/="), $._expression),
+      seq($.expression, choice("=", "+=", "-=", "*=", "/="), $.expression),
   },
 });

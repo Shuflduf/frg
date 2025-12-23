@@ -7,10 +7,11 @@ struct Empty = {}
 ---
 
 (source_file
-  (struct_declaration
-    (identifier)))
+  (statement
+    (struct_declaration
+      (identifier))))	
 
-	
+
 ==================
 simple struct dec
 ==================
@@ -23,14 +24,15 @@ struct Person = {
 ---
 
 (source_file
-  (struct_declaration
-    (identifier)
-    (struct_field
-      (type)
-      (identifier))
-    (struct_field
-      (type)
-      (identifier))))
+  (statement
+    (struct_declaration
+      (identifier)
+      (struct_field
+        (type)
+        (identifier))
+      (struct_field
+        (type)
+        (identifier)))))
 
 	
 ==================
@@ -45,17 +47,23 @@ Person jog = {
 ---
 
 (source_file
-  (variable_declaration
-    (type
-      (identifier))
-    (identifier)
-    (map_literal
-      (map_entry
-        (identifier)
-        (string_literal))
-      (map_entry
-        (identifier)
-        (int_literal)))))
+  (statement
+    (variable_declaration
+      (type
+        (identifier))
+      (identifier)
+      (expression
+        (map_literal
+          (map_entry
+            (expression
+              (identifier))
+            (expression
+              (string_literal)))
+          (map_entry
+            (expression
+              (identifier))
+            (expression
+              (int_literal))))))))
 
 
 ==================
@@ -67,12 +75,15 @@ str name = jog.name
 ---
 
 (source_file
-  (variable_declaration
-    (type)
-    (identifier)
-    (member_access
+  (statement
+    (variable_declaration
+      (type)
       (identifier)
-      (identifier))))
+      (expression
+        (member_access
+          (expression
+            (identifier))
+          (identifier))))))
 
 
 ==================
@@ -90,27 +101,34 @@ struct Frog = {
 ---
 
 (source_file
-  (struct_declaration
-    (identifier)
-    (struct_field
-      (type)
-      (identifier))
-    (struct_field
-      (type)
-      (identifier))
-    (struct_method
-      (function_type
-        (type)
-        (parameter_list))
+  (statement
+    (struct_declaration
       (identifier)
-      (function_literal
-        (parameter_declaration
-          (identifier))
-        (block
-          (variable_assignment
-            (member_access
-              (identifier)
-              (identifier))
-            (member_access
-              (identifier)
-              (identifier))))))))
+      (struct_field
+        (type)
+        (identifier))
+      (struct_field
+        (type)
+        (identifier))
+      (struct_method
+        (function_type
+          (type)
+          (parameter_list))
+        (identifier)
+        (function_literal
+          (parameter_declaration
+            (identifier))
+          (block
+            (statement
+              (variable_assignment
+                (expression
+                  (member_access
+                    (expression
+                      (identifier))
+                    (identifier)))
+                (expression
+                  (member_access
+                    (expression
+                      (identifier))
+                    (identifier)))))))))))
+

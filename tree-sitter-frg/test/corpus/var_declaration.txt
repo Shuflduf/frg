@@ -7,11 +7,12 @@ int int_literal = 32
 ---
 
 (source_file
-  (variable_declaration
-    (type)
-    (identifier)
-    (int_literal)))
-
+  (statement
+    (variable_declaration
+      (type)
+      (identifier)
+      (expression
+        (int_literal)))))
 
 ==================
 float variable declaration
@@ -22,10 +23,12 @@ float pi = 3.1
 ---
 
 (source_file
-  (variable_declaration
-    (type)
-    (identifier)
-    (float_literal)))
+  (statement
+    (variable_declaration
+      (type)
+      (identifier)
+      (expression
+        (float_literal)))))
 
 
 ==================
@@ -37,10 +40,12 @@ str message = "mmmnm i love frogs"
 ---
 
 (source_file
-  (variable_declaration
-    (type)
-    (identifier)
-    (string_literal)))
+  (statement
+    (variable_declaration
+      (type)
+      (identifier)
+      (expression
+        (string_literal)))))
 
 
 ==================
@@ -52,15 +57,21 @@ int num = 4 + 3 * 8
 ---
 
 (source_file
-  (variable_declaration
-    (type)
-    (identifier)
-    (binary_expression
-      (int_literal)
-      (binary_expression
-        (int_literal)
-        (int_literal)))))
-           
+  (statement
+    (variable_declaration
+      (type)
+      (identifier)
+      (expression
+        (binary_expression
+          (expression
+            (int_literal))
+          (expression
+            (binary_expression
+              (expression
+                (int_literal))
+              (expression
+                (int_literal)))))))))           
+
 
 ==================
 normal vector
@@ -71,17 +82,24 @@ vec(int) int_literal = [2, 3, 4, 5, 4]
 ---
 
 (source_file
-  (variable_declaration
-    (type
-      (vec_type
-        (type)))
-    (identifier)
-    (vec_literal
-      (int_literal)
-      (int_literal)
-      (int_literal)
-      (int_literal)
-      (int_literal))))
+  (statement
+    (variable_declaration
+      (type
+        (vec_type
+          (type)))
+      (identifier)
+      (expression
+        (vec_literal
+          (expression
+            (int_literal))
+          (expression
+            (int_literal))
+          (expression
+            (int_literal))
+          (expression
+            (int_literal))
+          (expression
+            (int_literal)))))))
 
 
 ==================
@@ -93,16 +111,22 @@ vec(int) int_literal = [2 3 4 5]
 ---
 
 (source_file
-  (variable_declaration
-    (type
-      (vec_type
-        (type)))
-    (identifier)
-    (vec_literal
-      (int_literal)
-      (int_literal)
-      (int_literal)
-      (int_literal))))
+  (statement
+    (variable_declaration
+      (type
+        (vec_type
+          (type)))
+      (identifier)
+      (expression
+        (vec_literal
+          (expression
+            (int_literal))
+          (expression
+            (int_literal))
+          (expression
+            (int_literal))
+          (expression
+            (int_literal)))))))
 
 
 ==================
@@ -114,17 +138,24 @@ vec(int) int_literal = [2 3,, 4 5,,, 4,,]
 ---
 
 (source_file
-  (variable_declaration
-    (type
-      (vec_type
-        (type)))
-    (identifier)
-    (vec_literal
-      (int_literal)
-      (int_literal)
-      (int_literal)
-      (int_literal)
-      (int_literal))))
+  (statement
+    (variable_declaration
+      (type
+        (vec_type
+          (type)))
+      (identifier)
+      (expression
+        (vec_literal
+          (expression
+            (int_literal))
+          (expression
+            (int_literal))
+          (expression
+            (int_literal))
+          (expression
+            (int_literal))
+          (expression
+            (int_literal)))))))
 
 
 ==================
@@ -136,19 +167,26 @@ map(str, int) team_scores = { "yellow": 2, "red": 5 }
 ---
 
 (source_file
-  (variable_declaration
-    (type
-      (map_type
-        (type)
-        (type)))
-    (identifier)
-    (map_literal
-      (map_entry
-        (string_literal)
-        (int_literal))
-      (map_entry
-        (string_literal)
-        (int_literal)))))
+  (statement
+    (variable_declaration
+      (type
+        (map_type
+          (type)
+          (type)))
+      (identifier)
+      (expression
+        (map_literal
+          (map_entry
+            (expression
+              (string_literal))
+            (expression
+              (int_literal)))
+          (map_entry
+            (expression
+              (string_literal))
+            (expression
+              (int_literal))))))))
+
 
 ==================
 set declaration
@@ -159,15 +197,20 @@ set(int) passing_teams = { 2, 4, 5 }
 ---
 
 (source_file
-  (variable_declaration
-    (type
-      (set_type
-        (type)))
-    (identifier)
-    (set_literal
-      (int_literal)
-      (int_literal)
-      (int_literal))))
+  (statement
+    (variable_declaration
+      (type
+        (set_type
+          (type)))
+      (identifier)
+      (expression
+        (set_literal
+          (expression
+            (int_literal))
+          (expression
+            (int_literal))
+          (expression
+            (int_literal)))))))
 
 
 ==================
@@ -179,12 +222,14 @@ set(int) losers = {}
 ---
 
 (source_file
-  (variable_declaration
-    (type
-      (set_type
-        (type)))
-    (identifier)
-    (set_literal)))
+  (statement
+    (variable_declaration
+      (type
+        (set_type
+          (type)))
+      (identifier)
+      (expression
+        (set_literal)))))
 
 
 ==================
@@ -196,10 +241,12 @@ bool has_bitches = false
 ---
 
 (source_file
-  (variable_declaration
-    (type)
-    (identifier)
-    (bool_literal)))
+  (statement
+    (variable_declaration
+      (type)
+      (identifier)
+      (expression
+        (bool_literal)))))
 
 
 ==================
@@ -211,9 +258,13 @@ bool taller_than_me = my_height < your_height
 ---
 
 (source_file
-  (variable_declaration
-    (type)
-    (identifier)
-    (binary_expression
+  (statement
+    (variable_declaration
+      (type)
       (identifier)
-      (identifier))))
+      (expression
+        (binary_expression
+          (expression
+            (identifier))
+          (expression
+            (identifier)))))))
