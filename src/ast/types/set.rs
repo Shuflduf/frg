@@ -15,7 +15,7 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> VarType {
 
 pub fn transpile(inner_type: &VarType) -> String {
     let inner_type_str = if let VarType::Reference(referenced_type) = inner_type {
-        let ref_type_str = types::transpile(&referenced_type);
+        let ref_type_str = types::transpile(referenced_type);
         format!("&{ref_type_str}")
     } else {
         types::transpile(inner_type)

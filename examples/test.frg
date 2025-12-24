@@ -1,12 +1,6 @@
-map(str, int) ages = {"josch": 312,, "froog": 1}
+map(int,, str) things = {5: "AAAA", 9: "SHITTTT"}
 
-
-Person josch = {
-    age: 312
-}
-
-
-
+str ninth = things[9]
 
 
 

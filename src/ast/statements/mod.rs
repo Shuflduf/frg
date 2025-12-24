@@ -24,7 +24,8 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> Statement {
         "variable_assignment" => {
             Statement::VariableAssignment(variable_assignment::parse(cursor, code))
         }
-        _ => todo!(),
+        "expression" => Statement::Expression(expressions::parse(cursor, code)),
+        _ => todo!("{statement_name}"),
     };
     cursor.goto_parent();
 

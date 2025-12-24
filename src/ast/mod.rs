@@ -37,10 +37,8 @@ fn parse_block(cursor: &mut TreeCursor, code: &str) -> Vec<Statement> {
                 continue;
             }
             "}" => break,
-            _ => todo!("cant parse {current_node_kind}"),
+            _ => unreachable!("{current_node_kind}"),
         });
-
-        // println!("{current_node}");
 
         if !cursor.goto_next_sibling() {
             break;

@@ -1,7 +1,5 @@
 use tree_sitter::TreeCursor;
 
-use crate::ast::expressions::map_literal;
-
 // use crate::ast_builder::{expressions, types, VariableDeclaration};
 use super::*;
 
@@ -35,7 +33,7 @@ pub fn transpile(var_decl: &VariableDeclaration) -> String {
     let value = if let VarType::Struct(struct_name) = &var_decl.var_type
         && let Expression::MapLiteral(map_lit) = &var_decl.value
     {
-        let struct_fields = expressions::map_literal::transpile_struct(&map_lit);
+        let struct_fields = expressions::map_literal::transpile_struct(map_lit);
         format!("{struct_name} {struct_fields}")
     } else {
         value

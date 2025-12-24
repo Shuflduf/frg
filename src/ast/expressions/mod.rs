@@ -54,7 +54,8 @@ pub fn transpile(expr: &Expression) -> String {
         Expression::UnaryOperation(unary_op) => unary_operation::transpile(unary_op),
         Expression::MemberAccess(mem_acc) => member_access::transpile(mem_acc),
         Expression::SetLiteral(set_lit) => set_literal::transpile(set_lit),
-        _ => todo!("{expr:?}"),
+        Expression::IndexAccess(index_acc) => index_access::transpile(index_acc),
+        // _ => todo!("{expr:?}"),
     }
 }
 
