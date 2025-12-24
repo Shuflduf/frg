@@ -34,5 +34,16 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> Range {
 }
 
 pub fn transpile(range_lit: &Range) -> String {
-    todo!()
+    let lower_bound = if let Some(low) = &range_lit.0 {
+        expressions::transpile(&low)
+    } else {
+        "".to_string()
+    };
+    let upper_bound = if let Some(up) = &range_lit.1 {
+        let equal_str = if up.0 { "=" } else { "" };
+        format!("{}{}", equal_str, expressions::transpile(&up.1))
+    } else {
+        "".to_string()
+    };
+    format!("{lower_bound}..{upper_bound}")
 }

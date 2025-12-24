@@ -19,5 +19,5 @@ pub fn transpile(index_acc: &IndexAccess) -> String {
     let expr = expressions::transpile(&index_acc.expr);
     let index = expressions::transpile(&index_acc.target_index);
 
-    format!("{expr}[&{index}]")
+    format!("{expr}[{index}]")
 }
