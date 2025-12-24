@@ -1,2 +1,2 @@
-int range = 5..=9
+range ma_range = ..=5
 

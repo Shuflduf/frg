@@ -903,23 +903,32 @@
             "value": ".."
           },
           {
-            "type": "SEQ",
+            "type": "CHOICE",
             "members": [
               {
-                "type": "CHOICE",
+                "type": "SEQ",
                 "members": [
                   {
                     "type": "STRING",
                     "value": "="
                   },
                   {
-                    "type": "BLANK"
+                    "type": "SYMBOL",
+                    "name": "expression"
                   }
                 ]
               },
               {
-                "type": "SYMBOL",
-                "name": "expression"
+                "type": "CHOICE",
+                "members": [
+                  {
+                    "type": "SYMBOL",
+                    "name": "expression"
+                  },
+                  {
+                    "type": "BLANK"
+                  }
+                ]
               }
             ]
           }

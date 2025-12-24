@@ -143,7 +143,7 @@ module.exports = grammar({
         seq(
           optional($.expression),
           "..",
-          seq(optional("="), $.expression),
+          choice(seq("=", $.expression), optional($.expression)),
           // optional("="),
           // optional($.expression),
         ),

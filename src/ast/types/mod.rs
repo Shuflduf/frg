@@ -15,6 +15,7 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> VarType {
         "int" => VarType::Int,
         "str" => VarType::Str,
         "float" => VarType::Float,
+        "range" => VarType::Range,
         "reference_type" => reference::parse(cursor, code),
         "function_type" => function::parse(cursor, code),
         "identifier" => VarType::Struct(code[cursor.node().byte_range()].to_string()),
