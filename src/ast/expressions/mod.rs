@@ -14,12 +14,10 @@ mod unary_operation;
 mod vec_literal;
 
 pub fn parse(cursor: &mut TreeCursor, code: &str) -> Expression {
-    // cursor.goto_first_child();
+    cursor.goto_first_child();
 
     let expression_name = cursor.node().kind();
-
-    // cursor.goto_parent();
-    match expression_name {
+    let expression = match expression_name {
         "int_literal" | "string_literal" | "float_literal" | "bool_literal" => {
             Expression::Literal(literal::parse(cursor, code))
         }
@@ -36,8 +34,10 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> Expression {
         "member_access" => Expression::MemberAccess(member_access::parse(cursor, code)),
         "set_literal" => Expression::SetLiteral(set_literal::parse(cursor, code)),
         _ => todo!("{expression_name}"),
-    }
-    // todo!()
+    };
+
+    cursor.goto_parent();
+    expression
 }
 
 pub fn transpile(expr: &Expression) -> String {

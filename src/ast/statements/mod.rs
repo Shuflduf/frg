@@ -8,8 +8,11 @@ mod struct_declaration;
 mod variable_assignment;
 mod variable_declaration;
 
-pub fn parse(cursor: &mut TreeCursor, code: &str, statement_name: &str) -> Statement {
-    match statement_name {
+pub fn parse(cursor: &mut TreeCursor, code: &str) -> Statement {
+    cursor.goto_first_child();
+
+    let statement_name = cursor.node().kind();
+    let statement = match statement_name {
         "variable_declaration" => {
             Statement::VariableDeclaration(variable_declaration::parse(cursor, code))
         }
@@ -22,7 +25,10 @@ pub fn parse(cursor: &mut TreeCursor, code: &str, statement_name: &str) -> State
             Statement::VariableAssignment(variable_assignment::parse(cursor, code))
         }
         _ => todo!(),
-    }
+    };
+    cursor.goto_parent();
+
+    statement
 }
 
 pub fn transpile(statement: &Statement) -> String {
