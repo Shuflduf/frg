@@ -1,2 +1,2 @@
-map(int int) empty = {}
+int range = 5..=9
 

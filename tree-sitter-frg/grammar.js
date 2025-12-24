@@ -48,6 +48,7 @@ module.exports = grammar({
         "float",
         "str",
         "bool",
+        "range",
         $.vec_type,
         $.set_type,
         $.map_type,
@@ -120,7 +121,6 @@ module.exports = grammar({
       seq("(", repeat(choice($.identifier, ",")), ")"),
     block: ($) => seq("{", repeat($.statement), optional($.expression), "}"),
 
-    // it would theoretically be possible to switch $.identifier for $.expression so you can do shit like 5()
     function_call: ($) =>
       prec(15, seq($.expression, "(", repeat(choice($.expression, ",")), ")")),
 
@@ -130,7 +130,6 @@ module.exports = grammar({
         prec(13, seq("-", $.expression)),
         prec(13, seq("!", $.expression)),
       ),
-    // reference: ($) => prec.right(14, ),
 
     dereference: ($) => prec.left(16, seq($.expression, ".*")),
     member_access: ($) => prec.left(16, seq($.expression, ".", $.identifier)),
@@ -144,8 +143,9 @@ module.exports = grammar({
         seq(
           optional($.expression),
           "..",
-          optional("="),
-          optional($.expression),
+          seq(optional("="), $.expression),
+          // optional("="),
+          // optional($.expression),
         ),
       ),
 

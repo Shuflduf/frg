@@ -389,7 +389,7 @@
     "fields": {},
     "children": {
       "multiple": true,
-      "required": false,
+      "required": true,
       "types": [
         {
           "type": "expression",
@@ -856,6 +856,10 @@
   },
   {
     "type": "map",
+    "named": false
+  },
+  {
+    "type": "range",
     "named": false
   },
   {
