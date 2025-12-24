@@ -35,6 +35,13 @@ pub fn transpile(var_decl: &VariableDeclaration) -> String {
     {
         let struct_fields = expressions::map_literal::transpile_struct(map_lit);
         format!("{struct_name} {struct_fields}")
+    } else if let Expression::EmptyCollection = &var_decl.value {
+        match &var_decl.var_type {
+            VarType::Struct(struct_name) => format!("{struct_name} {{}}"),
+            VarType::Set(_) => "std::collections::HashSet::new()".into(),
+            VarType::Map(_) => "std::collections::HashMap::new()".into(),
+            _ => panic!("wtf you cant assign that :(("),
+        }
     } else {
         value
     };

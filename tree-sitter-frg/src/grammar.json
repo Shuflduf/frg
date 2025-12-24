@@ -623,24 +623,28 @@
       ]
     },
     "empty_collection": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "{"
-        },
-        {
-          "type": "REPEAT",
-          "content": {
+      "type": "PREC",
+      "value": 1,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
             "type": "STRING",
-            "value": ","
+            "value": "{"
+          },
+          {
+            "type": "REPEAT",
+            "content": {
+              "type": "STRING",
+              "value": ","
+            }
+          },
+          {
+            "type": "STRING",
+            "value": "}"
           }
-        },
-        {
-          "type": "STRING",
-          "value": "}"
-        }
-      ]
+        ]
+      }
     },
     "function_literal": {
       "type": "SEQ",
@@ -1201,12 +1205,6 @@
     [
       "set_literal",
       "map_literal"
-    ],
-    [
-      "set_literal",
-      "map_literal",
-      "empty_collection",
-      "block"
     ],
     [
       "type",

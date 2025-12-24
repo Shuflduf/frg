@@ -25,7 +25,9 @@ pub fn transpile(statements: &Vec<Statement>) -> String {
 
 fn parse_block(cursor: &mut TreeCursor, code: &str) -> Vec<Statement> {
     let mut statements = vec![];
-    cursor.goto_first_child();
+    if !cursor.goto_first_child() {
+        return vec![];
+    }
     loop {
         let current_node_kind = cursor.node().kind();
 

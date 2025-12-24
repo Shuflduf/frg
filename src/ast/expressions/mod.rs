@@ -33,6 +33,7 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> Expression {
         "dereference" => Expression::Dereference(dereference::parse(cursor, code)),
         "member_access" => Expression::MemberAccess(member_access::parse(cursor, code)),
         "set_literal" => Expression::SetLiteral(set_literal::parse(cursor, code)),
+        "empty_collection" => Expression::EmptyCollection,
         _ => todo!("{expression_name}"),
     };
 
@@ -55,6 +56,7 @@ pub fn transpile(expr: &Expression) -> String {
         Expression::MemberAccess(mem_acc) => member_access::transpile(mem_acc),
         Expression::SetLiteral(set_lit) => set_literal::transpile(set_lit),
         Expression::IndexAccess(index_acc) => index_access::transpile(index_acc),
+        Expression::EmptyCollection => "TEMP RAHHH 🐸🚀".into(),
         // _ => todo!("{expr:?}"),
     }
 }

@@ -97,6 +97,7 @@ pub enum Expression {
     MapLiteral(Vec<(String, Expression)>),
     VecLiteral(Vec<Expression>),
     SetLiteral(Vec<Expression>),
+    EmptyCollection,
 }
 
 #[derive(Debug)]

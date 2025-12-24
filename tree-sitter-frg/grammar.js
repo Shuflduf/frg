@@ -15,7 +15,6 @@ module.exports = grammar({
   conflicts: ($) => [
     [$.set_literal, $.map_literal, $.empty_collection],
     [$.set_literal, $.map_literal],
-    [$.set_literal, $.map_literal, $.empty_collection, $.block],
     [$.type, $.expression],
     [$.type, $.struct_method],
     [$.statement, $.if_statement],
@@ -114,7 +113,7 @@ module.exports = grammar({
     set_literal: ($) => seq("{", repeat(choice($.expression, ",")), "}"),
     map_literal: ($) => seq("{", repeat(choice($.map_entry, ",")), "}"),
     map_entry: ($) => seq($.expression, repeat1(":"), $.expression),
-    empty_collection: ($) => seq("{", repeat(","), "}"),
+    empty_collection: ($) => prec(1, seq("{", repeat(","), "}")),
 
     function_literal: ($) => seq($.parameter_declaration, $.block),
     parameter_declaration: ($) =>

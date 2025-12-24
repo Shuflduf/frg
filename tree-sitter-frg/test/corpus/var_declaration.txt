@@ -229,8 +229,7 @@ set(int) losers = {}
           (type)))
       (identifier)
       (expression
-        (set_literal)))))
-
+        (empty_collection)))))
 
 ==================
 bool variable declaration
