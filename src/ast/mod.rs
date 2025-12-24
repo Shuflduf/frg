@@ -34,7 +34,7 @@ fn parse_block(cursor: &mut TreeCursor, code: &str) -> Vec<Statement> {
         statements.push(match current_node_kind {
             "statement" => statements::parse(cursor, code),
             "expression" => Statement::Expression(expressions::parse(cursor, code)),
-            "{" => {
+            "{" | "comment" => {
                 cursor.goto_next_sibling();
                 continue;
             }

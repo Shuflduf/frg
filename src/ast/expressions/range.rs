@@ -17,10 +17,7 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> Range {
     // skip ".."
     cursor.goto_next_sibling();
 
-    let up_to = match cursor.node().kind() {
-        "=" => true,
-        _ => false,
-    };
+    let up_to = cursor.node().kind() == "=";
     let upper_bound = if up_to {
         cursor.goto_next_sibling();
         Some((true, Box::new(expressions::parse(cursor, code))))
@@ -30,12 +27,14 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> Range {
             _ => None,
         }
     };
+
+    cursor.goto_parent();
     (lower_bound, upper_bound)
 }
 
 pub fn transpile(range_lit: &Range) -> String {
     let lower_bound = if let Some(low) = &range_lit.0 {
-        expressions::transpile(&low)
+        expressions::transpile(low)
     } else {
         "".to_string()
     };

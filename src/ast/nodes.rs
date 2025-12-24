@@ -97,6 +97,7 @@ pub enum Expression {
     MapLiteral(Vec<(String, Expression)>),
     VecLiteral(Vec<Expression>),
     SetLiteral(Vec<Expression>),
+    #[allow(clippy::type_complexity)]
     Range((Option<Box<Expression>>, Option<(bool, Box<Expression>)>)),
     EmptyCollection,
 }
