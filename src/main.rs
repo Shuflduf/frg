@@ -2,6 +2,7 @@ use std::{env, fs};
 use tree_sitter::{Language, Parser};
 
 pub mod ast;
+mod rust_runner;
 mod rust_transpiler;
 
 unsafe extern "C" {
@@ -24,4 +25,7 @@ fn main() {
     println!("{ast_tree:?}");
     let rust_code = rust_transpiler::transpile(&ast_tree);
     println!("{rust_code}");
+    rust_runner::run(&rust_code);
+    // let res = rust_runner::run(&rust_code);
+    // println!("{res}");
 }
