@@ -11,6 +11,9 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> VarAss {
     let op = match &code[cursor.node().byte_range()] {
         "=" => AssignmentOp::Equals,
         "+=" => AssignmentOp::PlusEquals,
+        "-=" => AssignmentOp::MinusEquals,
+        "*=" => AssignmentOp::TimesEquals,
+        "/=" => AssignmentOp::DivideEquals,
         _ => unreachable!(),
     };
 
