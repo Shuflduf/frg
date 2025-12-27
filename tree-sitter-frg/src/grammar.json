@@ -55,25 +55,29 @@
       }
     },
     "variable_declaration": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "SYMBOL",
-          "name": "type"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "identifier"
-        },
-        {
-          "type": "STRING",
-          "value": "="
-        },
-        {
-          "type": "SYMBOL",
-          "name": "expression"
-        }
-      ]
+      "type": "PREC_DYNAMIC",
+      "value": 100,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "SYMBOL",
+            "name": "type"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "identifier"
+          },
+          {
+            "type": "STRING",
+            "value": "="
+          },
+          {
+            "type": "SYMBOL",
+            "name": "expression"
+          }
+        ]
+      }
     },
     "type": {
       "type": "CHOICE",
@@ -99,10 +103,6 @@
           "value": "bool"
         },
         {
-          "type": "STRING",
-          "value": "range"
-        },
-        {
           "type": "SYMBOL",
           "name": "vec_type"
         },
@@ -120,7 +120,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "identifier"
+          "name": "struct_identifier"
         },
         {
           "type": "SYMBOL",
@@ -253,7 +253,11 @@
     },
     "identifier": {
       "type": "PATTERN",
-      "value": "[a-zA-Z_][a-zA-Z0-9_]*"
+      "value": "[a-z_][a-zA-Z0-9_]*"
+    },
+    "struct_identifier": {
+      "type": "PATTERN",
+      "value": "[A-Z][a-zA-Z0-9_]*"
     },
     "num_identifier": {
       "type": "PATTERN",
@@ -1099,7 +1103,7 @@
         },
         {
           "type": "SYMBOL",
-          "name": "identifier"
+          "name": "struct_identifier"
         },
         {
           "type": "STRING",
@@ -1220,6 +1224,10 @@
   ],
   "conflicts": [
     [
+      "expression",
+      "variable_declaration"
+    ],
+    [
       "set_literal",
       "map_literal",
       "empty_collection"
@@ -1255,6 +1263,14 @@
     ],
     [
       "statement",
+      "set_literal",
+      "block"
+    ],
+    [
+      "set_literal",
+      "if_statement"
+    ],
+    [
       "set_literal",
       "block"
     ]

@@ -9,7 +9,7 @@ struct Empty = {}
 (source_file
   (statement
     (struct_declaration
-      (identifier))))	
+      (struct_identifier))))
 
 
 ==================
@@ -26,7 +26,7 @@ struct Person = {
 (source_file
   (statement
     (struct_declaration
-      (identifier)
+      (struct_identifier)
       (struct_field
         (type)
         (identifier))
@@ -50,7 +50,7 @@ Person jog = {
   (statement
     (variable_declaration
       (type
-        (identifier))
+        (struct_identifier))
       (identifier)
       (expression
         (map_literal
@@ -103,7 +103,7 @@ struct Frog = {
 (source_file
   (statement
     (struct_declaration
-      (identifier)
+      (struct_identifier)
       (struct_field
         (type)
         (identifier))

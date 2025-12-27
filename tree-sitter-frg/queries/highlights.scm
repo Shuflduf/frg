@@ -6,7 +6,6 @@
 "float" @type
 "str" @type
 "bool" @type
-"range" @type
 "vec" @type
 "set" @type
 "map" @type

@@ -523,11 +523,11 @@
       "required": true,
       "types": [
         {
-          "type": "identifier",
+          "type": "struct_field",
           "named": true
         },
         {
-          "type": "struct_field",
+          "type": "struct_identifier",
           "named": true
         },
         {
@@ -592,10 +592,6 @@
           "named": true
         },
         {
-          "type": "identifier",
-          "named": true
-        },
-        {
           "type": "map_type",
           "named": true
         },
@@ -605,6 +601,10 @@
         },
         {
           "type": "set_type",
+          "named": true
+        },
+        {
+          "type": "struct_identifier",
           "named": true
         },
         {
@@ -863,10 +863,6 @@
     "named": true
   },
   {
-    "type": "range",
-    "named": false
-  },
-  {
     "type": "return",
     "named": false
   },
@@ -881,6 +877,10 @@
   {
     "type": "struct",
     "named": false
+  },
+  {
+    "type": "struct_identifier",
+    "named": true
   },
   {
     "type": "true",

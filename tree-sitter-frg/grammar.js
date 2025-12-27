@@ -13,6 +13,7 @@ module.exports = grammar({
   extras: ($) => [/\s/, $.comment],
 
   conflicts: ($) => [
+    [$.expression, $.variable_declaration],
     [$.set_literal, $.map_literal, $.empty_collection],
     [$.set_literal, $.map_literal],
     [$.type, $.expression],
@@ -22,6 +23,8 @@ module.exports = grammar({
     [$.statement, $.set_literal],
     [$.statement, $.set_literal, $.if_statement],
     [$.statement, $.set_literal, $.block],
+    [$.set_literal, $.if_statement],
+    [$.set_literal, $.block],
   ],
 
   rules: {
@@ -39,7 +42,8 @@ module.exports = grammar({
 
     comment: ($) => token(seq("//", /.*/)),
 
-    variable_declaration: ($) => seq($.type, $.identifier, "=", $.expression),
+    variable_declaration: ($) =>
+      prec.dynamic(100, seq($.type, $.identifier, "=", $.expression)),
 
     type: ($) =>
       choice(
@@ -48,12 +52,11 @@ module.exports = grammar({
         "float",
         "str",
         "bool",
-        "range",
         $.vec_type,
         $.set_type,
         $.map_type,
         $.function_type,
-        $.identifier,
+        $.struct_identifier,
         $.reference_type,
       ),
 
@@ -64,7 +67,8 @@ module.exports = grammar({
     function_type: ($) => prec.right(seq($.type, repeat1($.parameter_list))),
     parameter_list: ($) => seq("(", repeat(choice($.type, ",")), ")"),
 
-    identifier: ($) => /[a-zA-Z_][a-zA-Z0-9_]*/,
+    identifier: ($) => /[a-z_][a-zA-Z0-9_]*/,
+    struct_identifier: ($) => /[A-Z][a-zA-Z0-9_]*/,
     num_identifier: ($) => /[a-zA-Z0-9_]*/,
 
     reference_type: ($) => prec(1, seq("&", $.type)),
@@ -173,7 +177,7 @@ module.exports = grammar({
     struct_declaration: ($) =>
       seq(
         "struct",
-        $.identifier,
+        $.struct_identifier,
         "=",
         "{",
         repeat(choice($.struct_field, $.struct_method, ",")),
