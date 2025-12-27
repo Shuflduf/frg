@@ -23,7 +23,7 @@ fn main() {
     let treesitter_tree = parser.parse(&input, None).unwrap();
     println!("{}", treesitter_tree.root_node());
     let ast_tree = ast::build(&treesitter_tree, &input);
-    println!("{ast_tree:?}");
+    println!("{ast_tree:#?}");
     let rust_code = rust_transpiler::transpile(&ast_tree);
     println!("{rust_code}\n");
     let _ = rust_runner::run(&rust_code);

@@ -7,7 +7,7 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> FunctionLiteral {
     let params = parameter_names(cursor, code);
 
     cursor.goto_next_sibling();
-    cursor.goto_first_child();
+    // cursor.goto_first_child();
     let body = parse_block(cursor, code);
 
     cursor.goto_parent();
