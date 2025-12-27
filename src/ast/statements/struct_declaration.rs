@@ -26,7 +26,7 @@ pub fn transpile(struct_decl: &StructDecl) -> String {
         .map(|field| format!("{}: {},\n", field.1, types::transpile(&field.0)))
         .for_each(|field| fields_str.push_str(&field));
     fields_str.pop();
-    format!("struct {struct_name} {{\n{fields_str}\n}}")
+    format!("#[derive(Clone)]\nstruct {struct_name} {{\n{fields_str}\n}}")
 }
 
 fn get_fields(cursor: &mut TreeCursor, code: &str) -> Vec<(VarType, String)> {

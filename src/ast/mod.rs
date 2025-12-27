@@ -30,7 +30,6 @@ fn parse_block(cursor: &mut TreeCursor, code: &str) -> Vec<Statement> {
     }
     loop {
         let current_node_kind = cursor.node().kind();
-        println!("4: {current_node_kind}");
 
         statements.push(match current_node_kind {
             "statement" => statements::parse(cursor, code),

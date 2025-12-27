@@ -11,7 +11,6 @@ mod variable_declaration;
 pub fn parse(cursor: &mut TreeCursor, code: &str) -> Statement {
     cursor.goto_first_child();
 
-    println!("1: {}", &code[cursor.node().byte_range()]);
     let statement_name = cursor.node().kind();
     let statement = match statement_name {
         "variable_declaration" => {

@@ -124,7 +124,13 @@ module.exports = grammar({
     function_literal: ($) => seq($.parameter_declaration, $.block),
     parameter_declaration: ($) =>
       seq("(", repeat(choice($.identifier, ",")), ")"),
-    block: ($) => seq("{", repeat($.statement), optional($.expression), "}"),
+    block: ($) =>
+      seq(
+        "{",
+        repeat($.statement),
+        // prec.dynamic(100, optional($.expression)),
+        "}",
+      ),
 
     function_call: ($) =>
       prec(15, seq($.expression, "(", repeat(choice($.expression, ",")), ")")),
@@ -159,7 +165,7 @@ module.exports = grammar({
       seq("@", $.identifier, "(", repeat(choice($.expression, ",")), ")"),
 
     if_statement: ($) =>
-      prec.right(
+      prec.left(
         seq(
           repeat("if"),
           $.expression,

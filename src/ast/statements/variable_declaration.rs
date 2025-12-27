@@ -15,11 +15,9 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> VariableDeclaration {
     cursor.goto_next_sibling();
     cursor.goto_next_sibling();
 
-    println!("2: {}", &code[cursor.node().byte_range()]);
     let value = expressions::parse(cursor, code);
 
     cursor.goto_parent();
-    println!("3: {}", &code[cursor.node().byte_range()]);
 
     VariableDeclaration {
         var_type,
