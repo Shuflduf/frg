@@ -347,7 +347,7 @@
           "named": true
         },
         {
-          "type": "identifier",
+          "type": "num_identifier",
           "named": true
         }
       ]
@@ -859,6 +859,10 @@
     "named": false
   },
   {
+    "type": "num_identifier",
+    "named": true
+  },
+  {
     "type": "range",
     "named": false
   },
@@ -892,6 +896,10 @@
   },
   {
     "type": "{",
+    "named": false
+  },
+  {
+    "type": "||",
     "named": false
   },
   {

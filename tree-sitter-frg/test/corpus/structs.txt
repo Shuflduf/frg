@@ -83,7 +83,7 @@ str name = jog.name
         (member_access
           (expression
             (identifier))
-          (identifier))))))
+          (num_identifier))))))
 
 
 ==================
@@ -125,10 +125,10 @@ struct Frog = {
                   (member_access
                     (expression
                       (identifier))
-                    (identifier)))
+                    (num_identifier)))
                 (expression
                   (member_access
                     (expression
                       (identifier))
-                    (identifier)))))))))))
+                    (num_identifier)))))))))))
 

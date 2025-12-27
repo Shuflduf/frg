@@ -104,7 +104,7 @@ crazy bullshit
                         (function_call
                           (expression
                             (identifier))))))
-                  (identifier)))
+                  (num_identifier)))
               (expression
                 (int_literal))))))
       (expression
@@ -137,7 +137,7 @@ crazy bullshit
                                 (member_access
                                   (expression
                                     (identifier))
-                                  (identifier)))
+                                  (num_identifier)))
                               (expression
                                 (int_literal))))
                           (expression

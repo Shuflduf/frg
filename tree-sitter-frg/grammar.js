@@ -65,6 +65,7 @@ module.exports = grammar({
     parameter_list: ($) => seq("(", repeat(choice($.type, ",")), ")"),
 
     identifier: ($) => /[a-zA-Z_][a-zA-Z0-9_]*/,
+    num_identifier: ($) => /[a-zA-Z0-9_]*/,
 
     reference_type: ($) => prec(1, seq("&", $.type)),
 
@@ -96,7 +97,7 @@ module.exports = grammar({
           6,
           seq(
             $.expression,
-            choice(">", "<", ">=", "<=", "==", "!="),
+            choice(">", "<", ">=", "<=", "==", "!=", "&&", "||"),
             $.expression,
           ),
         ),
@@ -132,7 +133,8 @@ module.exports = grammar({
       ),
 
     dereference: ($) => prec.left(16, seq($.expression, ".*")),
-    member_access: ($) => prec.left(16, seq($.expression, ".", $.identifier)),
+    member_access: ($) =>
+      prec.left(16, seq($.expression, ".", $.num_identifier)),
 
     index_access: ($) =>
       prec.left(11, seq($.expression, "[", $.expression, "]")),

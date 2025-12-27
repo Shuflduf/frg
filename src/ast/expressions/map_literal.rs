@@ -27,6 +27,7 @@ fn parse_map_entry(cursor: &mut TreeCursor, code: &str) -> (String, Expression) 
     cursor.goto_next_sibling();
 
     cursor.goto_next_sibling();
+    // println!("{}", &code[cursor.node().byte_range()]);
     let expr = expressions::parse(cursor, code);
 
     cursor.goto_parent();

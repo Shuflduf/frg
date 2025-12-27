@@ -32,9 +32,9 @@
 "!=" @operator
 "&&" @operator
 "||" @operator
-"..=" @operator
-".. " @operator
-".." @operator
+; "..=" @operator
+; ".. " @operator
+; ".." @operator
 "!" @operator
 
 "," @punctuation.delimiter
@@ -46,9 +46,9 @@
 "{" @punctuation.bracket
 "}" @punctuation.bracket
 
-(function_declaration name: (identifier) @function)
+; (function_type (@function)
 (parameter_declaration (identifier) @parameter)
-(function_call (identifier) @function.call)
+; (function_call (identifier) @function.call)
 (function_literal) @function
 
 "if" @conditional
