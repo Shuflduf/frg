@@ -33,7 +33,6 @@ fn get_fields(cursor: &mut TreeCursor, code: &str) -> Vec<(VarType, String)> {
     let mut fields = vec![];
     while cursor.goto_next_sibling() {
         let node_kind = cursor.node().kind();
-        println!("{node_kind}");
         fields.push(match node_kind {
             "{" | "," => continue,
             "}" => break,

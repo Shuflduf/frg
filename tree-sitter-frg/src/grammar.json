@@ -354,6 +354,10 @@
         {
           "type": "SYMBOL",
           "name": "builtin"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "parenthesized"
         }
       ]
     },
@@ -976,6 +980,23 @@
         }
       ]
     },
+    "parenthesized": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "("
+        },
+        {
+          "type": "SYMBOL",
+          "name": "expression"
+        },
+        {
+          "type": "STRING",
+          "value": ")"
+        }
+      ]
+    },
     "if_statement": {
       "type": "PREC_LEFT",
       "value": 0,
@@ -1213,7 +1234,7 @@
   "conflicts": [
     [
       "expression",
-      "variable_declaration"
+      "parameter_declaration"
     ],
     [
       "set_literal",
@@ -1226,19 +1247,11 @@
     ],
     [
       "type",
-      "expression"
-    ],
-    [
-      "type",
       "struct_method"
     ],
     [
       "statement",
       "if_statement"
-    ],
-    [
-      "statement",
-      "block"
     ],
     [
       "statement",
@@ -1248,19 +1261,6 @@
       "statement",
       "set_literal",
       "if_statement"
-    ],
-    [
-      "statement",
-      "set_literal",
-      "block"
-    ],
-    [
-      "set_literal",
-      "if_statement"
-    ],
-    [
-      "set_literal",
-      "block"
     ]
   ],
   "precedences": [],

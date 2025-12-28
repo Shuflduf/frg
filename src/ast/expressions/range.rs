@@ -3,7 +3,6 @@ use super::*;
 type Range = (Option<Box<Expression>>, Option<(bool, Box<Expression>)>);
 
 pub fn parse(cursor: &mut TreeCursor, code: &str) -> Range {
-    println!("{}", &code[cursor.node().byte_range()]);
     cursor.goto_first_child();
 
     let lower_bound = match cursor.node().kind() {

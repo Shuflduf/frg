@@ -52,7 +52,7 @@ void()() gives_void_func = () { () {} }
 very very silly func
 ==================
 
-int(float, str)(map(str, int())) average_c_developer = (get_score_map) { (my_int, my_float) { 5 } }
+int(float, str)(map(str, int())) average_java_developer = (get_score_map) { (my_int, my_float) { 5 } }
 
 ---
 

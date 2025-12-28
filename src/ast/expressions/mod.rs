@@ -9,6 +9,7 @@ mod index_access;
 mod literal;
 pub mod map_literal;
 mod member_access;
+mod parenthesized;
 mod range;
 mod set_literal;
 mod unary_operation;
@@ -35,6 +36,7 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> Expression {
         "member_access" => Expression::MemberAccess(member_access::parse(cursor, code)),
         "set_literal" => Expression::SetLiteral(set_literal::parse(cursor, code)),
         "range" => Expression::Range(range::parse(cursor, code)),
+        "parenthesized" => Expression::Parenthesized(parenthesized::parse(cursor, code)),
         "empty_collection" => Expression::EmptyCollection,
         _ => todo!("{expression_name}"),
     };
@@ -59,6 +61,7 @@ pub fn transpile(expr: &Expression) -> String {
         Expression::SetLiteral(set_lit) => set_literal::transpile(set_lit),
         Expression::IndexAccess(index_acc) => index_access::transpile(index_acc),
         Expression::Range(range_lit) => range::transpile(range_lit),
+        Expression::Parenthesized(inner) => parenthesized::transpile(inner),
         Expression::EmptyCollection => "TEMP RAHHH 🐸🚀".into(),
         // _ => todo!("{expr:?}"),
     }

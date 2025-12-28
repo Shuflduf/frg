@@ -99,6 +99,7 @@ pub enum Expression {
     SetLiteral(Vec<Expression>),
     #[allow(clippy::type_complexity)]
     Range((Option<Box<Expression>>, Option<(bool, Box<Expression>)>)),
+    Parenthesized(Box<Expression>),
     EmptyCollection,
 }
 

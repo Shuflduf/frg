@@ -9,16 +9,241 @@ struct Frog = {
 	int leg_count,
 }
 
+int(&Frog) jump = (jumping_frg) {
+	if jumping_frg.leg_count > 0 {
+		jumping_frg.leg_count -= 1
+	}
+	jumping_frg.leg_count
+}
+
 map(str, int) frog_ages = { "greg": 2, "grog": 1, "josch": 712 }	
 vec(Frog) swamp = []
+Frog wisest_frg = { name: "NONE", age: 0, leg_count: -1 }
 frog_ages.iter().for_each((elem) {
 	Frog new_frg = {
-		name: elem.0.*
-		age: elem.1.*,
-		leg_count: 4,
+	name: elem.0.*
+	age: elem.1.*,
+	leg_count: 4,
+	}
+	if new_frg.age > wisest_frg.age {
+		wisest_frg = new_frg.clone()
 	}
 	swamp.push(new_frg)
 })
 
-
+int jumps_remaining = jump(&wisest_frg)
+@print("{jumps_remaining} jumps left on {}", wisest_frg.name)
 ```
+
+# Purpose
+Frg was made for one reason:
+- *The silly factor*
+Basically i took some Rust code, and sillyfied it. Heres an example
+```rs
+fn jump(jumping_frg: &mut Frog) -> i32 {
+	if jumping_frg.leg_count > 0 {
+		jumping_frg.leg_count -= 1;
+	}
+	jumping_frg.leg_count
+}
+```
+First, remove anything that doesn't have to be there in order to function. This includes any commas, semicolons, keywords, stuff like that
+```rs
+fn jump(jumping_frg: &Frog) -> i32 {
+	jumping_frg.leg_count > 0 {
+		jumping_frg.leg_count -= 1
+	}
+	jumping_frg.leg_count
+}
+```
+Next, seperate the declaration from the implementation (make it a closure)
+```rs
+// we still keep types!!
+let jump: fn(&Frog) -> i32 = |jumping_frg| {
+	jumping_frg.leg_count > 0 {
+		jumping_frg.leg_count -= 1
+	}
+	jumping_frg.leg_count
+}
+```
+Lastly, rearrange everything and hide the exact data type (i32 -> int)
+```
+int(&Frog) jump = (jumping_frg) {
+	jumping_frg.leg_count > 0 {
+		jumping_frg.leg_count -= 1
+	}
+	jumping_frg.leg_count
+}
+```
+You don't like not having an if keyword? Does that make you annoyed? Have three.
+```
+int(&Frog) jump = (jumping_frg) {
+	if if if jumping_frg.leg_count > 0 {
+		jumping_frg.leg_count -= 1
+	}
+	jumping_frg.leg_count
+}
+```
+You want to add another parameter? And a loop? Your greed is insulting.
+```
+int(&Frog,  ,int) jump = (jumping_frg jump_count,,) {
+	if if if jumping_frg.leg_count - jump_count >= 0 {
+		// rust styled loops because theyre objectively better
+		(0..=jump_count).for_each((_) {
+			jumping_frg.leg_count -= 1
+			@print("{} legs remaining", jumping_frg.leg_count)
+		})
+	}
+	jumping_frg.leg_count
+}
+```
+If you're insecure about the size of your -= or your >=, you should be, but also Frg is perfect for you!
+```
+int(&Frog,  ,int) jump = (jumping_frg jump_count,,) {
+	if if if jumping_frg.leg_count - jump_count >>>==== 0 {
+		jumping_frg.leg_count --====== jump_count
+	}
+	jumping_frg.leg_count
+}
+```
+If you can't comprehend the last expression in a function being the returned value, you can use the `return` keyword. Or the `ret` keyword. Or `urn`. Or anything that has the letters from the word function as long as they're in order.
+```
+return jumping_frg.leg_count
+ret jumping_frg.leg_count
+turn jumping_frg.leg_count
+tr jumping_frg.leg_count
+run jumping_frg.leg_count
+```
+"Oh but how does it know when one statement ends and one begins! I don't have my fucking semicolons!". This system works on hopes and dreams and is flawless.
+```
+int your_iq = 5 your_iq -= ((value_a value_b) { value_a - value_b })(,,112 your_iq)
+```
+But you can add semicolons if you want i guess.
+```
+int your_iq = 5;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+```
+## More examples
+Take some normal rust code, for example a vector declaration.
+```rs
+let mut number_list: Vec<i32> = vec![5, 8, 8, 9 - 3]
+number_list[2] -= number_list[0]
+```
+(do everything above)
+
+And done! Ideal Frg code!
+```
+vec(int   ) number_list = [,5 8 8 9 - 3]
+number_list [[[ 2] ---==== number_list [ 0 ]]]
+```
+The parser will not trust you after this one.
+
+# Features
+All of these types:
+- Integers (`int`)
+- Floats (`float`)
+- Strings (`str`)
+- Booleans (`bool`)
+- Vectors (`vec(int)`)
+- Maps (`map(str, int)`)
+- Sets (`set(str)`)
+- Functions (`int(str)`)
+- Structs (`StructName`)
+- References (`&int`)
+
+Some pointer bullshit you can probably pull off (from C):
+```
+// this is one of the tests in this projects
+&people[get_index()].pets[0].* += calculate(x.* + y[2] - z.age / 3 * 2) >= threshold * active
+```
+
+Functions as values (from Java i think):
+```
+// this is also a test
+int(float, str)(map(str, int())) average_java_developer = (get_score_map) { (my_int, my_float) { 5 } }
+```
+
+Parentheses (invented by Lisp):
+```
+(5)
+```
+
+Semicolons (invented by javascript because i hate javascript and i hate semicolons):
+```
+// scroll up to the part about semicolons i hate talking about them more than i need too
+```
+
+STRUCTS!! FROM HIT LANGUAGE RUST!!
+```
+struct Person = {
+	int age,
+	str name,
+}
+Person josch = {
+	age: 912,
+	name: "ojshsc"
+}
+```
+
+Dereferencing from Zig bc that syntax is nicee
+```
+&int var = &5
+void(&int) increment = (to_update) {
+	to_update.* += 1
+}
+increment(var)
+```
+
+Keywords? I think? im not sure i blacked out when i was adding this part. this code might ont even run but its in my tests (from python? maybe lua?)
+```
+if thing {
+} else if other_thing {
+} else {
+}
+```
+
+wait no keywords are optional
+```
+thing {
+} other_thing {
+} {
+}
+```
+yea thats right
+
+also maps and structs share the same syntax so they have to be declared in their declaration
+```
+// THIS IS FINE
+Frog frg = { name: "frg", legs: 8, age: 3 }
+map(str, int) slur_count = { "fuck": 9857, "shit: 8234", "i dont like rust": 494 }
+
+// THIS WONT WORK
+frg = { name: "no", legs: -199999, age: 94787367 }
+slur_count = { "error": 9001 }
+
+// I THINK REASSIGNING THEM IS FINE THOUGH
+Frog frg = { name: "not frg", legs: -8, age: -3 }
+map(str, int,, ) slur_count = { "darn": 9840928341 }
+```
+
+Basically anytime you see something that doesn't need to be there you can probably remove it. Or add extra.
+```
+// example: commas in maps
+map(float, int) round_table = {
+	0.0: 0,,,,,
+	0.1: 0,,
+	0.2: 0,
+	0.3: 0
+	0.4: 0
+	0.5: 1,
+	0.6: 1,,
+	0.7: 1,,,,,
+	0.8: 1,,,,,,
+	0.9: 1,,,
+	1.0: 1,
+}
+```
+
+Also builtins which have special functionality, including:
+`@print`: Uses Rust's string interpolotation to `println!`
+`@<type>`: Try casting to a certain BUILT IN type
+

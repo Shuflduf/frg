@@ -1,11 +1,17 @@
 int(int) fibonacci = (index) {
-    if index <= 1 {
-        return index
+    int a = 0
+    int b = 1
+    if index == 1 {
+        return 1
     } else {
-        return fibonacci(index - 1) + fibonacci(index - 2)
+        (2..index).for_each(() {
+            int c = a + b
+            a = b
+            b = c
+        })
     }
+    b
 }
 
 int result = fibonacci(10)
-print("10th fibonacci is", result)
-return result
+@print("10th fibonacci is {result}")

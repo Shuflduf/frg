@@ -1,6 +1,7 @@
-use std::{env, fs};
+use std::fs;
 use tree_sitter::{Language, Parser};
 
+mod args;
 pub mod ast;
 mod rust_runner;
 mod rust_transpiler;
@@ -10,26 +11,30 @@ unsafe extern "C" {
 }
 
 fn main() {
-    let args = env::args().collect::<Vec<String>>();
-
-    let file_path = &args.get(1).map_or("examples/test.frg", |v| v);
-    let input = fs::read_to_string(file_path).unwrap();
-    println!("{input}");
+    let frg_args = args::get_args();
+    let input = fs::read_to_string(
+        frg_args
+            .file_name
+            .unwrap_or("examples/test.frg".to_string()),
+    )
+    .unwrap();
 
     let language = unsafe { tree_sitter_frg() };
     let mut parser = Parser::new();
     parser.set_language(&language).unwrap();
 
     let treesitter_tree = parser.parse(&input, None).unwrap();
-    println!("{}", treesitter_tree.root_node());
+    if frg_args.verbose {
+        println!("Treesitter:\n{}", treesitter_tree.root_node());
+    }
     let ast_tree = ast::build(&treesitter_tree, &input);
-    println!("{ast_tree:#?}");
     let rust_code = rust_transpiler::transpile(&ast_tree);
-    println!("{rust_code}\n");
-    let _ = rust_runner::run(&rust_code);
-
-    // (5, "str").
-    // frog_ages.iter().
-    // let res = rust_runner::run(&rust_code);
-    // println!("{run_res:?}");
+    if frg_args.verbose {
+        println!("AST:\n{ast_tree:?}");
+        println!("Frg:\n{input}");
+        println!("Rust:\n{rust_code}");
+    }
+    if !frg_args.dont_execute {
+        let _ = rust_runner::run(&rust_code);
+    }
 }

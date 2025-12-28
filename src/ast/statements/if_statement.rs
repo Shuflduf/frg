@@ -45,7 +45,7 @@ pub fn transpile(if_state: &IfStatement) -> String {
         ));
     }
     if !if_state.else_body.is_empty() {
-        let else_body = ast::transpile(&if_state.body);
+        let else_body = ast::transpile(&if_state.else_body);
         if_str.push_str(&format!(" else {{\n{else_body}\n}}"));
     }
     if_str

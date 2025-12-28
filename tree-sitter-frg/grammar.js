@@ -13,18 +13,19 @@ module.exports = grammar({
   extras: ($) => [/\s/, $.comment],
 
   conflicts: ($) => [
-    [$.expression, $.variable_declaration],
+    [$.expression, $.parameter_declaration],
+    // [$.expression, $.variable_declaration],
     [$.set_literal, $.map_literal, $.empty_collection],
     [$.set_literal, $.map_literal],
-    [$.type, $.expression],
+    // [$.type, $.expression],
     [$.type, $.struct_method],
     [$.statement, $.if_statement],
-    [$.statement, $.block],
+    // [$.statement, $.block],
     [$.statement, $.set_literal],
     [$.statement, $.set_literal, $.if_statement],
-    [$.statement, $.set_literal, $.block],
-    [$.set_literal, $.if_statement],
-    [$.set_literal, $.block],
+    // [$.statement, $.set_literal, $.block],
+    // [$.set_literal, $.if_statement],
+    // [$.set_literal, $.block],
   ],
 
   rules: {
@@ -93,6 +94,7 @@ module.exports = grammar({
         $.unary_expression,
         $.range,
         $.builtin,
+        $.parenthesized,
       ),
 
     binary_expression: ($) =>
@@ -163,6 +165,8 @@ module.exports = grammar({
 
     builtin: ($) =>
       seq("@", $.identifier, "(", repeat(choice($.expression, ",")), ")"),
+
+    parenthesized: ($) => seq("(", $.expression, ")"),
 
     if_statement: ($) =>
       prec.left(
