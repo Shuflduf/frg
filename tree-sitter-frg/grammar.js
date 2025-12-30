@@ -32,13 +32,16 @@ module.exports = grammar({
     source_file: ($) => repeat($.statement),
 
     statement: ($) =>
-      choice(
-        $.variable_declaration,
-        $.if_statement,
-        $.return_statement,
-        $.struct_declaration,
-        $.variable_assignment,
-        $.expression,
+      seq(
+        choice(
+          $.variable_declaration,
+          $.if_statement,
+          $.return_statement,
+          $.struct_declaration,
+          $.variable_assignment,
+          prec.dynamic(2, $.expression),
+        ),
+        repeat(";"),
       ),
 
     comment: ($) => token(seq("//", /.*/)),
@@ -169,7 +172,7 @@ module.exports = grammar({
     parenthesized: ($) => seq("(", $.expression, ")"),
 
     if_statement: ($) =>
-      prec.left(
+      prec.right(
         seq(
           repeat("if"),
           $.expression,
@@ -179,8 +182,9 @@ module.exports = grammar({
         ),
       ),
     else_if_statement: ($) =>
-      seq(repeat("else"), repeat("if"), $.expression, $.block),
-    else_statement: ($) => seq(repeat("else"), repeat("if"), $.block),
+      prec.dynamic(0, seq(repeat("else"), repeat("if"), $.expression, $.block)),
+    else_statement: ($) =>
+      prec.dynamic(0, seq(repeat("else"), repeat("if"), $.block)),
 
     return_statement: ($) => seq("return", $.expression),
 

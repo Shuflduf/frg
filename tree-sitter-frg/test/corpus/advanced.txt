@@ -1,0 +1,19 @@
+==================
+expression after if statement
+==================
+
+if true {}
+leg_count
+
+---
+
+(source_file
+  (statement
+    (if_statement
+      (expression
+        (bool_literal))
+      (block)))
+  (statement
+    (expression
+      (identifier))))
+
