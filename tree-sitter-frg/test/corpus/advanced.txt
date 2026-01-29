@@ -20,7 +20,7 @@ expression after if statement
 ==================
 
 if true {}
-leg_count
+void leg_count
 
 ---
 
@@ -31,6 +31,7 @@ leg_count
         (bool_literal))
       (block)))
   (statement
-    (expression
-      (identifier))))
+    (void_statement
+      (expression
+        (identifier)))))
 

@@ -41,11 +41,10 @@ void()() gives_void_func = () { () {} }
         (function_literal
           (parameter_declaration)
           (block
-            (statement
-              (expression
-                (function_literal
-                  (parameter_declaration)
-                  (block))))))))))
+            (expression
+              (function_literal
+                (parameter_declaration)
+                (block)))))))))
 
 
 ==================
@@ -79,16 +78,14 @@ int(float, str)(map(str, int())) average_java_developer = (get_score_map) { (my_
           (parameter_declaration
             (identifier))
           (block
-            (statement
-              (expression
-                (function_literal
-                  (parameter_declaration
-                    (identifier)
-                    (identifier))
-                  (block
-                    (statement
-                      (expression
-                        (int_literal)))))))))))))
+            (expression
+              (function_literal
+                (parameter_declaration
+                  (identifier)
+                  (identifier))
+                (block
+                  (expression
+                    (int_literal)))))))))))
 
 
 ==================
@@ -118,16 +115,17 @@ int result = add(3, 2)
 builtin call
 ==================
 
-@print("ofdjksd {}", 5)
+void @print("ofdjksd {}", 5)
 
 ---
 
 (source_file
   (statement
-    (expression
-      (builtin
-        (identifier)
-        (expression
-          (string_literal))
-        (expression
-          (int_literal))))))
+    (void_statement
+      (expression
+        (builtin
+          (identifier)
+          (expression
+            (string_literal))
+          (expression
+            (int_literal)))))))

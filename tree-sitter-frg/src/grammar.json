@@ -739,6 +739,18 @@
           }
         },
         {
+          "type": "CHOICE",
+          "members": [
+            {
+              "type": "SYMBOL",
+              "name": "expression"
+            },
+            {
+              "type": "BLANK"
+            }
+          ]
+        },
+        {
           "type": "STRING",
           "value": "}"
         }
@@ -1281,6 +1293,10 @@
     [
       "type",
       "struct_method"
+    ],
+    [
+      "block",
+      "set_literal"
     ],
     [
       "set_literal",

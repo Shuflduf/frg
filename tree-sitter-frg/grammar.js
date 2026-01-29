@@ -18,7 +18,7 @@ module.exports = grammar({
     [$.set_literal, $.map_literal],
     [$.type, $.struct_method],
     // [$.statement, $.if_statement],
-    // [$.statement, $.set_literal],
+    [$.block, $.set_literal],
     // [$.statement, $.set_literal, $.if_statement],
     [$.set_literal, $.if_statement],
 
@@ -131,6 +131,7 @@ module.exports = grammar({
       seq(
         "{",
         repeat($.statement),
+        optional($.expression),
         // prec.dynamic(100, optional($.expression)),
         "}",
       ),
