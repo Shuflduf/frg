@@ -1,4 +1,21 @@
 ==================
+void a value
+==================
+
+void func()
+
+---
+
+(source_file
+  (statement
+    (void_statement
+      (expression
+        (function_call
+          (expression
+            (identifier)))))))
+
+
+==================
 expression after if statement
 ==================
 

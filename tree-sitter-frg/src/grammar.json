@@ -36,12 +36,8 @@
               "name": "variable_assignment"
             },
             {
-              "type": "PREC_DYNAMIC",
-              "value": 2,
-              "content": {
-                "type": "SYMBOL",
-                "name": "expression"
-              }
+              "type": "SYMBOL",
+              "name": "void_statement"
             }
           ]
         },
@@ -1243,6 +1239,19 @@
           "name": "expression"
         }
       ]
+    },
+    "void_statement": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "void"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "expression"
+        }
+      ]
     }
   },
   "extras": [
@@ -1274,17 +1283,12 @@
       "struct_method"
     ],
     [
-      "statement",
-      "if_statement"
-    ],
-    [
-      "statement",
-      "set_literal"
-    ],
-    [
-      "statement",
       "set_literal",
       "if_statement"
+    ],
+    [
+      "type",
+      "void_statement"
     ]
   ],
   "precedences": [],

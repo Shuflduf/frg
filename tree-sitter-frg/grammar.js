@@ -14,18 +14,15 @@ module.exports = grammar({
 
   conflicts: ($) => [
     [$.expression, $.parameter_declaration],
-    // [$.expression, $.variable_declaration],
     [$.set_literal, $.map_literal, $.empty_collection],
     [$.set_literal, $.map_literal],
-    // [$.type, $.expression],
     [$.type, $.struct_method],
-    [$.statement, $.if_statement],
-    // [$.statement, $.block],
-    [$.statement, $.set_literal],
-    [$.statement, $.set_literal, $.if_statement],
-    // [$.statement, $.set_literal, $.block],
-    // [$.set_literal, $.if_statement],
-    // [$.set_literal, $.block],
+    // [$.statement, $.if_statement],
+    // [$.statement, $.set_literal],
+    // [$.statement, $.set_literal, $.if_statement],
+    [$.set_literal, $.if_statement],
+
+    [$.type, $.void_statement],
   ],
 
   rules: {
@@ -39,7 +36,8 @@ module.exports = grammar({
           $.return_statement,
           $.struct_declaration,
           $.variable_assignment,
-          prec.dynamic(2, $.expression),
+          $.void_statement,
+          // prec.dynamic(2, $.expression),
         ),
         repeat(";"),
       ),
@@ -203,5 +201,7 @@ module.exports = grammar({
 
     variable_assignment: ($) =>
       seq($.expression, choice("=", "+=", "-=", "*=", "/="), $.expression),
+
+    void_statement: ($) => seq("void", $.expression),
   },
 });
