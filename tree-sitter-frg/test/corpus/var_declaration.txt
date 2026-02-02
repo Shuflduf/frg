@@ -189,49 +189,6 @@ map(str, int) team_scores = { "yellow": 2, "red": 5 }
 
 
 ==================
-set declaration
-==================
-
-set(int) passing_teams = { 2, 4, 5 }
-
----
-
-(source_file
-  (statement
-    (variable_declaration
-      (type
-        (set_type
-          (type)))
-      (identifier)
-      (expression
-        (set_literal
-          (expression
-            (int_literal))
-          (expression
-            (int_literal))
-          (expression
-            (int_literal)))))))
-
-
-==================
-empty set
-==================
-
-set(int) losers = {}
-
----
-
-(source_file
-  (statement
-    (variable_declaration
-      (type
-        (set_type
-          (type)))
-      (identifier)
-      (expression
-        (empty_collection)))))
-
-==================
 bool variable declaration
 ==================
 
