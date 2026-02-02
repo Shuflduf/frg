@@ -164,10 +164,6 @@
           "named": true
         },
         {
-          "type": "map_literal",
-          "named": true
-        },
-        {
           "type": "member_access",
           "named": true
         },
@@ -303,21 +299,6 @@
       "types": [
         {
           "type": "expression",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "map_literal",
-    "named": true,
-    "fields": {},
-    "children": {
-      "multiple": true,
-      "required": false,
-      "types": [
-        {
-          "type": "map_entry",
           "named": true
         }
       ]

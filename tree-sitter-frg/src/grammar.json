@@ -338,10 +338,6 @@
         },
         {
           "type": "SYMBOL",
-          "name": "map_literal"
-        },
-        {
-          "type": "SYMBOL",
           "name": "empty_collection"
         },
         {
@@ -593,35 +589,6 @@
         }
       ]
     },
-    "map_literal": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "STRING",
-          "value": "{"
-        },
-        {
-          "type": "REPEAT",
-          "content": {
-            "type": "CHOICE",
-            "members": [
-              {
-                "type": "SYMBOL",
-                "name": "map_entry"
-              },
-              {
-                "type": "STRING",
-                "value": ","
-              }
-            ]
-          }
-        },
-        {
-          "type": "STRING",
-          "value": "}"
-        }
-      ]
-    },
     "map_entry": {
       "type": "SEQ",
       "members": [
@@ -644,7 +611,7 @@
     },
     "empty_collection": {
       "type": "PREC",
-      "value": 1,
+      "value": -1000,
       "content": {
         "type": "SEQ",
         "members": [
@@ -1033,24 +1000,16 @@
           {
             "type": "REPEAT",
             "content": {
-              "type": "PREC_DYNAMIC",
-              "value": 1,
-              "content": {
-                "type": "SYMBOL",
-                "name": "else_if_statement"
-              }
+              "type": "SYMBOL",
+              "name": "else_if_statement"
             }
           },
           {
             "type": "CHOICE",
             "members": [
               {
-                "type": "PREC_DYNAMIC",
-                "value": 2,
-                "content": {
-                  "type": "SYMBOL",
-                  "name": "else_statement"
-                }
+                "type": "SYMBOL",
+                "name": "else_statement"
               },
               {
                 "type": "BLANK"
@@ -1061,39 +1020,35 @@
       }
     },
     "else_if_statement": {
-      "type": "PREC_DYNAMIC",
-      "value": 1,
-      "content": {
-        "type": "SEQ",
-        "members": [
-          {
-            "type": "REPEAT",
-            "content": {
-              "type": "STRING",
-              "value": "else"
-            }
-          },
-          {
-            "type": "REPEAT",
-            "content": {
-              "type": "STRING",
-              "value": "if"
-            }
-          },
-          {
-            "type": "SYMBOL",
-            "name": "expression"
-          },
-          {
-            "type": "SYMBOL",
-            "name": "block"
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "STRING",
+            "value": "else"
           }
-        ]
-      }
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "STRING",
+            "value": "if"
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "expression"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "block"
+        }
+      ]
     },
     "else_statement": {
-      "type": "PREC_DYNAMIC",
-      "value": 2,
+      "type": "PREC",
+      "value": 20,
       "content": {
         "type": "SEQ",
         "members": [
@@ -1316,10 +1271,6 @@
     [
       "expression",
       "parameter_declaration"
-    ],
-    [
-      "map_literal",
-      "empty_collection"
     ],
     [
       "type",

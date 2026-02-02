@@ -14,7 +14,7 @@ module.exports = grammar({
 
   conflicts: ($) => [
     [$.expression, $.parameter_declaration],
-    [$.map_literal, $.empty_collection],
+    // [$.map_literal, $.empty_collection],
     // [$.set_literal, $.map_literal],
     [$.type, $.struct_method],
     // [$.statement, $.if_statement],
@@ -93,7 +93,7 @@ module.exports = grammar({
         $.string_literal,
         $.bool_literal,
         $.vec_literal,
-        $.map_literal,
+        // $.map_literal,
         // $.set_literal,
         $.empty_collection,
         $.function_literal,
@@ -130,9 +130,9 @@ module.exports = grammar({
 
     vec_literal: ($) => seq("[", repeat(choice($.expression, ",")), "]"),
     // set_literal: ($) => seq("{", repeat(choice($.expression, ",")), "}"),
-    map_literal: ($) => seq("{", repeat(choice($.map_entry, ",")), "}"),
+    // map_literal: ($) => seq("{", repeat(choice($.map_entry, ",")), "}"),
     map_entry: ($) => seq($.expression, repeat1(":"), $.expression),
-    empty_collection: ($) => prec(1, seq("{", repeat(","), "}")),
+    empty_collection: ($) => prec(-1000, seq("{", repeat(","), "}")),
 
     function_literal: ($) => seq($.parameter_declaration, $.block),
     parameter_declaration: ($) =>
@@ -191,14 +191,13 @@ module.exports = grammar({
           repeat("if"),
           $.expression,
           $.block,
-          repeat(prec.dynamic(1, $.else_if_statement)),
-          optional(prec.dynamic(2, $.else_statement)),
+          repeat($.else_if_statement),
+          optional($.else_statement),
         ),
       ),
     else_if_statement: ($) =>
-      prec.dynamic(1, seq(repeat("else"), repeat("if"), $.expression, $.block)),
-    else_statement: ($) =>
-      prec.dynamic(2, seq(repeat("else"), repeat("if"), $.block)),
+      seq(repeat("else"), repeat("if"), $.expression, $.block),
+    else_statement: ($) => prec(20, seq(repeat("else"), repeat("if"), $.block)),
 
     return_statement: ($) => seq("return", $.expression),
 
