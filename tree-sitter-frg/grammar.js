@@ -12,214 +12,37 @@ module.exports = grammar({
 
   extras: ($) => [/\s/, $.comment],
 
-  conflicts: ($) => [
-    [$.expression, $.parameter_declaration],
-    // [$.map_literal, $.empty_collection],
-    // [$.set_literal, $.map_literal],
-    [$.type, $.struct_method],
-    // [$.statement, $.if_statement],
-    // [$.block, $.set_literal],
-    // [$.statement, $.set_literal, $.if_statement],
-    // [$.set_literal, $.if_statement],
-
-    [$.type, $.void_statement],
-  ],
-
   rules: {
     source_file: ($) => repeat($.statement),
 
     statement: ($) =>
-      seq(
-        choice(
-          $.variable_declaration,
-          $.if_statement,
-          $.return_statement,
-          $.struct_declaration,
-          $.variable_assignment,
-          $.void_statement,
-          // prec.dynamic(2, $.expression),
-        ),
-        repeat(";"),
-      ),
+      seq(choice($.if_statement, $.void_statement), repeat(";")),
 
     comment: ($) => token(seq("//", /.*/)),
+    empty_collection: ($) => prec(-1, seq("{", repeat(","), "}")),
 
-    variable_declaration: ($) =>
-      prec.dynamic(100, seq($.type, $.identifier, "=", $.expression)),
-
-    type: ($) =>
-      choice(
-        "void",
-        "int",
-        "float",
-        "str",
-        "bool",
-        $.vec_type,
-        // $.set_type,
-        $.map_type,
-        $.function_type,
-        $.struct_identifier,
-        $.reference_type,
-      ),
-
-    vec_type: ($) =>
-      seq(choice("vec", "array", "arr", "list"), "(", $.type, ")"),
-    map_type: ($) =>
-      seq(
-        choice("map", "obj", "hashmap", "dict", "dictionary"),
-        "(",
-        $.type,
-        repeat(","),
-        $.type,
-        ")",
-      ),
-    // set_type: ($) => seq("set", "(", $.type, ")"),
-
-    function_type: ($) => prec.right(seq($.type, repeat1($.parameter_list))),
-    parameter_list: ($) => seq("(", repeat(choice($.type, ",")), ")"),
-
-    identifier: ($) => /[a-z_][a-zA-Z0-9_]*/,
-    struct_identifier: ($) => /[A-Z][a-zA-Z0-9_]*/,
-    num_identifier: ($) => /[a-zA-Z0-9_]*/,
-
-    reference_type: ($) => prec(1, seq("&", $.type)),
-
-    expression: ($) =>
-      choice(
-        $.identifier,
-        $.binary_expression,
-        $.int_literal,
-        $.float_literal,
-        $.string_literal,
-        $.bool_literal,
-        $.vec_literal,
-        // $.map_literal,
-        // $.set_literal,
-        $.empty_collection,
-        $.function_literal,
-        $.function_call,
-        $.struct_literal,
-        $.dereference,
-        $.member_access,
-        $.index_access,
-        $.unary_expression,
-        $.range,
-        $.builtin,
-        $.parenthesized,
-      ),
-
-    binary_expression: ($) =>
-      choice(
-        prec.left(
-          6,
-          seq(
-            $.expression,
-            choice(">", "<", ">=", "<=", "==", "!=", "&&", "||"),
-            $.expression,
-          ),
-        ),
-        prec.left(11, seq($.expression, choice("+", "-"), $.expression)),
-        prec.left(12, seq($.expression, choice("*", "/"), $.expression)),
-        prec.left(5, seq($.expression, "&&", $.expression)),
-      ),
-
-    int_literal: (_) => /\d+/,
-    float_literal: (_) => /\d+\.\d+/,
-    string_literal: (_) => seq('"', /[^"]*/, '"'),
+    expression: ($) => choice($.bool_literal, $.empty_collection),
     bool_literal: (_) => choice("true", "false"),
-
-    vec_literal: ($) => seq("[", repeat(choice($.expression, ",")), "]"),
-    // set_literal: ($) => seq("{", repeat(choice($.expression, ",")), "}"),
-    // map_literal: ($) => seq("{", repeat(choice($.map_entry, ",")), "}"),
-    map_entry: ($) => seq($.expression, repeat1(":"), $.expression),
-    empty_collection: ($) => prec(-1000, seq("{", repeat(","), "}")),
-
-    function_literal: ($) => seq($.parameter_declaration, $.block),
-    parameter_declaration: ($) =>
-      seq("(", repeat(choice($.identifier, ",")), ")"),
-
-    block: ($) =>
-      prec(
-        5,
-        seq(
-          "{",
-          repeat($.statement),
-          optional($.expression),
-          // prec.dynamic(100, optional($.expression)),
-          "}",
-        ),
-      ),
-
-    function_call: ($) =>
-      prec(15, seq($.expression, "(", repeat(choice($.expression, ",")), ")")),
-
-    unary_expression: ($) =>
-      choice(
-        prec(14, seq("&", $.expression)),
-        prec(13, seq("-", $.expression)),
-        prec(13, seq("!", $.expression)),
-      ),
-
-    dereference: ($) => prec.left(16, seq($.expression, ".*")),
-    member_access: ($) =>
-      prec.left(16, seq($.expression, ".", $.num_identifier)),
-
-    index_access: ($) =>
-      prec.left(11, seq($.expression, "[", $.expression, "]")),
-
-    range: ($) =>
-      prec.left(
-        3,
-        seq(
-          optional($.expression),
-          "..",
-          choice(seq("=", $.expression), optional($.expression)),
-          // optional("="),
-          // optional($.expression),
-        ),
-      ),
-
-    builtin: ($) =>
-      seq("@", $.identifier, "(", repeat(choice($.expression, ",")), ")"),
-
-    parenthesized: ($) => seq("(", $.expression, ")"),
+    block: ($) => seq("{", repeat($.statement), optional($.expression), "}"),
 
     if_statement: ($) =>
       prec.right(
-        2,
         seq(
           repeat("if"),
           $.expression,
           $.block,
-          repeat($.else_if_statement),
-          optional($.else_statement),
+          optional(
+            choice(
+              seq(repeat1($.else_if_statement), optional($.else_statement)),
+              prec(1, $.else_statement),
+            ),
+          ),
         ),
       ),
     else_if_statement: ($) =>
       seq(repeat("else"), repeat("if"), $.expression, $.block),
-    else_statement: ($) => prec(20, seq(repeat("else"), repeat("if"), $.block)),
+    else_statement: ($) => seq(repeat("else"), repeat("if"), $.block),
 
-    return_statement: ($) => seq("return", $.expression),
-
-    struct_declaration: ($) =>
-      seq(
-        "struct",
-        $.struct_identifier,
-        "=",
-        "{",
-        repeat(choice($.struct_field, $.struct_method, ",")),
-        "}",
-      ),
-    struct_field: ($) => seq($.type, $.identifier),
-    struct_method: ($) =>
-      seq($.function_type, $.identifier, "=", $.function_literal),
-
-    struct_literal: ($) =>
-      seq($.struct_identifier, "{", repeat(choice($.map_entry, ",")), "}"),
-
-    variable_assignment: ($) =>
-      seq($.expression, choice("=", "+=", "-=", "*=", "/="), $.expression),
-
-    void_statement: ($) => prec(1, seq(repeat("void"), $.expression)),
+    void_statement: ($) => prec.right(-1, seq(repeat("void"), $.expression)),
   },
 });
