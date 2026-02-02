@@ -31,12 +31,8 @@ module.exports = grammar({
           repeat("if"),
           $.expression,
           $.block,
-          optional(
-            choice(
-              seq(repeat1($.else_if_statement), optional($.else_statement)),
-              prec(1, $.else_statement),
-            ),
-          ),
+          repeat1($.else_if_statement),
+          optional($.else_statement),
         ),
       ),
     else_if_statement: ($) =>

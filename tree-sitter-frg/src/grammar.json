@@ -154,44 +154,18 @@
             "name": "block"
           },
           {
+            "type": "REPEAT1",
+            "content": {
+              "type": "SYMBOL",
+              "name": "else_if_statement"
+            }
+          },
+          {
             "type": "CHOICE",
             "members": [
               {
-                "type": "CHOICE",
-                "members": [
-                  {
-                    "type": "SEQ",
-                    "members": [
-                      {
-                        "type": "REPEAT1",
-                        "content": {
-                          "type": "SYMBOL",
-                          "name": "else_if_statement"
-                        }
-                      },
-                      {
-                        "type": "CHOICE",
-                        "members": [
-                          {
-                            "type": "SYMBOL",
-                            "name": "else_statement"
-                          },
-                          {
-                            "type": "BLANK"
-                          }
-                        ]
-                      }
-                    ]
-                  },
-                  {
-                    "type": "PREC",
-                    "value": 1,
-                    "content": {
-                      "type": "SYMBOL",
-                      "name": "else_statement"
-                    }
-                  }
-                ]
+                "type": "SYMBOL",
+                "name": "else_statement"
               },
               {
                 "type": "BLANK"
