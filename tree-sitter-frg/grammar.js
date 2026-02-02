@@ -127,13 +127,17 @@ module.exports = grammar({
     function_literal: ($) => seq($.parameter_declaration, $.block),
     parameter_declaration: ($) =>
       seq("(", repeat(choice($.identifier, ",")), ")"),
+
     block: ($) =>
-      seq(
-        "{",
-        repeat($.statement),
-        optional($.expression),
-        // prec.dynamic(100, optional($.expression)),
-        "}",
+      prec(
+        5,
+        seq(
+          "{",
+          repeat($.statement),
+          optional($.expression),
+          // prec.dynamic(100, optional($.expression)),
+          "}",
+        ),
       ),
 
     function_call: ($) =>
@@ -172,18 +176,18 @@ module.exports = grammar({
 
     if_statement: ($) =>
       prec.right(
+        2,
         seq(
           repeat("if"),
           $.expression,
           $.block,
           repeat($.else_if_statement),
-          optional($.else_statement),
+          prec(20, optional(prec(20, $.else_statement))),
         ),
       ),
     else_if_statement: ($) =>
       prec.dynamic(0, seq(repeat("else"), repeat("if"), $.expression, $.block)),
-    else_statement: ($) =>
-      prec.dynamic(0, seq(repeat("else"), repeat("if"), $.block)),
+    else_statement: ($) => prec(20, seq(repeat("else"), repeat("if"), $.block)),
 
     return_statement: ($) => seq("return", $.expression),
 
@@ -203,6 +207,6 @@ module.exports = grammar({
     variable_assignment: ($) =>
       seq($.expression, choice("=", "+=", "-=", "*=", "/="), $.expression),
 
-    void_statement: ($) => seq("void", $.expression),
+    void_statement: ($) => prec(1, seq(repeat("void"), $.expression)),
   },
 });

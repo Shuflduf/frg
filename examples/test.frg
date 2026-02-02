@@ -28,3 +28,11 @@ frog_ages.iter().for_each((elem) {
 
 int jumps_remaining = jump(&wisest_frg)
 @print("{jumps_remaining} jumps left on {}", wisest_frg.name)
+
+
+// void func call -> obj dec
+// void func call -> block
+// 
+func() {
+	
+}

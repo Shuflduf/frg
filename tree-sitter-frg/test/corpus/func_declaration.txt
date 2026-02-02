@@ -46,7 +46,6 @@ void()() gives_void_func = () { () {} }
                 (parameter_declaration)
                 (block)))))))))
 
-
 ==================
 very very silly func
 ==================
