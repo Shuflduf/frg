@@ -20,7 +20,7 @@ expression after if statement
 ==================
 
 if true {}
-void leg_count
+leg_count
 
 ---
 
