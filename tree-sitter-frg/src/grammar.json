@@ -21,10 +21,6 @@
             },
             {
               "type": "SYMBOL",
-              "name": "if_statement"
-            },
-            {
-              "type": "SYMBOL",
               "name": "return_statement"
             },
             {
@@ -32,12 +28,24 @@
               "name": "struct_declaration"
             },
             {
-              "type": "SYMBOL",
-              "name": "variable_assignment"
+              "type": "PREC_DYNAMIC",
+              "value": -10,
+              "content": {
+                "type": "SYMBOL",
+                "name": "void_statement"
+              }
+            },
+            {
+              "type": "PREC_DYNAMIC",
+              "value": 10,
+              "content": {
+                "type": "SYMBOL",
+                "name": "if_statement"
+              }
             },
             {
               "type": "SYMBOL",
-              "name": "void_statement"
+              "name": "variable_assignment"
             }
           ]
         },
@@ -67,29 +75,25 @@
       }
     },
     "variable_declaration": {
-      "type": "PREC_DYNAMIC",
-      "value": 100,
-      "content": {
-        "type": "SEQ",
-        "members": [
-          {
-            "type": "SYMBOL",
-            "name": "type"
-          },
-          {
-            "type": "SYMBOL",
-            "name": "identifier"
-          },
-          {
-            "type": "STRING",
-            "value": "="
-          },
-          {
-            "type": "SYMBOL",
-            "name": "expression"
-          }
-        ]
-      }
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "SYMBOL",
+          "name": "type"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "identifier"
+        },
+        {
+          "type": "STRING",
+          "value": "="
+        },
+        {
+          "type": "SYMBOL",
+          "name": "expression"
+        }
+      ]
     },
     "type": {
       "type": "CHOICE",
@@ -1015,7 +1019,7 @@
     },
     "if_statement": {
       "type": "PREC_RIGHT",
-      "value": 1,
+      "value": 10,
       "content": {
         "type": "SEQ",
         "members": [
@@ -1035,10 +1039,14 @@
             "name": "block"
           },
           {
-            "type": "REPEAT",
+            "type": "PREC_DYNAMIC",
+            "value": -5,
             "content": {
-              "type": "SYMBOL",
-              "name": "else_if_statement"
+              "type": "REPEAT",
+              "content": {
+                "type": "SYMBOL",
+                "name": "else_if_statement"
+              }
             }
           },
           {
@@ -1057,54 +1065,108 @@
       }
     },
     "else_if_statement": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "REPEAT",
-          "content": {
+      "type": "PREC_DYNAMIC",
+      "value": -5,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "REPEAT",
+            "content": {
+              "type": "STRING",
+              "value": "else"
+            }
+          },
+          {
+            "type": "REPEAT",
+            "content": {
+              "type": "STRING",
+              "value": "if"
+            }
+          },
+          {
+            "type": "SYMBOL",
+            "name": "expression"
+          },
+          {
             "type": "STRING",
-            "value": "else"
-          }
-        },
-        {
-          "type": "REPEAT",
-          "content": {
+            "value": "{"
+          },
+          {
+            "type": "REPEAT",
+            "content": {
+              "type": "SYMBOL",
+              "name": "statement"
+            }
+          },
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "expression"
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
+          },
+          {
             "type": "STRING",
-            "value": "if"
+            "value": "}"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "expression"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "block"
-        }
-      ]
+        ]
+      }
     },
     "else_statement": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "REPEAT",
-          "content": {
+      "type": "PREC_DYNAMIC",
+      "value": -5,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "REPEAT",
+            "content": {
+              "type": "STRING",
+              "value": "else"
+            }
+          },
+          {
+            "type": "REPEAT",
+            "content": {
+              "type": "STRING",
+              "value": "if"
+            }
+          },
+          {
             "type": "STRING",
-            "value": "else"
-          }
-        },
-        {
-          "type": "REPEAT",
-          "content": {
+            "value": "{"
+          },
+          {
+            "type": "REPEAT",
+            "content": {
+              "type": "SYMBOL",
+              "name": "statement"
+            }
+          },
+          {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "expression"
+              },
+              {
+                "type": "BLANK"
+              }
+            ]
+          },
+          {
             "type": "STRING",
-            "value": "if"
+            "value": "}"
           }
-        },
-        {
-          "type": "SYMBOL",
-          "name": "block"
-        }
-      ]
+        ]
+      }
     },
     "return_statement": {
       "type": "SEQ",
@@ -1270,11 +1332,23 @@
       ]
     },
     "void_statement": {
-      "type": "PREC",
-      "value": -1,
+      "type": "PREC_DYNAMIC",
+      "value": -10,
       "content": {
-        "type": "SYMBOL",
-        "name": "expression"
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "REPEAT",
+            "content": {
+              "type": "STRING",
+              "value": "void"
+            }
+          },
+          {
+            "type": "SYMBOL",
+            "name": "expression"
+          }
+        ]
       }
     }
   },
@@ -1303,6 +1377,14 @@
     ],
     [
       "type",
+      "void_statement"
+    ],
+    [
+      "else_statement",
+      "void_statement"
+    ],
+    [
+      "else_if_statement",
       "void_statement"
     ]
   ],

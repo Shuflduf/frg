@@ -15,14 +15,10 @@ module.exports = grammar({
   conflicts: ($) => [
     [$.expression, $.parameter_declaration],
     [$.map_literal, $.empty_collection],
-    // [$.set_literal, $.map_literal],
     [$.type, $.struct_method],
-    // [$.statement, $.if_statement],
-    // [$.block, $.set_literal],
-    // [$.statement, $.set_literal, $.if_statement],
-    // [$.set_literal, $.if_statement],
-
     [$.type, $.void_statement],
+    [$.else_statement, $.void_statement],
+    [$.else_if_statement, $.void_statement],
   ],
 
   rules: {
@@ -32,20 +28,18 @@ module.exports = grammar({
       seq(
         choice(
           $.variable_declaration,
-          $.if_statement,
           $.return_statement,
           $.struct_declaration,
+          prec.dynamic(-10, $.void_statement),
+          prec.dynamic(10, $.if_statement),
           $.variable_assignment,
-          $.void_statement,
-          // prec.dynamic(2, $.expression),
         ),
         repeat(";"),
       ),
 
     comment: ($) => token(seq("//", /.*/)),
 
-    variable_declaration: ($) =>
-      prec.dynamic(100, seq($.type, $.identifier, "=", $.expression)),
+    variable_declaration: ($) => seq($.type, $.identifier, "=", $.expression),
 
     type: ($) =>
       choice(
@@ -187,18 +181,40 @@ module.exports = grammar({
 
     if_statement: ($) =>
       prec.right(
-        1,
+        10,
         seq(
           repeat("if"),
           $.expression,
           $.block,
-          repeat($.else_if_statement),
+          prec.dynamic(-5, repeat($.else_if_statement)),
           optional($.else_statement),
         ),
       ),
     else_if_statement: ($) =>
-      seq(repeat("else"), repeat("if"), $.expression, $.block),
-    else_statement: ($) => seq(repeat("else"), repeat("if"), $.block),
+      prec.dynamic(
+        -5,
+        seq(
+          repeat("else"),
+          repeat("if"),
+          $.expression,
+          "{",
+          repeat($.statement),
+          optional($.expression),
+          "}",
+        ),
+      ),
+    else_statement: ($) =>
+      prec.dynamic(
+        -5,
+        seq(
+          repeat("else"),
+          repeat("if"),
+          "{",
+          repeat($.statement),
+          optional($.expression),
+          "}",
+        ),
+      ),
 
     return_statement: ($) => seq("return", $.expression),
 
@@ -221,6 +237,6 @@ module.exports = grammar({
     variable_assignment: ($) =>
       seq($.expression, choice("=", "+=", "-=", "*=", "/="), $.expression),
 
-    void_statement: ($) => seq(repeat("void"), $.expression),
+    void_statement: ($) => prec.dynamic(-10, seq(repeat("void"), $.expression)),
   },
 });
