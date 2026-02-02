@@ -55,16 +55,25 @@ module.exports = grammar({
         "str",
         "bool",
         $.vec_type,
-        $.set_type,
+        // $.set_type,
         $.map_type,
         $.function_type,
         $.struct_identifier,
         $.reference_type,
       ),
 
-    vec_type: ($) => seq("vec", "(", $.type, ")"),
-    set_type: ($) => seq("set", "(", $.type, ")"),
-    map_type: ($) => seq("map", "(", $.type, repeat(","), $.type, ")"),
+    vec_type: ($) =>
+      seq(choice("vec", "array", "arr", "list"), "(", $.type, ")"),
+    map_type: ($) =>
+      seq(
+        choice("map", "obj", "hashmap", "dict", "dictionary"),
+        "(",
+        $.type,
+        repeat(","),
+        $.type,
+        ")",
+      ),
+    // set_type: ($) => seq("set", "(", $.type, ")"),
 
     function_type: ($) => prec.right(seq($.type, repeat1($.parameter_list))),
     parameter_list: ($) => seq("(", repeat(choice($.type, ",")), ")"),
@@ -89,6 +98,7 @@ module.exports = grammar({
         $.empty_collection,
         $.function_literal,
         $.function_call,
+        $.struct_literal,
         $.dereference,
         $.member_access,
         $.index_access,
@@ -113,10 +123,10 @@ module.exports = grammar({
         prec.left(5, seq($.expression, "&&", $.expression)),
       ),
 
-    int_literal: ($) => /\d+/,
-    float_literal: ($) => /\d+\.\d+/,
-    string_literal: ($) => seq('"', /[^"]*/, '"'),
-    bool_literal: ($) => choice("true", "false"),
+    int_literal: (_) => /\d+/,
+    float_literal: (_) => /\d+\.\d+/,
+    string_literal: (_) => seq('"', /[^"]*/, '"'),
+    bool_literal: (_) => choice("true", "false"),
 
     vec_literal: ($) => seq("[", repeat(choice($.expression, ",")), "]"),
     set_literal: ($) => seq("{", repeat(choice($.expression, ",")), "}"),
@@ -181,13 +191,14 @@ module.exports = grammar({
           repeat("if"),
           $.expression,
           $.block,
-          repeat($.else_if_statement),
-          prec(20, optional(prec(20, $.else_statement))),
+          repeat(prec.dynamic(1, $.else_if_statement)),
+          optional(prec.dynamic(2, $.else_statement)),
         ),
       ),
     else_if_statement: ($) =>
-      prec.dynamic(0, seq(repeat("else"), repeat("if"), $.expression, $.block)),
-    else_statement: ($) => prec(20, seq(repeat("else"), repeat("if"), $.block)),
+      prec.dynamic(1, seq(repeat("else"), repeat("if"), $.expression, $.block)),
+    else_statement: ($) =>
+      prec.dynamic(2, seq(repeat("else"), repeat("if"), $.block)),
 
     return_statement: ($) => seq("return", $.expression),
 
@@ -203,6 +214,9 @@ module.exports = grammar({
     struct_field: ($) => seq($.type, $.identifier),
     struct_method: ($) =>
       seq($.function_type, $.identifier, "=", $.function_literal),
+
+    struct_literal: ($) =>
+      seq($.struct_identifier, "{", repeat(choice($.map_entry, ",")), "}"),
 
     variable_assignment: ($) =>
       seq($.expression, choice("=", "+=", "-=", "*=", "/="), $.expression),

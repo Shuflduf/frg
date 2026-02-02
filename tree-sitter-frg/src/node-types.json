@@ -188,6 +188,10 @@
           "named": true
         },
         {
+          "type": "struct_literal",
+          "named": true
+        },
+        {
           "type": "unary_expression",
           "named": true
         },
@@ -570,6 +574,25 @@
         },
         {
           "type": "type",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "struct_literal",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "map_entry",
+          "named": true
+        },
+        {
+          "type": "struct_identifier",
           "named": true
         }
       ]
