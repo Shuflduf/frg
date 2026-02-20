@@ -216,7 +216,7 @@ module.exports = grammar({
         ),
       ),
 
-    return_statement: ($) => seq("return", $.expression),
+    return_statement: ($) => seq(/r?e?t?u?r?n?/, $.expression),
 
     struct_declaration: ($) =>
       seq(

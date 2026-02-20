@@ -1,7 +1,7 @@
 # Frg
 *The best programming language since it's named after frogs*
 
-# What it looks like
+# Showcase
 ```
 struct Frog = {
 	str name,
@@ -138,7 +138,7 @@ number_list [[[ 2] ---==== number_list [ 0 ]]]
 The parser will not trust you after this one.
 
 # Features
-All of these types:
+## Types
 - Integers (`int`)
 - Floats (`float`)
 - Strings (`str`)
@@ -150,6 +150,11 @@ All of these types:
 - Structs (`StructName`)
 - References (`&int`)
 
+These type aliases since you'll forget `map` somehow:
+- `map`: `obj`, `hashmap`, `dict`, `dictionary`
+- `vec`: `array`, `arr`, `list`
+
+## Plagiarized
 Some pointer bullshit you can probably pull off (from C):
 ```
 // this is one of the tests in this projects
@@ -193,6 +198,7 @@ void(&int) increment = (to_update) {
 increment(var)
 ```
 
+## If Statements
 Keywords? I think? im not sure i blacked out when i was adding this part. this code might ont even run but its in my tests (from python? maybe lua?)
 ```
 if thing {
@@ -203,13 +209,23 @@ if thing {
 
 wait no keywords are optional
 ```
-thing {
-} other_thing {
-} {
+if if if thing {
+} else else else if if other_thing {
+} else if if {
 }
 ```
-yea thats right
 
+> [!NOTE]
+>
+> `if` and `else` are optional keywords.
+> ```
+> thing {
+> } other_thing {
+> } {
+> }
+> ```
+
+## Structs and Maps
 also maps and structs share the same syntax so they have to be declared in their declaration
 ```
 // THIS IS FINE
@@ -225,6 +241,16 @@ Frog frg = { name: "not frg", legs: -8, age: -3 }
 map(str, int,, ) slur_count = { "darn": 9840928341 }
 ```
 
+You can declare struct literals like its Rust if you need them inline:
+```
+Frog new_frg = mitose(Frog { name: "freg", legs: 1, age: 80 })
+```
+
+Also from Zig, builtins:
+`@print`: Uses Rust's string interpolotation to `println!`
+`@<type>`: Try casting to a certain BUILT IN type
+
+## treesitter is begging for its dear life
 Basically anytime you see something that doesn't need to be there you can probably remove it. Or add extra.
 ```
 // example: commas in maps
@@ -243,7 +269,21 @@ map(float, int) round_table = {
 }
 ```
 
-Also builtins which have special functionality, including:
-`@print`: Uses Rust's string interpolotation to `println!`
-`@<type>`: Try casting to a certain BUILT IN type
+## Voiding Values
+When you call a function, its required to use all of it's values. If you don't need to use them, assign them to the special `_` variable, which discards its value when its set:
+```
+_ = returns_value()	
+```
+
+Theres a special keyword for this action: `void`
+```
+void returns_value()
+```
+Yes, it's the same void as the type.
+
+> [!NOTE]
+> The void keyword is optional
+> ```
+>	returns_value()
+> ```
 
