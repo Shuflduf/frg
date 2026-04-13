@@ -1,9 +1,10 @@
-use std::{error::Error, fs::File, io::Write, process::Command};
+use std::{env, error::Error, fs::File, io::Write, path::Path, process::Command};
 
 pub fn run(code: &str) -> Result<(), Box<dyn Error>> {
-    let cache_dir = env!("XDG_CACHE_HOME");
-    let file_path = format!("{cache_dir}/tmp_frg.rs");
-    let binary_path = format!("{cache_dir}/tmp_frg");
+    let binding = env::var("XDG_CACHE_HOME").unwrap_or("~/.cache".into());
+    let cache_dir = Path::new(&binding);
+    let file_path = cache_dir.with_file_name("tmp_frg.rs");
+    let binary_path = cache_dir.with_file_name("tmp_frg");
     write_code_to_file(code, &file_path)?;
 
     let creation_res = Command::new("rustc")
@@ -27,7 +28,7 @@ pub fn run(code: &str) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn write_code_to_file(code: &str, file_path: &str) -> Result<(), Box<dyn Error>> {
+fn write_code_to_file(code: &str, file_path: &Path) -> Result<(), Box<dyn Error>> {
     let mut code_file = File::create(file_path)?;
     let _ = code_file.write(code.as_bytes())?;
     Ok(())
