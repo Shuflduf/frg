@@ -35,3 +35,21 @@ leg_count
       (expression
         (identifier)))))
 
+
+==================
+funny indexing
+==================
+
+number_list [[[ 2]
+
+---
+
+(source_file
+  (statement
+    (void_statement
+      (expression
+        (index_access
+          (expression
+            (identifier))
+          (expression
+            (int_literal)))))))

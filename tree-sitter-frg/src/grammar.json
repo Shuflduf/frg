@@ -886,16 +886,22 @@
             "name": "expression"
           },
           {
-            "type": "STRING",
-            "value": "["
+            "type": "REPEAT1",
+            "content": {
+              "type": "STRING",
+              "value": "["
+            }
           },
           {
             "type": "SYMBOL",
             "name": "expression"
           },
           {
-            "type": "STRING",
-            "value": "]"
+            "type": "REPEAT1",
+            "content": {
+              "type": "STRING",
+              "value": "]"
+            }
           }
         ]
       }
@@ -1308,6 +1314,9 @@
     [
       "type",
       "struct_method"
+    ],
+    [
+      "vec_literal"
     ],
     [
       "type",

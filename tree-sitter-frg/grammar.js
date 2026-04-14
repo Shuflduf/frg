@@ -17,6 +17,7 @@ module.exports = grammar({
     [$.map_literal, $.empty_collection],
     // [$.set_literal, $.map_literal],
     [$.type, $.struct_method],
+    [$.vec_literal],
     // [$.statement, $.if_statement],
     // [$.block, $.set_literal],
     // [$.statement, $.set_literal, $.if_statement],
@@ -165,7 +166,10 @@ module.exports = grammar({
       prec.left(16, seq($.expression, ".", $.num_identifier)),
 
     index_access: ($) =>
-      prec.left(11, seq($.expression, "[", $.expression, "]")),
+      prec.left(
+        11,
+        seq($.expression, repeat1("["), $.expression, repeat1("]")),
+      ),
 
     range: ($) =>
       prec.left(

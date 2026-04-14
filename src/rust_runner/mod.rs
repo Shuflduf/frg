@@ -26,14 +26,20 @@ pub fn run(code: &str) -> Result<String, Box<dyn Error>> {
         .arg(&file_path)
         .output()
     {
-        Ok(_) => {}
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
             return Err(
                 "rustc not found. Please install Rust (https://rust-lang.org/tools/install/)"
                     .into(),
             );
         }
-        Err(e) => return Err(e.into()),
+        Err(e) => {
+            println!("{e}");
+            return Err(e.into());
+        }
+        Ok(res) if !res.status.success() => {
+            return Err(str::from_utf8(&res.stderr)?.into());
+        }
+        Ok(_) => {}
     };
 
     let exectute_res = Command::new(binary_path).output()?;
