@@ -1241,33 +1241,37 @@
           "name": "expression"
         },
         {
-          "type": "CHOICE",
-          "members": [
-            {
-              "type": "STRING",
-              "value": "="
-            },
-            {
-              "type": "PATTERN",
-              "value": "\\++=+"
-            },
-            {
-              "type": "PATTERN",
-              "value": "-+=+"
-            },
-            {
-              "type": "PATTERN",
-              "value": "\\*+=+"
-            },
-            {
-              "type": "PATTERN",
-              "value": "\\/+=+"
-            }
-          ]
+          "type": "SYMBOL",
+          "name": "assignment_operator"
         },
         {
           "type": "SYMBOL",
           "name": "expression"
+        }
+      ]
+    },
+    "assignment_operator": {
+      "type": "CHOICE",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "="
+        },
+        {
+          "type": "PATTERN",
+          "value": "\\++=+"
+        },
+        {
+          "type": "PATTERN",
+          "value": "-+=+"
+        },
+        {
+          "type": "PATTERN",
+          "value": "\\*+=+"
+        },
+        {
+          "type": "PATTERN",
+          "value": "\\/+=+"
         }
       ]
     },

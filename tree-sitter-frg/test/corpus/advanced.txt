@@ -59,7 +59,7 @@ number_list [[[ 2]
 funny operator
 ==================
 
-thing ---==== 4
+thing +++==== 4
 
 ---
 
@@ -68,9 +68,9 @@ thing ---==== 4
     (variable_assignment
       (expression
         (identifier))
+      (assignment_operator)
       (expression
         (int_literal)))))
-
 
 ==================
 funny indexing and operators
@@ -89,6 +89,7 @@ number_list [[[ 2] ***==== number_list [ 0 ]]]
             (identifier))
           (expression
             (int_literal))))
+      (assignment_operator)
       (expression
         (index_access
           (expression

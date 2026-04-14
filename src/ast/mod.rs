@@ -51,3 +51,9 @@ fn parse_block(cursor: &mut TreeCursor, code: &str) -> Vec<Statement> {
     cursor.goto_parent();
     statements
 }
+
+fn skip_repeats(cursor: &mut TreeCursor, code: &str, repeat: &str) {
+    while &code[cursor.node().byte_range()] == repeat {
+        cursor.goto_next_sibling();
+    }
+}

@@ -126,6 +126,7 @@ struct Frog = {
                     (expression
                       (identifier))
                     (num_identifier)))
+                (assignment_operator)
                 (expression
                   (member_access
                     (expression

@@ -221,11 +221,9 @@ module.exports = grammar({
       seq($.struct_identifier, "{", repeat(choice($.map_entry, ",")), "}"),
 
     variable_assignment: ($) =>
-      seq(
-        $.expression,
-        choice("=", /\++=+/, /-+=+/, /\*+=+/, /\/+=+/),
-        $.expression,
-      ),
+      seq($.expression, $.assignment_operator, $.expression),
+
+    assignment_operator: ($) => choice("=", /\++=+/, /-+=+/, /\*+=+/, /\/+=+/),
 
     void_statement: ($) => prec(-1, seq(repeat("void"), $.expression)),
   },

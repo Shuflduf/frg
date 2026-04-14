@@ -1,5 +1,10 @@
 [
   {
+    "type": "assignment_operator",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "binary_expression",
     "named": true,
     "fields": {},
@@ -641,6 +646,10 @@
       "multiple": true,
       "required": true,
       "types": [
+        {
+          "type": "assignment_operator",
+          "named": true
+        },
         {
           "type": "expression",
           "named": true

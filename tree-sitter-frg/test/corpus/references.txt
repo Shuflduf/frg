@@ -34,6 +34,7 @@ int_literal.* += 1
         (dereference
           (expression
             (identifier))))
+      (assignment_operator)
       (expression
         (int_literal)))))
 
@@ -71,6 +72,7 @@ nums[2] += int_literal.*
             (identifier))
           (expression
             (int_literal))))
+      (assignment_operator)
       (expression
         (dereference
           (expression
@@ -107,6 +109,7 @@ crazy bullshit
                   (num_identifier)))
               (expression
                 (int_literal))))))
+      (assignment_operator)
       (expression
         (binary_expression
           (expression
@@ -191,6 +194,7 @@ nums[2].* += int_literal.*
                 (identifier))
               (expression
                 (int_literal))))))
+      (assignment_operator)
       (expression
         (dereference
           (expression

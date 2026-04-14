@@ -1,2 +1,3 @@
-vec(int   ) number_list = [,5 8 8 9 - 3]
-number_list [[[ 2] ---==== number_list [ 0 ]]]
+int thing = 9
+thing ---==== 4
+@print("{thing}")
