@@ -150,6 +150,78 @@ crazy bullshit
           (expression
             (identifier)))))))
 
+==================
+crazier bullshit
+==================
+
+&people[get_index()]]].pets[[[[0].* +++++===== calculate(x.* ++++ y[[    2] ---- z.age //// 3 ** 2) >>>=== threshold &&&&& active
+
+---
+
+
+(source_file
+  (statement
+    (variable_assignment
+      (expression
+        (dereference
+          (expression
+            (index_access
+              (expression
+                (member_access
+                  (expression
+                    (index_access
+                      (expression
+                        (unary_expression
+                          (expression
+                            (identifier))))
+                      (expression
+                        (function_call
+                          (expression
+                            (identifier))))))
+                  (num_identifier)))
+              (expression
+                (int_literal))))))
+      (assignment_operator)
+      (expression
+        (binary_expression
+          (expression
+            (binary_expression
+              (expression
+                (function_call
+                  (expression
+                    (identifier))
+                  (expression
+                    (binary_expression
+                      (expression
+                        (index_access
+                          (expression
+                            (binary_expression
+                              (expression
+                                (dereference
+                                  (expression
+                                    (identifier))))
+                              (expression
+                                (identifier))))
+                          (expression
+                            (int_literal))))
+                      (expression
+                        (binary_expression
+                          (expression
+                            (binary_expression
+                              (expression
+                                (member_access
+                                  (expression
+                                    (identifier))
+                                  (num_identifier)))
+                              (expression
+                                (int_literal))))
+                          (expression
+                            (int_literal))))))))
+              (expression
+                (identifier))))
+          (expression
+            (identifier)))))))
+
 
 ==================
 vec of references
