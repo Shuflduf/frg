@@ -1,11 +1,20 @@
-use std::{env, error::Error, fs::File, io::Write, path::Path, process::Command};
+use std::{
+    env,
+    error::Error,
+    fs::{self, File},
+    io::Write,
+    path::{Path, PathBuf},
+    process::Command,
+};
 
 pub fn run(code: &str) -> Result<(), Box<dyn Error>> {
-    let home_path = env::var("HOME")?;
-    let home_dir = Path::new(&home_path);
-    let cache_path =
-        env::var("XDG_CACHE_HOME").unwrap_or(format!("{:?}", home_dir.join("/.cache")));
-    let cache = Path::new(&cache_path);
+    let cache = env::var("XDG_CACHE_HOME")
+        .map(PathBuf::from)
+        .unwrap_or_else(|_| {
+            let home = env::var("HOME").expect("HOME not set");
+            PathBuf::from(home).join(".cache")
+        });
+    fs::create_dir_all(&cache)?;
     let file_path = cache.join("tmp_frg.rs");
     let binary_path = cache.join("tmp_frg");
     write_code_to_file(code, &file_path)?;
@@ -32,7 +41,6 @@ pub fn run(code: &str) -> Result<(), Box<dyn Error>> {
 }
 
 fn write_code_to_file(code: &str, file_path: &Path) -> Result<(), Box<dyn Error>> {
-    println!("{file_path:?}");
     let mut code_file = File::create(file_path).unwrap();
     let _ = code_file.write(code.as_bytes())?;
     Ok(())

@@ -35,6 +35,6 @@ fn main() {
         println!("Rust:\n{rust_code}");
     }
     if !frg_args.dont_execute {
-        let _ = rust_runner::run(&rust_code);
+        rust_runner::run(&rust_code).expect("Failed to run");
     }
 }
