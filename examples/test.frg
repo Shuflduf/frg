@@ -16,9 +16,9 @@ vec(Frog) swamp = []
 Frog wisest_frg = { name: "NONE", age: 0, leg_count: -1 }
 frog_ages.iter().for_each((elem) {
 	Frog new_frg = {
-	name: elem.0.*
-	age: elem.1.*,
-	leg_count: 4,
+		name: elem.0.*
+		age: elem.1.*,
+		leg_count: 4,
 	}
 	if new_frg.age > wisest_frg.age {
 		wisest_frg = new_frg.clone()
