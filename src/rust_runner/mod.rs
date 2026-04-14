@@ -20,22 +20,21 @@ pub fn run(code: &str) -> Result<(), Box<dyn Error>> {
     write_code_to_file(code, &file_path)?;
 
     let creation_res = Command::new("rustc")
-        .arg("-o")
-        .arg(&binary_path)
+        .arg("--color=never")
+        // .arg("-o")
+        // .arg(&binary_path)
         .arg(&file_path)
         .output()?;
     if !creation_res.status.success() {
-        return Err(format!(
-            "Failed to compile program: {:?}",
-            str::from_utf8(&creation_res.stderr)?
-        )
-        .into());
+        let stderr = str::from_utf8(&creation_res.stderr)?;
+        return Err(stderr.into());
     }
 
     let exectute_res = Command::new(binary_path).output()?;
-    println!("=== Frg Result ===");
-    println!("{}", str::from_utf8(&exectute_res.stdout)?);
-    println!("==================");
+    println!(
+        "<<< frg Result <<<\n{}\n>>> frg Result >>>\n",
+        str::from_utf8(&exectute_res.stdout)?
+    );
 
     Ok(())
 }

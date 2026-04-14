@@ -25,16 +25,20 @@ fn main() {
 
     let treesitter_tree = parser.parse(&input, None).unwrap();
     if frg_args.verbose {
-        println!("Treesitter:\n{}", treesitter_tree.root_node());
+        println!(
+            ">>> Treesitter >>>\n{}\n<<< Treesitter <<<\n",
+            treesitter_tree.root_node()
+        );
     }
     let ast_tree = ast::build(&treesitter_tree, &input);
     let rust_code = rust_transpiler::transpile(&ast_tree);
     if frg_args.verbose {
-        println!("AST:\n{ast_tree:?}");
-        println!("Frg:\n{input}");
-        println!("Rust:\n{rust_code}");
+        println!(">>> AST >>>\n{ast_tree:?}\n<<< AST <<<\n");
+        println!(">>> frg Code >>>\n{input}\n<<< frg Code <<<\n");
+        println!(">>> Rust Code >>>\n{rust_code}\n<<< Rust Code <<<\n");
     }
     if !frg_args.dont_execute {
-        rust_runner::run(&rust_code).expect("Failed to run");
+        let _ = rust_runner::run(&rust_code)
+            .inspect_err(|e| println!(">>> rustc error >>>\n{e}\n<<< rustc error <<<"));
     }
 }
