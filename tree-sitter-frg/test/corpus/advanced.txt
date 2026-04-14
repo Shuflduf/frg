@@ -53,3 +53,45 @@ number_list [[[ 2]
             (identifier))
           (expression
             (int_literal)))))))
+
+
+==================
+funny operator
+==================
+
+thing ---==== 4
+
+---
+
+(source_file
+  (statement
+    (variable_assignment
+      (expression
+        (identifier))
+      (expression
+        (int_literal)))))
+
+
+==================
+funny indexing and operators
+==================
+
+number_list [[[ 2] ***==== number_list [ 0 ]]]
+
+---
+
+(source_file
+  (statement
+    (variable_assignment
+      (expression
+        (index_access
+          (expression
+            (identifier))
+          (expression
+            (int_literal))))
+      (expression
+        (index_access
+          (expression
+            (identifier))
+          (expression
+            (int_literal)))))))

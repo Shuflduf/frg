@@ -8,13 +8,13 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> VarAss {
     let left = expressions::parse(cursor, code);
 
     cursor.goto_next_sibling();
-    let op = match &code[cursor.node().byte_range()] {
-        "=" => AssignmentOp::Equals,
-        "+=" => AssignmentOp::PlusEquals,
-        "-=" => AssignmentOp::MinusEquals,
-        "*=" => AssignmentOp::TimesEquals,
-        "/=" => AssignmentOp::DivideEquals,
-        _ => unreachable!(),
+    let op = match &code.chars().nth(cursor.node().byte_range().start).unwrap() {
+        '=' => AssignmentOp::Equals,
+        '+' => AssignmentOp::PlusEquals,
+        '-' => AssignmentOp::MinusEquals,
+        '*' => AssignmentOp::TimesEquals,
+        '/' => AssignmentOp::DivideEquals,
+        _ => unreachable!("{}", &code[cursor.node().byte_range()]),
     };
 
     cursor.goto_next_sibling();
