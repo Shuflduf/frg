@@ -141,4 +141,5 @@ pub enum Statement {
     ReturnStatement(Expression),
     StructDeclaration((String, Vec<(VarType, String)>)),
     VariableAssignment((Expression, AssignmentOp, Expression)),
+    VoidStatement(Expression),
 }

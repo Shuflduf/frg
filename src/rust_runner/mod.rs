@@ -1,10 +1,13 @@
 use std::{env, error::Error, fs::File, io::Write, path::Path, process::Command};
 
 pub fn run(code: &str) -> Result<(), Box<dyn Error>> {
-    let binding = env::var("XDG_CACHE_HOME").unwrap_or("~/.cache".into());
-    let cache_dir = Path::new(&binding);
-    let file_path = cache_dir.with_file_name("tmp_frg.rs");
-    let binary_path = cache_dir.with_file_name("tmp_frg");
+    let home_path = env::var("HOME")?;
+    let home_dir = Path::new(&home_path);
+    let cache_path =
+        env::var("XDG_CACHE_HOME").unwrap_or(format!("{:?}", home_dir.join("/.cache")));
+    let cache = Path::new(&cache_path);
+    let file_path = cache.join("tmp_frg.rs");
+    let binary_path = cache.join("tmp_frg");
     write_code_to_file(code, &file_path)?;
 
     let creation_res = Command::new("rustc")
@@ -29,7 +32,8 @@ pub fn run(code: &str) -> Result<(), Box<dyn Error>> {
 }
 
 fn write_code_to_file(code: &str, file_path: &Path) -> Result<(), Box<dyn Error>> {
-    let mut code_file = File::create(file_path)?;
+    println!("{file_path:?}");
+    let mut code_file = File::create(file_path).unwrap();
     let _ = code_file.write(code.as_bytes())?;
     Ok(())
 }

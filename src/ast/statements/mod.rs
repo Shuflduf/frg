@@ -7,6 +7,7 @@ mod return_statement;
 mod struct_declaration;
 mod variable_assignment;
 mod variable_declaration;
+mod void_statement;
 
 pub fn parse(cursor: &mut TreeCursor, code: &str) -> Statement {
     cursor.goto_first_child();
@@ -25,6 +26,7 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> Statement {
             Statement::VariableAssignment(variable_assignment::parse(cursor, code))
         }
         "expression" => Statement::Expression(expressions::parse(cursor, code)),
+        "void_statement" => Statement::VoidStatement(void_statement::parse(cursor, code)),
         _ => todo!("{statement_name}"),
     };
     cursor.goto_parent();
@@ -40,5 +42,6 @@ pub fn transpile(statement: &Statement) -> String {
         Statement::Expression(expr) => format!("{};", expressions::transpile(expr)),
         Statement::StructDeclaration(struct_decl) => struct_declaration::transpile(struct_decl),
         Statement::VariableAssignment(var_ass) => variable_assignment::transpile(var_ass),
+        Statement::VoidStatement(expr) => void_statement::transpile(expr),
     }
 }

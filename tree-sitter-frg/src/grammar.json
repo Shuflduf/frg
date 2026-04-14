@@ -21,6 +21,10 @@
             },
             {
               "type": "SYMBOL",
+              "name": "if_statement"
+            },
+            {
+              "type": "SYMBOL",
               "name": "return_statement"
             },
             {
@@ -28,24 +32,12 @@
               "name": "struct_declaration"
             },
             {
-              "type": "PREC_DYNAMIC",
-              "value": -10,
-              "content": {
-                "type": "SYMBOL",
-                "name": "void_statement"
-              }
-            },
-            {
-              "type": "PREC_DYNAMIC",
-              "value": 10,
-              "content": {
-                "type": "SYMBOL",
-                "name": "if_statement"
-              }
+              "type": "SYMBOL",
+              "name": "variable_assignment"
             },
             {
               "type": "SYMBOL",
-              "name": "variable_assignment"
+              "name": "void_statement"
             }
           ]
         },
@@ -75,25 +67,29 @@
       }
     },
     "variable_declaration": {
-      "type": "SEQ",
-      "members": [
-        {
-          "type": "SYMBOL",
-          "name": "type"
-        },
-        {
-          "type": "SYMBOL",
-          "name": "identifier"
-        },
-        {
-          "type": "STRING",
-          "value": "="
-        },
-        {
-          "type": "SYMBOL",
-          "name": "expression"
-        }
-      ]
+      "type": "PREC_DYNAMIC",
+      "value": 100,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "SYMBOL",
+            "name": "type"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "identifier"
+          },
+          {
+            "type": "STRING",
+            "value": "="
+          },
+          {
+            "type": "SYMBOL",
+            "name": "expression"
+          }
+        ]
+      }
     },
     "type": {
       "type": "CHOICE",
@@ -598,37 +594,33 @@
       ]
     },
     "map_literal": {
-      "type": "PREC",
-      "value": -1000,
-      "content": {
-        "type": "SEQ",
-        "members": [
-          {
-            "type": "STRING",
-            "value": "{"
-          },
-          {
-            "type": "REPEAT",
-            "content": {
-              "type": "CHOICE",
-              "members": [
-                {
-                  "type": "SYMBOL",
-                  "name": "map_entry"
-                },
-                {
-                  "type": "STRING",
-                  "value": ","
-                }
-              ]
-            }
-          },
-          {
-            "type": "STRING",
-            "value": "}"
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "STRING",
+          "value": "{"
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "CHOICE",
+            "members": [
+              {
+                "type": "SYMBOL",
+                "name": "map_entry"
+              },
+              {
+                "type": "STRING",
+                "value": ","
+              }
+            ]
           }
-        ]
-      }
+        },
+        {
+          "type": "STRING",
+          "value": "}"
+        }
+      ]
     },
     "map_entry": {
       "type": "SEQ",
@@ -652,7 +644,7 @@
     },
     "empty_collection": {
       "type": "PREC",
-      "value": -100,
+      "value": -1,
       "content": {
         "type": "SEQ",
         "members": [
@@ -1019,7 +1011,7 @@
     },
     "if_statement": {
       "type": "PREC_RIGHT",
-      "value": 10,
+      "value": 0,
       "content": {
         "type": "SEQ",
         "members": [
@@ -1039,14 +1031,10 @@
             "name": "block"
           },
           {
-            "type": "PREC_DYNAMIC",
-            "value": -5,
+            "type": "REPEAT",
             "content": {
-              "type": "REPEAT",
-              "content": {
-                "type": "SYMBOL",
-                "name": "else_if_statement"
-              }
+              "type": "SYMBOL",
+              "name": "else_if_statement"
             }
           },
           {
@@ -1065,108 +1053,54 @@
       }
     },
     "else_if_statement": {
-      "type": "PREC_DYNAMIC",
-      "value": -5,
-      "content": {
-        "type": "SEQ",
-        "members": [
-          {
-            "type": "REPEAT",
-            "content": {
-              "type": "STRING",
-              "value": "else"
-            }
-          },
-          {
-            "type": "REPEAT",
-            "content": {
-              "type": "STRING",
-              "value": "if"
-            }
-          },
-          {
-            "type": "SYMBOL",
-            "name": "expression"
-          },
-          {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "REPEAT1",
+          "content": {
             "type": "STRING",
-            "value": "{"
-          },
-          {
-            "type": "REPEAT",
-            "content": {
-              "type": "SYMBOL",
-              "name": "statement"
-            }
-          },
-          {
-            "type": "CHOICE",
-            "members": [
-              {
-                "type": "SYMBOL",
-                "name": "expression"
-              },
-              {
-                "type": "BLANK"
-              }
-            ]
-          },
-          {
-            "type": "STRING",
-            "value": "}"
+            "value": "else"
           }
-        ]
-      }
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "STRING",
+            "value": "if"
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "expression"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "block"
+        }
+      ]
     },
     "else_statement": {
-      "type": "PREC_DYNAMIC",
-      "value": -5,
-      "content": {
-        "type": "SEQ",
-        "members": [
-          {
-            "type": "REPEAT",
-            "content": {
-              "type": "STRING",
-              "value": "else"
-            }
-          },
-          {
-            "type": "REPEAT",
-            "content": {
-              "type": "STRING",
-              "value": "if"
-            }
-          },
-          {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "REPEAT1",
+          "content": {
             "type": "STRING",
-            "value": "{"
-          },
-          {
-            "type": "REPEAT",
-            "content": {
-              "type": "SYMBOL",
-              "name": "statement"
-            }
-          },
-          {
-            "type": "CHOICE",
-            "members": [
-              {
-                "type": "SYMBOL",
-                "name": "expression"
-              },
-              {
-                "type": "BLANK"
-              }
-            ]
-          },
-          {
-            "type": "STRING",
-            "value": "}"
+            "value": "else"
           }
-        ]
-      }
+        },
+        {
+          "type": "REPEAT",
+          "content": {
+            "type": "STRING",
+            "value": "if"
+          }
+        },
+        {
+          "type": "SYMBOL",
+          "name": "block"
+        }
+      ]
     },
     "return_statement": {
       "type": "SEQ",
@@ -1332,8 +1266,8 @@
       ]
     },
     "void_statement": {
-      "type": "PREC_DYNAMIC",
-      "value": -10,
+      "type": "PREC",
+      "value": -1,
       "content": {
         "type": "SEQ",
         "members": [
@@ -1377,14 +1311,6 @@
     ],
     [
       "type",
-      "void_statement"
-    ],
-    [
-      "else_statement",
-      "void_statement"
-    ],
-    [
-      "else_if_statement",
       "void_statement"
     ]
   ],

@@ -66,18 +66,18 @@ if true {
 
 
 ==================
-funny nested but without keywords lmao
+funny nested but with LESS :( keywords lmao
 ==================
 
 true {
 	 4 + 9 < 3 {
 		
-	} 1 > 92 {
+	} else 1 > 92 {
 		
-	} {
+	} else {
 		
 	}
-} {
+} else {
 	
 }
 
