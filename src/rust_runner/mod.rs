@@ -19,17 +19,22 @@ pub fn run(code: &str) -> Result<String, Box<dyn Error>> {
     let binary_path = cache.join("tmp_frg");
     write_code_to_file(code, &file_path)?;
 
-    let creation_res = Command::new("rustc")
+    match Command::new("rustc")
         .arg("--color=never")
         .arg("-o")
         .arg(&binary_path)
         .arg(&file_path)
-        .output()?;
-
-    if !creation_res.status.success() {
-        let stderr = str::from_utf8(&creation_res.stderr)?;
-        return Err(stderr.into());
-    }
+        .output()
+    {
+        Ok(_) => {}
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => {
+            return Err(
+                "rustc not found. Please install Rust (https://rust-lang.org/tools/install/)"
+                    .into(),
+            );
+        }
+        Err(e) => return Err(e.into()),
+    };
 
     let exectute_res = Command::new(binary_path).output()?;
     println!();
