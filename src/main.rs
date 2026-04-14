@@ -38,7 +38,9 @@ fn main() {
         println!(">>> Rust Code >>>\n{rust_code}\n<<< Rust Code <<<\n");
     }
     if !frg_args.dont_execute {
-        let _ = rust_runner::run(&rust_code)
-            .inspect_err(|e| println!(">>> rustc error >>>\n{e}\n<<< rustc error <<<"));
+        match rust_runner::run(&rust_code) {
+            Ok(output) => println!("<<< frg Result <<<\n{output}\n>>> frg Result >>>\n"),
+            Err(e) => eprintln!(">>> rustc error >>>\n{e}\n<<< rustc error <<<"),
+        }
     }
 }

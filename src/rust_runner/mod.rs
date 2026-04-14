@@ -7,7 +7,7 @@ use std::{
     process::Command,
 };
 
-pub fn run(code: &str) -> Result<(), Box<dyn Error>> {
+pub fn run(code: &str) -> Result<String, Box<dyn Error>> {
     let cache = env::var("XDG_CACHE_HOME")
         .map(PathBuf::from)
         .unwrap_or_else(|_| {
@@ -21,22 +21,20 @@ pub fn run(code: &str) -> Result<(), Box<dyn Error>> {
 
     let creation_res = Command::new("rustc")
         .arg("--color=never")
-        // .arg("-o")
-        // .arg(&binary_path)
+        .arg("-o")
+        .arg(&binary_path)
         .arg(&file_path)
         .output()?;
+
     if !creation_res.status.success() {
         let stderr = str::from_utf8(&creation_res.stderr)?;
         return Err(stderr.into());
     }
 
     let exectute_res = Command::new(binary_path).output()?;
-    println!(
-        "<<< frg Result <<<\n{}\n>>> frg Result >>>\n",
-        str::from_utf8(&exectute_res.stdout)?
-    );
+    println!();
 
-    Ok(())
+    Ok(String::from_utf8(exectute_res.stdout)?)
 }
 
 fn write_code_to_file(code: &str, file_path: &Path) -> Result<(), Box<dyn Error>> {
