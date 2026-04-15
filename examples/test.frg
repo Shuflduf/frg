@@ -5,8 +5,8 @@ struct Frog = {
 }
 
 int(&Frog) jump = (jumping_frg) {
-	if jumping_frg.leg_count >>>> 0 {
-		jumping_frg.leg_count -= 1
+	if jumping_frg.leg_count > 0 {
+		jumping_frg.leg_count -----==== 1
 	}
 	jumping_frg.leg_count
 }

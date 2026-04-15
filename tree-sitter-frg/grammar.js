@@ -15,14 +15,8 @@ module.exports = grammar({
   conflicts: ($) => [
     [$.expression, $.parameter_declaration],
     [$.map_literal, $.empty_collection],
-    // [$.set_literal, $.map_literal],
     [$.type, $.struct_method],
     [$.vec_literal],
-    // [$.statement, $.if_statement],
-    // [$.block, $.set_literal],
-    // [$.statement, $.set_literal, $.if_statement],
-    // [$.set_literal, $.if_statement],
-
     [$.type, $.void_statement],
   ],
 
@@ -128,9 +122,14 @@ module.exports = grammar({
             $.expression,
           ),
         ),
-        prec.left(11, seq($.expression, choice(/\++/, /-+/), $.expression)),
-        prec.left(12, seq($.expression, choice(/\*+/, /\/+/), $.expression)),
-        prec.left(5, seq($.expression, "&&", $.expression)),
+        prec.left(
+          11,
+          seq($.expression, choice(repeat1("+"), repeat1("-")), $.expression),
+        ),
+        prec.left(
+          12,
+          seq($.expression, choice(repeat1("*"), repeat1("/")), $.expression),
+        ),
       ),
 
     int_literal: (_) => /\d+/,
@@ -230,9 +229,19 @@ module.exports = grammar({
       seq($.struct_identifier, "{", repeat(choice($.map_entry, ",")), "}"),
 
     variable_assignment: ($) =>
-      seq($.expression, $.assignment_operator, $.expression),
+      prec.left(1000, seq($.expression, $.assignment_operator, $.expression)),
 
-    assignment_operator: ($) => choice("=", /\++=+/, /-+=+/, /\*+=+/, /\/+=+/),
+    assignment_operator: ($) =>
+      prec.left(
+        1000,
+        choice(
+          "=",
+          seq(repeat1("+"), repeat1("=")),
+          seq(repeat1("-"), repeat1("=")),
+          seq(repeat1("*"), repeat1("=")),
+          seq(repeat1("/"), repeat1("=")),
+        ),
+      ),
 
     void_statement: ($) => prec(-1, seq(repeat("void"), $.expression)),
   },

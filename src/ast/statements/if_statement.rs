@@ -36,7 +36,7 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> IfStatement {
 pub fn transpile(if_state: &IfStatement) -> String {
     let condition = expressions::transpile(&if_state.condition);
     let body = ast::transpile(&if_state.body);
-    let mut if_str = format!("if ({condition}) {{\n{body}\n}}");
+    let mut if_str = format!("if {condition} {{\n{body}\n}}");
     for else_if in &if_state.else_ifs {
         let else_if_condition = expressions::transpile(&else_if.0);
         let else_if_body = ast::transpile(&else_if.1);
