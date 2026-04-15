@@ -26,3 +26,6 @@ target
 /target
 ts/bindings
 ts/src
+
+# vsocde extension builds
+**/frg-*.vsix
