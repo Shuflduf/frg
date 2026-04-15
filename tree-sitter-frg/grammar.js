@@ -26,7 +26,7 @@ module.exports = grammar({
     statement: ($) =>
       seq(
         choice(
-          $.variable_declaration,
+          prec(10, $.variable_declaration),
           $.if_statement,
           $.return_statement,
           $.struct_declaration,
@@ -229,18 +229,19 @@ module.exports = grammar({
       seq($.struct_identifier, "{", repeat(choice($.map_entry, ",")), "}"),
 
     variable_assignment: ($) =>
-      prec.left(1000, seq($.expression, $.assignment_operator, $.expression)),
+      seq($.expression, $.assignment_operator, $.expression),
 
     assignment_operator: ($) =>
-      prec.left(
-        1000,
-        choice(
-          "=",
-          seq(repeat1("+"), repeat1("=")),
-          seq(repeat1("-"), repeat1("=")),
-          seq(repeat1("*"), repeat1("=")),
-          seq(repeat1("/"), repeat1("=")),
-        ),
+      choice(
+        "=",
+        /\++=+/,
+        /-+=+/,
+        /\*+=+/,
+        /\/+=+/,
+        // seq(repeat1("+"), repeat1("=")),
+        // seq(repeat1("-"), repeat1("=")),
+        // seq(repeat1("*"), repeat1("=")),
+        // seq(repeat1("/"), repeat1("=")),
       ),
 
     void_statement: ($) => prec(-1, seq(repeat("void"), $.expression)),

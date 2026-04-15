@@ -1,4 +1,4 @@
-# Frg
+# 🐸
 *The best programming language since it's named after frogs*
 
 # Table of Contents
@@ -43,8 +43,9 @@ int jumps_remaining = jump(&wisest_frg)
 ```
 
 # Purpose
-Frg was made for one reason:
+frg was made for one reason:
 - *The silly factor*
+
 Basically i took some Rust code, and sillyfied it. Heres an example
 ```rs
 fn jump(jumping_frg: &mut Frog) -> i32 {
@@ -54,6 +55,7 @@ fn jump(jumping_frg: &mut Frog) -> i32 {
 	jumping_frg.leg_count
 }
 ```
+
 First, remove anything that doesn't have to be there in order to function. This includes any commas, semicolons, keywords, stuff like that
 ```rs
 fn jump(jumping_frg: &Frog) -> i32 {
@@ -63,6 +65,7 @@ fn jump(jumping_frg: &Frog) -> i32 {
 	jumping_frg.leg_count
 }
 ```
+
 Next, seperate the declaration from the implementation (make it a closure)
 ```rs
 // we still keep types!!
@@ -73,6 +76,7 @@ let jump: fn(&Frog) -> i32 = |jumping_frg| {
 	jumping_frg.leg_count
 }
 ```
+
 Lastly, rearrange everything and hide the exact data type (i32 -> int)
 ```rs
 int(&Frog) jump = (jumping_frg) {
@@ -82,6 +86,7 @@ int(&Frog) jump = (jumping_frg) {
 	jumping_frg.leg_count
 }
 ```
+
 You don't like not having an if keyword? Does that make you annoyed? Have three.
 ```rs
 int(&Frog) jump = (jumping_frg) {
@@ -104,7 +109,8 @@ int(&Frog,  ,int) jump = (jumping_frg jump_count,,) {
 	jumping_frg.leg_count
 }
 ```
-If you're insecure about the size of your -= or your >=, you should be, but also Frg is perfect for you!
+
+If you're insecure about the size of your -= or your >=, you should be, but also frg is perfect for you!
 ```rs
 int(&Frog,  ,int) jump = (jumping_frg jump_count,,) {
 	if if if jumping_frg.leg_count - jump_count >>>==== 0 {
@@ -113,6 +119,7 @@ int(&Frog,  ,int) jump = (jumping_frg jump_count,,) {
 	jumping_frg.leg_count
 }
 ```
+
 If you can't comprehend the last expression in a function being the returned value, you can use the `return` keyword. Or the `ret` keyword. Or `urn`. Or anything that has the letters from the word function as long as they're in order.
 ```rs
 return jumping_frg.leg_count
@@ -121,14 +128,17 @@ turn jumping_frg.leg_count
 tr jumping_frg.leg_count
 run jumping_frg.leg_count
 ```
+
 "Oh but how does it know when one statement ends and one begins! I don't have my fucking semicolons!". This system works on hopes and dreams and is flawless.
 ```rs
 int your_iq = 5 your_iq -= ((value_a value_b) { value_a - value_b })(,,112 your_iq)
 ```
+
 But you can add semicolons if you want i guess.
 ```rs
 int your_iq = 5;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ```
+
 ## More examples
 Take some normal rust code, for example a vector declaration.
 ```rs
@@ -137,7 +147,7 @@ number_list[2] -= number_list[0]
 ```
 (do everything above)
 
-And done! Ideal Frg code!
+And done! Ideal frg code!
 ```rs
 vec(int   ) number_list = [,5 8 8 9 - 3]
 number_list [[[ 2] ---==== number_list [ 0 ]]]
@@ -163,29 +173,29 @@ These type aliases since you'll forget `map` somehow:
 
 ## Plagiarized
 Some pointer bullshit you can probably pull off (from C):
-```
+```rs
 // this is one of the tests in this projects
 &people[get_index()].pets[0].* += calculate(x.* + y[2] - z.age / 3 * 2) >= threshold * active
 ```
 
 Functions as values (from Java i think):
-```
+```rs
 // this is also a test
 int(float, str)(map(str, int())) average_java_developer = (get_score_map) { (my_int, my_float) { 5 } }
 ```
 
 Parentheses (invented by Lisp):
-```
+```rs
 (5)
 ```
 
 Semicolons (invented by javascript because i hate javascript and i hate semicolons):
-```
+```rs
 // scroll up to the part about semicolons i hate talking about them more than i need too
 ```
 
 STRUCTS!! FROM HIT LANGUAGE RUST!!
-```
+```rs
 struct Person = {
 	int age,
 	str name,
@@ -197,7 +207,7 @@ Person josch = {
 ```
 
 Dereferencing from Zig bc that syntax is nicee
-```
+```rs
 &int var = &5
 void(&int) increment = (to_update) {
 	to_update.* += 1
@@ -207,7 +217,7 @@ increment(var)
 
 ## If Statements
 Keywords? I think? im not sure i blacked out when i was adding this part. this code might ont even run but its in my tests (from python? maybe lua?)
-```
+```rs
 if thing {
 } else if other_thing {
 } else {
@@ -215,7 +225,7 @@ if thing {
 ```
 
 wait no keywords are optional
-```
+```rs
 if if if thing {
 } else else else if if other_thing {
 } else if if {
@@ -224,17 +234,18 @@ if if if thing {
 
 > [!NOTE]
 >
-> `if` and `else` are optional keywords.
+> `else` is required due to technical limitations (treesitter).
+> Getting rid of `if` is fine though.
 > ```
 > thing {
-> } other_thing {
-> } {
+> } else other_thing {
+> } else {
 > }
 > ```
 
 ## Structs and Maps
 also maps and structs share the same syntax so they have to be declared in their declaration
-```
+```rs
 // THIS IS FINE
 Frog frg = { name: "frg", legs: 8, age: 3 }
 map(str, int) slur_count = { "fuck": 9857, "shit: 8234", "i dont like rust": 494 }
@@ -249,7 +260,7 @@ map(str, int,, ) slur_count = { "darn": 9840928341 }
 ```
 
 You can declare struct literals like its Rust if you need them inline:
-```
+```rs
 Frog new_frg = mitose(Frog { name: "freg", legs: 1, age: 80 })
 ```
 
@@ -259,7 +270,7 @@ Also from Zig, builtins:
 
 ## treesitter is begging for its dear life
 Basically anytime you see something that doesn't need to be there you can probably remove it. Or add extra.
-```
+```rs
 // example: commas in maps
 map(float, int) round_table = {
 	0.0: 0,,,,,
@@ -278,19 +289,19 @@ map(float, int) round_table = {
 
 ## Voiding Values
 When you call a function, its required to use all of it's values. If you don't need to use them, assign them to the special `_` variable, which discards its value when its set:
-```
+```rs
 _ = returns_value()	
 ```
 
 Theres a special keyword for this action: `void`
-```
+```rs
 void returns_value()
 ```
 Yes, it's the same void as the type.
 
 > [!NOTE]
 > The void keyword is optional
-> ```
+> ```rs
 >	returns_value()
 > ```
 

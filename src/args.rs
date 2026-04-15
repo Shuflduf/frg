@@ -30,10 +30,10 @@ pub fn print_help() {
     let lines = [
         format!(
             "frg Transpiler and Runner ({})\n",
-            b(u("v".to_string() + ver.into()))
+            b(u("v".to_string() + ver))
         ),
         format!("{} {} [FILE]\n", b(u("Usage:".into())), b("frg".into())),
-        format!("{}", b(u("Options:".into()))),
+        b(u("Options:".into())).to_string(),
         format!("  {:<23} Print help", b("-h, --help".into())),
         format!(
             "  {:<23} Show intermediary treesitter, AST, and Rust",

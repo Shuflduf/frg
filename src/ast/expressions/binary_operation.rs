@@ -6,7 +6,7 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> BinaryOperation {
 
     cursor.goto_next_sibling();
     let op_symbol = &code[cursor.node().byte_range()];
-    let op = match op_symbol.chars().nth(0).unwrap() {
+    let op = match op_symbol.chars().next().unwrap() {
         '+' => {
             skip_repeats(cursor, code, "+");
             BinaryOperator::Add

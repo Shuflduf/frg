@@ -72,6 +72,25 @@ thing +++==== 4
       (expression
         (int_literal)))))
 
+
+==================
+funny operator 2
+==================
+
+other_thing ---==== 8
+
+---
+
+(source_file
+  (statement
+    (variable_assignment
+      (expression
+        (identifier))
+      (assignment_operator)
+      (expression
+        (int_literal)))))
+
+
 ==================
 funny indexing and operators
 ==================
