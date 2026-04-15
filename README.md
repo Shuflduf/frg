@@ -1,7 +1,14 @@
 # Frg
 *The best programming language since it's named after frogs*
 
-# Showcase
+# Table of Contents
+1. [Showcase](#showcase)
+2. [Purpose](#purpose)
+3. [Features](#features)
+4. [Installation / Usage](#installation)
+5. [Style Guide](#style-guide)
+
+# [Showcase]
 ```rs
 struct Frog = {
 	str name,
@@ -294,13 +301,25 @@ Yes, it's the same void as the type.
 > Rust is required to use this project.
 > You can install Rust through [the official website](https://rust-lang.org/tools/install/).
 
-## Cargo
+## Cargo (Recommended)
 1. `cargo install frg`
+2. Only 31 dependencies, installs quickly
+3. Execute with `frg -h` anywhere
+
+## Linux
+1. Go to the [latest release](https://github.com/Shuflduf/frg/releases/latest)
+2. Download `frg_linux`
+3. Execute with `./frg_linux -h` while in the directory with the binary
+
+## Linux
+1. Go to the [latest release](https://github.com/Shuflduf/frg/releases/latest)
+2. Download `frg_macos`
+3. Execute with `./frg_macos -h` while in the directory with the binary
 
 ## Windows
 1. Go to the [latest release](https://github.com/Shuflduf/frg/releases/latest)
-2. Download `frg_<VERSION>.exe`
-
+2. Download `frg_windows.exe`
+3. Execute with `frg_windows.exe -h` while in the directory with the binary
 
 # Style Guide
 fuck around and find out

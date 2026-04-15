@@ -26,8 +26,12 @@ pub fn get_args() -> FrgArguments {
 }
 
 pub fn print_help() {
+    let ver = env!("CARGO_PKG_VERSION");
     let lines = [
-        "frg Transpiler and Runner\n".into(),
+        format!(
+            "frg Transpiler and Runner ({})\n",
+            b(u("v".to_string() + ver.into()))
+        ),
         format!("{} {} [FILE]\n", b(u("Usage:".into())), b("frg".into())),
         format!("{}", b(u("Options:".into()))),
         format!("  {:<23} Print help", b("-h, --help".into())),
@@ -40,7 +44,6 @@ pub fn print_help() {
             b("-n, --no-exec".into())
         ),
     ];
-    let ver = env!("CARGO_PKG_VERSION");
     let text = lines.join("\n");
     println!("{text}")
 }
