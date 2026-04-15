@@ -224,6 +224,50 @@ crazier bullshit
 
 
 ==================
+crazier bullshit but just the function
+==================
+
+calculate(x.* ++++ y[[    2] ---- z.age //// 3 ** 2)
+
+---
+
+(source_file
+  (statement
+    (void_statement
+      (expression
+        (function_call
+          (expression
+            (identifier))
+          (expression
+            (binary_expression
+              (expression
+                (index_access
+                  (expression
+                    (binary_expression
+                      (expression
+                        (dereference
+                          (expression
+                            (identifier))))
+                      (expression
+                        (identifier))))
+                  (expression
+                    (int_literal))))
+              (expression
+                (binary_expression
+                  (expression
+                    (binary_expression
+                      (expression
+                        (member_access
+                          (expression
+                            (identifier))
+                          (num_identifier)))
+                      (expression
+                        (int_literal))))
+                  (expression
+                    (int_literal)))))))))))
+
+
+==================
 vec of references
 ==================
 
@@ -272,11 +316,12 @@ nums[2].* += int_literal.*
           (expression
             (identifier)))))))
 
+
 ==================
 slice into string via range
 ==================
 
-str slice = full_text[2..=3]
+str slice = full_text[2..3]
 
 ---
 
@@ -289,6 +334,31 @@ str slice = full_text[2..=3]
         (index_access
           (expression
             (identifier))
+          (expression
+            (range
+              (expression
+                (int_literal))
+              (expression
+                (int_literal)))))))))  
+ 
+
+==================
+slice into string via range 2
+==================
+
+str slice = "lsjldfgjdfgd"[2..=3]
+
+---
+
+(source_file
+  (statement
+    (variable_declaration
+      (type)
+      (identifier)
+      (expression
+        (index_access
+          (expression
+            (string_literal))
           (expression
             (range
               (expression

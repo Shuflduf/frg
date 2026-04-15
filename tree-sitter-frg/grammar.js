@@ -10,7 +10,7 @@
 module.exports = grammar({
   name: "frg",
 
-  extras: ($) => [/\s/, $.comment],
+  // extras: ($) => [/\s/, $.comment],
 
   conflicts: ($) => [
     [$.expression, $.parameter_declaration],
@@ -27,6 +27,7 @@ module.exports = grammar({
       seq(
         choice(
           prec(10, $.variable_declaration),
+          $.comment,
           $.if_statement,
           $.return_statement,
           $.struct_declaration,
@@ -110,27 +111,38 @@ module.exports = grammar({
           seq(
             $.expression,
             choice(
-              repeat1(">"),
-              repeat1("<"),
-              seq(repeat1(">"), repeat1("=")),
-              seq(repeat1("<"), repeat1("=")),
-              seq("=", repeat1("=")),
-              seq("!", repeat1("!")),
-              seq("&", repeat1("&")),
-              seq("|", repeat1("|")),
+              $.greater,
+              $.less,
+              $.greater_equal,
+              $.less_equal,
+              $.equal,
+              $.not_equal,
+              $.and,
+              $.or,
             ),
             $.expression,
           ),
         ),
-        prec.left(
-          11,
-          seq($.expression, choice(repeat1("+"), repeat1("-")), $.expression),
-        ),
+        prec.left(11, seq($.expression, choice($.plus, $.minus), $.expression)),
         prec.left(
           12,
-          seq($.expression, choice(repeat1("*"), repeat1("/")), $.expression),
+          seq($.expression, choice($.times, $.divide), $.expression),
         ),
       ),
+
+    greater: () => />+/,
+    less: () => /<+/,
+    greater_equal: () => />+=+/,
+    less_equal: () => /<+=+/,
+    equal: () => /==+/,
+    not_equal: () => /!+=+/,
+    and: () => /&&+/,
+    or: () => /\|\|+/,
+
+    plus: () => /\++/,
+    minus: () => /-+/,
+    times: () => /\/+/,
+    divide: () => /\*+/,
 
     int_literal: (_) => /\d+/,
     float_literal: (_) => /\d+\.\d+/,
@@ -184,8 +196,14 @@ module.exports = grammar({
         3,
         seq(
           optional($.expression),
-          "..",
-          choice(seq("=", $.expression), optional($.expression)),
+          // /\.\.+/,
+          // optional($.expression),
+          choice(
+            /\.\.+/,
+            seq(/\.\.+/, optional($.expression)),
+            seq(/\.\.+=+/, $.expression),
+          ),
+
           // optional("="),
           // optional($.expression),
         ),

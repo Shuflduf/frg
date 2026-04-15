@@ -13,7 +13,55 @@
       "required": true,
       "types": [
         {
+          "type": "and",
+          "named": true
+        },
+        {
+          "type": "divide",
+          "named": true
+        },
+        {
+          "type": "equal",
+          "named": true
+        },
+        {
           "type": "expression",
+          "named": true
+        },
+        {
+          "type": "greater",
+          "named": true
+        },
+        {
+          "type": "greater_equal",
+          "named": true
+        },
+        {
+          "type": "less",
+          "named": true
+        },
+        {
+          "type": "less_equal",
+          "named": true
+        },
+        {
+          "type": "minus",
+          "named": true
+        },
+        {
+          "type": "not_equal",
+          "named": true
+        },
+        {
+          "type": "or",
+          "named": true
+        },
+        {
+          "type": "plus",
+          "named": true
+        },
+        {
+          "type": "times",
           "named": true
         }
       ]
@@ -477,6 +525,10 @@
       "required": true,
       "types": [
         {
+          "type": "comment",
+          "named": true
+        },
+        {
           "type": "if_statement",
           "named": true
         },
@@ -746,14 +798,6 @@
     "named": false
   },
   {
-    "type": "*",
-    "named": false
-  },
-  {
-    "type": "+",
-    "named": false
-  },
-  {
     "type": ",",
     "named": false
   },
@@ -770,14 +814,6 @@
     "named": false
   },
   {
-    "type": "..",
-    "named": false
-  },
-  {
-    "type": "/",
-    "named": false
-  },
-  {
     "type": ":",
     "named": false
   },
@@ -786,15 +822,7 @@
     "named": false
   },
   {
-    "type": "<",
-    "named": false
-  },
-  {
     "type": "=",
-    "named": false
-  },
-  {
-    "type": ">",
     "named": false
   },
   {
@@ -810,6 +838,10 @@
     "named": false
   },
   {
+    "type": "and",
+    "named": true
+  },
+  {
     "type": "arr",
     "named": false
   },
@@ -823,8 +855,7 @@
   },
   {
     "type": "comment",
-    "named": true,
-    "extra": true
+    "named": true
   },
   {
     "type": "dict",
@@ -835,8 +866,16 @@
     "named": false
   },
   {
+    "type": "divide",
+    "named": true
+  },
+  {
     "type": "else",
     "named": false
+  },
+  {
+    "type": "equal",
+    "named": true
   },
   {
     "type": "false",
@@ -848,6 +887,14 @@
   },
   {
     "type": "float_literal",
+    "named": true
+  },
+  {
+    "type": "greater",
+    "named": true
+  },
+  {
+    "type": "greater_equal",
     "named": true
   },
   {
@@ -871,6 +918,14 @@
     "named": true
   },
   {
+    "type": "less",
+    "named": true
+  },
+  {
+    "type": "less_equal",
+    "named": true
+  },
+  {
     "type": "list",
     "named": false
   },
@@ -879,12 +934,28 @@
     "named": false
   },
   {
+    "type": "minus",
+    "named": true
+  },
+  {
+    "type": "not_equal",
+    "named": true
+  },
+  {
     "type": "num_identifier",
     "named": true
   },
   {
     "type": "obj",
     "named": false
+  },
+  {
+    "type": "or",
+    "named": true
+  },
+  {
+    "type": "plus",
+    "named": true
   },
   {
     "type": "return",
@@ -903,6 +974,10 @@
     "named": true
   },
   {
+    "type": "times",
+    "named": true
+  },
+  {
     "type": "true",
     "named": false
   },
@@ -916,10 +991,6 @@
   },
   {
     "type": "{",
-    "named": false
-  },
-  {
-    "type": "|",
     "named": false
   },
   {
