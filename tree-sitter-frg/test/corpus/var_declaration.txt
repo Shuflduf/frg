@@ -65,12 +65,14 @@ int num = 4 + 3 * 8
         (binary_expression
           (expression
             (int_literal))
+          (plus)
           (expression
             (binary_expression
               (expression
                 (int_literal))
+              (divide)
               (expression
-                (int_literal)))))))))           
+                (int_literal)))))))))
 
 
 ==================
@@ -222,5 +224,6 @@ bool taller_than_me = my_height < your_height
         (binary_expression
           (expression
             (identifier))
+          (less)
           (expression
             (identifier)))))))

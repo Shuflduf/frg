@@ -16,5 +16,5 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> Expression {
 pub fn transpile(expr: &Expression) -> String {
     let expr_str = expressions::transpile(expr);
 
-    format!("{expr_str};")
+    format!("_ = {expr_str};")
 }

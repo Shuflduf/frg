@@ -4,7 +4,7 @@ int(int) fibonacci = (index) {
     if index == 1 {
         return 1
     } else {
-        (2..index).for_each(() {
+        (2..index).for_each((_) {
             int c = a + b
             a = b
             b = c

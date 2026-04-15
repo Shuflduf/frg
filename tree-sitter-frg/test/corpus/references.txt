@@ -150,6 +150,7 @@ crazy bullshit
           (expression
             (identifier)))))))
 
+
 ==================
 crazier bullshit
 ==================
@@ -200,10 +201,12 @@ crazier bullshit
                                 (dereference
                                   (expression
                                     (identifier))))
+                              (plus)
                               (expression
                                 (identifier))))
                           (expression
                             (int_literal))))
+                      (minus)
                       (expression
                         (binary_expression
                           (expression
@@ -213,12 +216,16 @@ crazier bullshit
                                   (expression
                                     (identifier))
                                   (num_identifier)))
+                              (times)
                               (expression
                                 (int_literal))))
+                          (divide)
                           (expression
                             (int_literal))))))))
+              (greater_equal)
               (expression
                 (identifier))))
+          (and)
           (expression
             (identifier)))))))
 
@@ -248,10 +255,12 @@ calculate(x.* ++++ y[[    2] ---- z.age //// 3 ** 2)
                         (dereference
                           (expression
                             (identifier))))
+                      (plus)
                       (expression
                         (identifier))))
                   (expression
                     (int_literal))))
+              (minus)
               (expression
                 (binary_expression
                   (expression
@@ -261,11 +270,12 @@ calculate(x.* ++++ y[[    2] ---- z.age //// 3 ** 2)
                           (expression
                             (identifier))
                           (num_identifier)))
+                      (times)
                       (expression
                         (int_literal))))
+                  (divide)
                   (expression
                     (int_literal)))))))))))
-
 
 ==================
 vec of references

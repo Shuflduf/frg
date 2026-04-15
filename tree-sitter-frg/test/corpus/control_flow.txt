@@ -46,8 +46,10 @@ if true {
                   (binary_expression
                     (expression
                       (int_literal))
+                    (plus)
                     (expression
                       (int_literal))))
+                (less)
                 (expression
                   (int_literal))))
             (block)
@@ -56,6 +58,7 @@ if true {
                 (binary_expression
                   (expression
                     (int_literal))
+                  (greater)
                   (expression
                     (int_literal))))
               (block))
@@ -64,7 +67,7 @@ if true {
       (else_statement
         (block)))))
 
-
+        
 ==================
 funny nested but with LESS :( keywords lmao
 ==================
@@ -97,8 +100,10 @@ true {
                   (binary_expression
                     (expression
                       (int_literal))
+                    (plus)
                     (expression
                       (int_literal))))
+                (less)
                 (expression
                   (int_literal))))
             (block)
@@ -107,6 +112,7 @@ true {
                 (binary_expression
                   (expression
                     (int_literal))
+                  (greater)
                   (expression
                     (int_literal))))
               (block))

@@ -1,17 +1,12 @@
 use super::*;
 
 pub fn parse(cursor: &mut TreeCursor, code: &str) -> BinaryOperation {
-    println!(
-        "bin: {}",
-        &code[cursor.node().child(1).unwrap().byte_range()]
-    );
     cursor.goto_first_child();
     let left = Box::new(expressions::parse(cursor, code));
 
     cursor.goto_next_sibling();
     let op_symbol = &code[cursor.node().byte_range()];
 
-    println!("{}", &code[cursor.node().byte_range()]);
     let op = match op_symbol.chars().next().unwrap() {
         '+' => {
             skip_repeats(cursor, code, "+");
