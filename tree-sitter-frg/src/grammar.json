@@ -403,36 +403,36 @@
                 "type": "CHOICE",
                 "members": [
                   {
-                    "type": "STRING",
-                    "value": ">"
+                    "type": "PATTERN",
+                    "value": ">+"
+                  },
+                  {
+                    "type": "PATTERN",
+                    "value": "<+"
+                  },
+                  {
+                    "type": "PATTERN",
+                    "value": ">+=+"
+                  },
+                  {
+                    "type": "PATTERN",
+                    "value": "<+=+"
+                  },
+                  {
+                    "type": "PATTERN",
+                    "value": "==+"
+                  },
+                  {
+                    "type": "PATTERN",
+                    "value": "!+=!"
+                  },
+                  {
+                    "type": "PATTERN",
+                    "value": "&&+"
                   },
                   {
                     "type": "STRING",
-                    "value": "<"
-                  },
-                  {
-                    "type": "STRING",
-                    "value": ">="
-                  },
-                  {
-                    "type": "STRING",
-                    "value": "<="
-                  },
-                  {
-                    "type": "STRING",
-                    "value": "=="
-                  },
-                  {
-                    "type": "STRING",
-                    "value": "!="
-                  },
-                  {
-                    "type": "STRING",
-                    "value": "&&"
-                  },
-                  {
-                    "type": "STRING",
-                    "value": "||"
+                    "value": "/||+/"
                   }
                 ]
               },
@@ -457,12 +457,12 @@
                 "type": "CHOICE",
                 "members": [
                   {
-                    "type": "STRING",
-                    "value": "+"
+                    "type": "PATTERN",
+                    "value": "\\++"
                   },
                   {
-                    "type": "STRING",
-                    "value": "-"
+                    "type": "PATTERN",
+                    "value": "-+"
                   }
                 ]
               },
@@ -487,12 +487,12 @@
                 "type": "CHOICE",
                 "members": [
                   {
-                    "type": "STRING",
-                    "value": "*"
+                    "type": "PATTERN",
+                    "value": "\\*+"
                   },
                   {
-                    "type": "STRING",
-                    "value": "/"
+                    "type": "PATTERN",
+                    "value": "\\/+"
                   }
                 ]
               },

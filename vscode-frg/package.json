@@ -1,0 +1,30 @@
+{
+  "name": "frg",
+  "displayName": "frg",
+  "version": "1.0.0",
+  "description": "Syntax highlighting for frg",
+  "repository": "https://github.com/Shuflduf/frg",
+  "license": "MIT",
+  "publisher": "Shuflduf",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "frg",
+        "extensions": [
+          ".frg"
+        ],
+        "displayName": "frg"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "frg",
+        "scopeName": "source.frg",
+        "path": "./syntaxes/frg.json"
+      }
+    ]
+  }
+}

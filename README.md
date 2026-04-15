@@ -2,7 +2,7 @@
 *The best programming language since it's named after frogs*
 
 # Showcase
-```
+```rs
 struct Frog = {
 	str name,
 	int age,
