@@ -8,7 +8,7 @@
 4. [Installation / Usage](#installation)
 5. [Style Guide](#style-guide)
 
-# [Showcase]
+# Showcase
 ```rs
 struct Frog = {
 	str name,
