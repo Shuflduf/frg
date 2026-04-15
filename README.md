@@ -287,3 +287,20 @@ Yes, it's the same void as the type.
 >	returns_value()
 > ```
 
+
+# Installation
+
+> [!IMPORTANT]
+> Rust is required to use this project.
+> You can install Rust through [the official website](https://rust-lang.org/tools/install/).
+
+## Cargo
+1. `cargo install frg`
+
+## Windows
+1. Go to the [latest release](https://github.com/Shuflduf/frg/releases/latest)
+2. Download `frg_<VERSION>.exe`
+
+
+# Style Guide
+fuck around and find out

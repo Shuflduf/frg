@@ -115,7 +115,16 @@ module.exports = grammar({
           6,
           seq(
             $.expression,
-            choice(/>+/, /<+/, />+=+/, /<+=+/, /==+/, /!+=!/, /&&+/, "/\|\|+/"),
+            choice(
+              repeat1(">"),
+              repeat1("<"),
+              seq(repeat1(">"), repeat1("=")),
+              seq(repeat1("<"), repeat1("=")),
+              seq("=", repeat1("=")),
+              seq("!", repeat1("!")),
+              seq("&", repeat1("&")),
+              seq("|", repeat1("|")),
+            ),
             $.expression,
           ),
         ),
