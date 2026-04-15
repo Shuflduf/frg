@@ -12,6 +12,10 @@ unsafe extern "C" {
 
 fn main() {
     let frg_args = args::get_args();
+    if frg_args.help {
+        args::print_help();
+        return;
+    }
     let input = fs::read_to_string(
         frg_args
             .file_name
