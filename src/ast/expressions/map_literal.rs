@@ -1,4 +1,4 @@
-use super::*;
+use super::{Expression, TreeCursor, expressions};
 
 type MapLiteral = Vec<(String, Expression)>;
 
@@ -12,7 +12,7 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> MapLiteral {
             "}" => break,
             "map_entry" => parse_map_entry(cursor, code),
             _ => todo!("{node_kind}"),
-        })
+        });
     }
     cursor.goto_parent();
     entries

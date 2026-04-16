@@ -1,4 +1,4 @@
-use super::*;
+use super::{TreeCursor, VarType, types};
 
 pub fn parse(cursor: &mut TreeCursor, code: &str) -> VarType {
     cursor.goto_first_child();

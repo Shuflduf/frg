@@ -1,6 +1,6 @@
 use crate::ast;
 
-use super::*;
+use super::{TreeCursor, FunctionLiteral, parse_block, expressions, Statement};
 
 pub fn parse(cursor: &mut TreeCursor, code: &str) -> FunctionLiteral {
     cursor.goto_first_child();

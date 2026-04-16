@@ -1,4 +1,4 @@
-use super::*;
+use super::{TreeCursor, IndexAccess, expressions};
 
 pub fn parse(cursor: &mut TreeCursor, code: &str) -> IndexAccess {
     cursor.goto_first_child();

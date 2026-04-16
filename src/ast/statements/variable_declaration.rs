@@ -1,7 +1,7 @@
 use tree_sitter::TreeCursor;
 
 // use crate::ast_builder::{expressions, types, VariableDeclaration};
-use super::*;
+use super::{VariableDeclaration, types, expressions, VarType, Expression};
 
 pub fn parse(cursor: &mut TreeCursor, code: &str) -> VariableDeclaration {
     // enter variable delcaration

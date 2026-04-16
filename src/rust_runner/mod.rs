@@ -8,12 +8,13 @@ use std::{
 };
 
 pub fn run(code: &str) -> Result<String, Box<dyn Error>> {
-    let cache = env::var("XDG_CACHE_HOME")
-        .map(PathBuf::from)
-        .unwrap_or_else(|_| {
+    let cache = env::var("XDG_CACHE_HOME").map_or_else(
+        |_| {
             let home = env::var("HOME").expect("HOME not set");
             PathBuf::from(home).join(".cache")
-        });
+        },
+        PathBuf::from,
+    );
     fs::create_dir_all(&cache)?;
     let file_path = cache.join("tmp_frg.rs");
     let binary_path = cache.join("tmp_frg");
@@ -40,7 +41,7 @@ pub fn run(code: &str) -> Result<String, Box<dyn Error>> {
             return Err(str::from_utf8(&res.stderr)?.into());
         }
         Ok(_) => {}
-    };
+    }
 
     let execute_res = Command::new(binary_path)
         .stdin(Stdio::inherit())

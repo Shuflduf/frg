@@ -1,4 +1,4 @@
-use super::*;
+use super::{VarType, TreeCursor, types};
 
 type StructDecl = (String, Vec<(VarType, String)>);
 
@@ -47,7 +47,7 @@ fn get_fields(cursor: &mut TreeCursor, code: &str) -> Vec<(VarType, String)> {
                 (field_type, field_name)
             }
             _ => todo!(),
-        })
+        });
     }
     fields
 }

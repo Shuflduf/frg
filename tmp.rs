@@ -1,5 +1,5 @@
 fn main() {
-    let mut num: &'static str = {
+    let num: &'static str = {
         print!("HIIIIIIIIIIIIII: ");
         use std::io::Write;
         std::io::stdout().flush().unwrap();
@@ -10,5 +10,5 @@ fn main() {
         tmp_str_frg = tmp_str_frg.trim().into();
         tmp_str_frg.leak()
     };
-    _ = println!("{num}");
+    () = println!("{num}");
 }

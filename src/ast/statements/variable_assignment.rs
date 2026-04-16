@@ -1,4 +1,4 @@
-use super::*;
+use super::{Expression, AssignmentOp, TreeCursor, expressions, skip_repeats};
 
 type VarAss = (Expression, AssignmentOp, Expression);
 

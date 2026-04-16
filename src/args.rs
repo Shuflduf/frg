@@ -17,8 +17,8 @@ pub fn get_args() -> FrgArguments {
             || raw_args.contains(&"--no-exec".to_string()),
         file_name: raw_args
             .iter()
-            .filter(|a| !a.starts_with("-"))
-            .map(|a| a.to_owned())
+            .filter(|a| !a.starts_with('-'))
+            .map(std::borrow::ToOwned::to_owned)
             .collect::<Vec<String>>()
             .first()
             .cloned(),
@@ -33,7 +33,7 @@ pub fn print_help() {
             b(u("v".to_string() + ver))
         ),
         format!("{} {} [FILE]\n", bu("Usage:".into()), b("frg".into())),
-        bu("Options:".into()).to_string(),
+        bu("Options:".into()).clone(),
         format!("  {:<23} Print help", b("-h, --help".into())),
         format!(
             "  {:<23} Show intermediary treesitter, AST, and Rust",
@@ -45,7 +45,7 @@ pub fn print_help() {
         ),
     ];
     let text = lines.join("\n");
-    println!("{text}")
+    println!("{text}");
 }
 
 // underline

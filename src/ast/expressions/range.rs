@@ -1,4 +1,4 @@
-use super::*;
+use super::{Expression, TreeCursor, expressions};
 
 type Range = (Option<Box<Expression>>, Option<(bool, Box<Expression>)>);
 
@@ -35,13 +35,13 @@ pub fn transpile(range_lit: &Range) -> String {
     let lower_bound = if let Some(low) = &range_lit.0 {
         expressions::transpile(low)
     } else {
-        "".to_string()
+        String::new()
     };
     let upper_bound = if let Some(up) = &range_lit.1 {
         let equal_str = if up.0 { "=" } else { "" };
         format!("{}{}", equal_str, expressions::transpile(&up.1))
     } else {
-        "".to_string()
+        String::new()
     };
     format!("{lower_bound}..{upper_bound}")
 }

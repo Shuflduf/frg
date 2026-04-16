@@ -1,4 +1,4 @@
-use super::*;
+use super::{TreeCursor, Expression, expressions};
 
 pub fn parse(cursor: &mut TreeCursor, code: &str) -> Box<Expression> {
     cursor.goto_first_child();

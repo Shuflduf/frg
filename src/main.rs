@@ -58,7 +58,7 @@ fn section(header: &str, text: &str) {
     println!(
         "{}\n{}\n{}\n",
         header_text(header, true),
-        body_text(&text),
+        body_text(text),
         header_text(header, false)
     );
 }

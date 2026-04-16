@@ -1,4 +1,4 @@
-use super::*;
+use super::{TreeCursor, BinaryOperation, expressions, skip_repeats, BinaryOperator};
 
 pub fn parse(cursor: &mut TreeCursor, code: &str) -> BinaryOperation {
     cursor.goto_first_child();

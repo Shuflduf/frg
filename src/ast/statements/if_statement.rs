@@ -1,6 +1,6 @@
 use crate::ast;
 
-use super::*;
+use super::{TreeCursor, IfStatement, expressions, parse_block, Expression, Statement};
 
 pub fn parse(cursor: &mut TreeCursor, code: &str) -> IfStatement {
     cursor.goto_first_child();
@@ -56,7 +56,7 @@ fn skip_keywords(cursor: &mut TreeCursor) {
     while token == "if" || token == "else" {
         if !cursor.goto_next_sibling() {
             break;
-        };
+        }
         token = cursor.node().kind();
     }
 }

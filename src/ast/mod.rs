@@ -7,11 +7,13 @@ mod nodes;
 mod statements;
 mod types;
 
+#[must_use] 
 pub fn build(ts_tree: &Tree, code: &str) -> Vec<Statement> {
     let mut cursor = ts_tree.walk();
     parse_block(&mut cursor, code)
 }
 
+#[must_use] 
 pub fn transpile(statements: &Vec<Statement>) -> String {
     let mut code = String::new();
     for statement in statements {

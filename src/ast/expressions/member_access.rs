@@ -1,4 +1,4 @@
-use super::*;
+use super::{Expression, TreeCursor, expressions};
 
 type MemberAccess = (Box<Expression>, String);
 
