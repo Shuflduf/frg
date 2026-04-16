@@ -27,6 +27,23 @@ thing = thing + nums[2]
 
 ---
 
+(source_file
+  (statement
+    (variable_assignment
+      (expression
+        (identifier))
+      (assignment_operator)
+      (expression
+        (binary_expression
+          (expression
+            (identifier))
+          (plus)
+          (expression
+            (index_access
+              (expression
+                (identifier))
+              (expression
+                (int_literal)))))))))
 
 
 ==================
@@ -165,7 +182,7 @@ crazy bullshit
 crazy bullshit but just the function
 ==================
 
-calculate(x.* + y, -z.age / 3 * 2)
+calculate(x.* + y - z.age / 3 * 2)
 
 ---
 

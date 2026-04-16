@@ -187,7 +187,7 @@ module.exports = grammar({
 
     index_access: ($) =>
       prec.left(
-        11,
+        12,
         seq($.expression, repeat1("["), $.expression, repeat1("]")),
       ),
 
