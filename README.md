@@ -319,18 +319,21 @@ Yes, it's the same void as the type.
 
 ## Linux
 1. Go to the [latest release](https://github.com/Shuflduf/frg/releases/latest)
-2. Download `frg_linux`
-3. Execute with `./frg_linux -h` while in the directory with the binary
+2. Download `frg-linux-[ARCH]`
+3. Rename to `frg`
+4. Execute with `./frg -h` while in the directory with the binary
 
 ## Linux
 1. Go to the [latest release](https://github.com/Shuflduf/frg/releases/latest)
-2. Download `frg_macos`
-3. Execute with `./frg_macos -h` while in the directory with the binary
+2. Download `frg-macos-[ARCH]`
+3. Rename to `frg`
+4. Execute with `./frg -h` while in the directory with the binary
 
 ## Windows
 1. Go to the [latest release](https://github.com/Shuflduf/frg/releases/latest)
-2. Download `frg_windows.exe`
-3. Execute with `frg_windows.exe -h` while in the directory with the binary
+2. Download `frg-windows-[ARCH].exe`
+3. Rename to `frg.exe`
+4. Execute with `frg.exe -h` while in the directory with the binary
 
 # Style Guide
 fuck around and find out
