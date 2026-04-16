@@ -1,5 +1,5 @@
 int(int) fibonacci = (index) {
-    int a = 0
+    int a = 1
     int b = 1
     if index == 1 {
         return 1
@@ -13,6 +13,7 @@ int(int) fibonacci = (index) {
     b
 }
 
-int result = fibonacci(10)
-@print("10th fibonacci is {result}")
+int target_fib = @int(@input("What fib number? "))
+int result = fibonacci(target_fib)
+@print("{target_fib}th fibonacci is {result}")
 
