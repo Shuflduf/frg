@@ -77,5 +77,5 @@ pub fn transpile(binary_op: &BinaryOperation) -> String {
         BinaryOperator::Equals => "==",
         BinaryOperator::NotEquals => "!=",
     };
-    format!("{left} {op} {right}")
+    format!("({left} {op} {right})")
 }

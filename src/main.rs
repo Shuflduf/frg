@@ -36,6 +36,7 @@ fn main() {
     }
     let ast_tree = ast::build(&treesitter_tree, &input);
     let rust_code = rust_transpiler::transpile(&ast_tree);
+    println!("\n\n{rust_code}\n\n");
     if frg_args.verbose {
         println!(">>> AST >>>\n{ast_tree:?}\n<<< AST <<<\n");
         println!(">>> frg Code >>>\n{input}\n<<< frg Code <<<\n");

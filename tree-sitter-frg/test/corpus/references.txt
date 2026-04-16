@@ -20,6 +20,16 @@ basic ref
 
 
 ==================
+basic arrays
+==================
+
+thing = thing + nums[2]
+
+---
+
+
+
+==================
 variable assignment
 ==================
 
@@ -152,6 +162,16 @@ crazy bullshit
 
 
 ==================
+crazy bullshit but just the function
+==================
+
+calculate(x.* + y, -z.age / 3 * 2)
+
+---
+
+
+
+==================
 crazier bullshit
 ==================
 
@@ -216,10 +236,10 @@ crazier bullshit
                                   (expression
                                     (identifier))
                                   (num_identifier)))
-                              (times)
+                              (divide)
                               (expression
                                 (int_literal))))
-                          (divide)
+                          (times)
                           (expression
                             (int_literal))))))))
               (greater_equal)
@@ -234,7 +254,7 @@ crazier bullshit
 crazier bullshit but just the function
 ==================
 
-calculate(x.* ++++ y[[    2] ---- z.age //// 3 ** 2)
+calculate(x.* + y[2] - z.age / 3 * 2)
 
 ---
 
@@ -276,6 +296,7 @@ calculate(x.* ++++ y[[    2] ---- z.age //// 3 ** 2)
                   (divide)
                   (expression
                     (int_literal)))))))))))
+
 
 ==================
 vec of references

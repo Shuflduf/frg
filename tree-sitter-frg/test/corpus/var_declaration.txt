@@ -70,7 +70,7 @@ int num = 4 + 3 * 8
             (binary_expression
               (expression
                 (int_literal))
-              (divide)
+              (times)
               (expression
                 (int_literal)))))))))
 

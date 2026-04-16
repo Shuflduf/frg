@@ -141,8 +141,8 @@ module.exports = grammar({
 
     plus: () => /\++/,
     minus: () => /-+/,
-    times: () => /\/+/,
-    divide: () => /\*+/,
+    times: () => /\*+/,
+    divide: () => /\/+/,
 
     int_literal: (_) => /\d+/,
     float_literal: (_) => /\d+\.\d+/,
