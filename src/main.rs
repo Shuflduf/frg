@@ -24,6 +24,7 @@ fn main() {
             .unwrap_or("examples/test.frg".to_string()),
     )
     .unwrap();
+    println!("");
 
     let language = unsafe { tree_sitter_frg() };
     let mut parser = Parser::new();
@@ -47,8 +48,9 @@ fn main() {
         section("Rust Code", &rust_code);
     }
     if !frg_args.dont_execute {
+        println!("{}", header_text("Output", true));
         match rust_runner::run(&rust_code) {
-            Ok(output) => section("Output", &output),
+            Ok(output) => println!("{}{}", &output, header_text("Output", false)),
             Err(e) => section("rustc Error", &e.to_string()),
         }
     }
