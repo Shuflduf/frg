@@ -9,6 +9,7 @@ fn main() {
     println!("cargo:rerun-if-changed={source_file}");
 
     cc::Build::new()
+        .std("c11")
         .file(source_file)
         .include(source_directory)
         .compile(&package);
