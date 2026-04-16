@@ -1,3 +1,5 @@
+mod tmp;
+
 fn main() {
     let language = "frg";
     let package = format!("tree-sitter-{}", language);

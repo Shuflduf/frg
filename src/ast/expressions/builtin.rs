@@ -17,6 +17,7 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> BuiltinCall {
 pub fn transpile(builtin_call: &BuiltinCall) -> String {
     match &builtin_call.name[..] {
         "print" => builtins::print::transpile(&builtin_call.params),
+        "input" => builtins::input::transpile(&builtin_call.params),
         _ => panic!("invalid builtin {}", builtin_call.name),
     }
 }

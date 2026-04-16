@@ -4,7 +4,7 @@ use std::{
     fs::{self, File},
     io::Write,
     path::{Path, PathBuf},
-    process::Command,
+    process::{Command, Stdio},
 };
 
 pub fn run(code: &str) -> Result<String, Box<dyn Error>> {
@@ -42,10 +42,13 @@ pub fn run(code: &str) -> Result<String, Box<dyn Error>> {
         Ok(_) => {}
     };
 
-    let exectute_res = Command::new(binary_path).output()?;
+    let execute_res = Command::new(binary_path)
+        .stdin(Stdio::inherit())
+        .stdout(Stdio::inherit())
+        .output()?;
     println!();
 
-    Ok(String::from_utf8(exectute_res.stdout)?)
+    Ok(String::from_utf8(execute_res.stdout)?)
 }
 
 fn write_code_to_file(code: &str, file_path: &Path) -> Result<(), Box<dyn Error>> {
