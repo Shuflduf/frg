@@ -182,7 +182,7 @@ crazy bullshit
 crazy bullshit but just the function
 ==================
 
-calculate(x.* + y - z.age / 3 * 2)
+calculate(y - z.age)
 
 ---
 

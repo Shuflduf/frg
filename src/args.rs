@@ -32,8 +32,8 @@ pub fn print_help() {
             "frg Transpiler and Runner ({})\n",
             b(u("v".to_string() + ver))
         ),
-        format!("{} {} [FILE]\n", b(u("Usage:".into())), b("frg".into())),
-        b(u("Options:".into())).to_string(),
+        format!("{} {} [FILE]\n", bu("Usage:".into()), b("frg".into())),
+        bu("Options:".into()).to_string(),
         format!("  {:<23} Print help", b("-h, --help".into())),
         format!(
             "  {:<23} Show intermediary treesitter, AST, and Rust",
@@ -49,11 +49,20 @@ pub fn print_help() {
 }
 
 // underline
-fn u(text: String) -> String {
+pub fn u(text: String) -> String {
     format!("\x1b[4m{text}\x1b[24m")
 }
 
 // bold
-fn b(text: String) -> String {
+pub fn b(text: String) -> String {
     format!("\x1b[1m{text}\x1b[22m")
+}
+
+// dim
+pub fn d(text: String) -> String {
+    format!("\x1b[2m{text}\x1b[22m")
+}
+
+pub fn bu(text: String) -> String {
+    b(u(text))
 }
