@@ -121,6 +121,12 @@ pub struct IfStatement {
 }
 
 #[derive(Debug)]
+pub struct WhileStatement {
+    pub condition: Expression,
+    pub body: Vec<Statement>,
+}
+
+#[derive(Debug)]
 pub struct StructDeclaration {
     pub name: String,
     pub fields: (String, VarType),
@@ -145,4 +151,5 @@ pub enum Statement {
     StructDeclaration((String, Vec<(VarType, String)>)),
     VariableAssignment((Expression, AssignmentOp, Expression)),
     VoidStatement(Expression),
+    WhileStatement(WhileStatement),
 }

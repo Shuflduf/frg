@@ -33,6 +33,7 @@ module.exports = grammar({
           $.struct_declaration,
           $.variable_assignment,
           $.void_statement,
+          $.while_statement,
           // prec.dynamic(2, $.expression),
         ),
         repeat(";"),
@@ -223,6 +224,9 @@ module.exports = grammar({
     else_if_statement: ($) =>
       seq(repeat1("else"), repeat("if"), $.expression, $.block),
     else_statement: ($) => seq(repeat1("else"), repeat("if"), $.block),
+
+    while_statement: ($) =>
+      prec.right(seq(repeat1("while"), $.expression, $.block)),
 
     return_statement: ($) => seq("return", $.expression),
 

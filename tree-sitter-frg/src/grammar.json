@@ -46,6 +46,10 @@
             {
               "type": "SYMBOL",
               "name": "void_statement"
+            },
+            {
+              "type": "SYMBOL",
+              "name": "while_statement"
             }
           ]
         },
@@ -1167,6 +1171,30 @@
           "name": "block"
         }
       ]
+    },
+    "while_statement": {
+      "type": "PREC_RIGHT",
+      "value": 0,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "REPEAT1",
+            "content": {
+              "type": "STRING",
+              "value": "while"
+            }
+          },
+          {
+            "type": "SYMBOL",
+            "name": "expression"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "block"
+          }
+        ]
+      }
     },
     "return_statement": {
       "type": "SEQ",

@@ -602,6 +602,10 @@
         {
           "type": "void_statement",
           "named": true
+        },
+        {
+          "type": "while_statement",
+          "named": true
         }
       ]
     }
@@ -829,6 +833,25 @@
     }
   },
   {
+    "type": "while_statement",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "block",
+          "named": true
+        },
+        {
+          "type": "expression",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "!",
     "named": false
   },
@@ -1042,6 +1065,10 @@
   },
   {
     "type": "void",
+    "named": false
+  },
+  {
+    "type": "while",
     "named": false
   },
   {

@@ -19,6 +19,7 @@ pub fn transpile(builtin_call: &BuiltinCall) -> String {
         "print" => builtins::print::transpile(&builtin_call.params, false),
         "println" => builtins::print::transpile(&builtin_call.params, true),
         "input" => builtins::input::transpile(&builtin_call.params),
+        "rand" => builtins::rand::transpile(&builtin_call.params),
         "int" => builtins::parse::transpile(&builtin_call.params, &VarType::Int),
         "str" => builtins::parse::transpile(&builtin_call.params, &VarType::Str),
         _ => panic!("invalid builtin {}", builtin_call.name),

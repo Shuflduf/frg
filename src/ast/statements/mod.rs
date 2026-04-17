@@ -1,6 +1,9 @@
 use tree_sitter::TreeCursor;
 
-use super::{IfStatement, expressions, parse_block, Expression, Statement, VarType, types, AssignmentOp, skip_repeats, VariableDeclaration};
+use super::{
+    AssignmentOp, Expression, IfStatement, Statement, VarType, VariableDeclaration, expressions,
+    parse_block, skip_repeats, types,
+};
 
 mod if_statement;
 mod return_statement;
@@ -8,6 +11,7 @@ mod struct_declaration;
 mod variable_assignment;
 mod variable_declaration;
 mod void_statement;
+pub mod while_statement;
 
 pub fn parse(cursor: &mut TreeCursor, code: &str) -> Statement {
     cursor.goto_first_child();
@@ -27,6 +31,7 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> Statement {
         }
         "expression" => Statement::Expression(expressions::parse(cursor, code)),
         "void_statement" => Statement::VoidStatement(void_statement::parse(cursor, code)),
+        "while_statement" => Statement::WhileStatement(while_statement::parse(cursor, code)),
         _ => todo!("{statement_name}"),
     };
     cursor.goto_parent();
@@ -43,5 +48,6 @@ pub fn transpile(statement: &Statement) -> String {
         Statement::StructDeclaration(struct_decl) => struct_declaration::transpile(struct_decl),
         Statement::VariableAssignment(var_ass) => variable_assignment::transpile(var_ass),
         Statement::VoidStatement(expr) => void_statement::transpile(expr),
+        Statement::WhileStatement(while_statement) => while_statement::transpile(while_statement),
     }
 }

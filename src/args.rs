@@ -3,6 +3,8 @@ use std::env;
 pub const EXAMPLES: &[(&str, &str)] = &[
     ("fibonacci", include_str!("../examples/fibonacci.frg")),
     ("factorial", include_str!("../examples/factorial.frg")),
+    ("primes", include_str!("../examples/primes.frg")),
+    ("guessing", include_str!("../examples/guessing.frg")),
 ];
 
 #[derive(Debug, Default)]
