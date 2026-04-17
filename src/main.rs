@@ -1,7 +1,7 @@
 use std::fs;
 use tree_sitter::{Language, Parser};
 
-use crate::args::{bu, d};
+use crate::args::{FrgArguments, bu, d};
 
 mod args;
 pub mod ast;
@@ -18,13 +18,13 @@ fn main() {
         args::print_help();
         return;
     }
-    let input = fs::read_to_string(
-        frg_args
-            .file_name
-            .unwrap_or("examples/test.frg".to_string()),
-    )
-    .unwrap();
-    println!("");
+
+    let input = match get_input_text(&frg_args) {
+        Some(val) => val,
+        None => return,
+    };
+
+    println!();
 
     let language = unsafe { tree_sitter_frg() };
     let mut parser = Parser::new();
@@ -54,6 +54,28 @@ fn main() {
             Err(e) => section("rustc Error", &e.to_string()),
         }
     }
+}
+
+fn get_input_text(args: &FrgArguments) -> Option<String> {
+    if args.file_name.is_none() {
+        if args.example {
+            args::print_examples();
+        } else {
+            args::print_help();
+        }
+        return None;
+    }
+    let content = if args.example {
+        args::EXAMPLES
+            .iter()
+            .find(|e| e.0 == args.file_name.as_ref().unwrap())
+            .expect("Example not found")
+            .1
+            .to_string()
+    } else {
+        fs::read_to_string(args.file_name.as_ref().unwrap()).expect("File not found")
+    };
+    Some(content)
 }
 
 fn section(header: &str, text: &str) {

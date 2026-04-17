@@ -1,20 +1,26 @@
-use std::env;
+use std::{collections::HashMap, env};
 
-#[derive(Debug)]
+pub const EXAMPLES: &[(&str, &str)] = &[("fibonacci", include_str!("../examples/fibonacci.frg"))];
+
+#[derive(Debug, Default)]
 pub struct FrgArguments {
     pub help: bool,
     pub verbose: bool,
     pub dont_execute: bool,
+    pub example: bool,
     pub file_name: Option<String>,
 }
 pub fn get_args() -> FrgArguments {
     let raw_args = &env::args().collect::<Vec<String>>()[1..];
+    // let mut args = FrgArguments::default();
     FrgArguments {
         help: raw_args.contains(&"-h".to_string()) || raw_args.contains(&"--help".to_string()),
         verbose: raw_args.contains(&"-v".to_string())
             || raw_args.contains(&"--verbose".to_string()),
         dont_execute: raw_args.contains(&"-n".to_string())
             || raw_args.contains(&"--no-exec".to_string()),
+        example: raw_args.contains(&"-e".to_string())
+            || raw_args.contains(&"--example".to_string()),
         file_name: raw_args
             .iter()
             .filter(|a| !a.starts_with('-'))
@@ -23,6 +29,20 @@ pub fn get_args() -> FrgArguments {
             .first()
             .cloned(),
     }
+
+    // let mut i = 0;
+    // while i < raw_args.len() {
+    //     match raw_args[i].as_str() {
+    //         "-h" | "--help" => args.help = true,
+    //         "-v" | "--verbose" => args.verbose = true,
+    //         "-n" | "--no-exec" => args.dont_execute = true,
+    //         "-e" | "--example" => args.example = true,
+    //         _ => {}
+    //     }
+    //     i += 1;
+    // }
+
+    // args
 }
 
 pub fn print_help() {
@@ -43,9 +63,18 @@ pub fn print_help() {
             "  {:<23} Don't run generated Rust",
             b("-n, --no-exec".into())
         ),
+        format!(
+            "  {:<23} Run an example. No args provided will list the examples.",
+            b("-e, --example".into())
+        ),
     ];
     let text = lines.join("\n");
     println!("{text}");
+}
+
+pub fn print_examples() {
+    println!("{} (Run with frg -e [EXAMPLE])", bu("Examples:".into()));
+    EXAMPLES.iter().for_each(|e| println!("  - {}", e.0));
 }
 
 // underline
