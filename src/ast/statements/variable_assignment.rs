@@ -1,4 +1,4 @@
-use super::{Expression, AssignmentOp, TreeCursor, expressions, skip_repeats};
+use super::{AssignmentOp, Expression, TreeCursor, expressions, skip_repeats};
 
 type VarAss = (Expression, AssignmentOp, Expression);
 
@@ -26,6 +26,10 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> VarAss {
             skip_repeats(cursor, code, "/");
             AssignmentOp::DivideEquals
         }
+        '%' => {
+            skip_repeats(cursor, code, "%");
+            AssignmentOp::ModulusEquals
+        }
         _ => unreachable!("{}", &code[cursor.node().byte_range()]),
     };
 
@@ -49,6 +53,7 @@ pub fn transpile(var_ass: &VarAss) -> String {
         AssignmentOp::MinusEquals => "-=",
         AssignmentOp::TimesEquals => "*=",
         AssignmentOp::DivideEquals => "/=",
+        AssignmentOp::ModulusEquals => "%=",
     };
 
     format!("{left} {op} {right};")

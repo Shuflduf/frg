@@ -501,6 +501,10 @@
                   {
                     "type": "SYMBOL",
                     "name": "divide"
+                  },
+                  {
+                    "type": "SYMBOL",
+                    "name": "modulus"
                   }
                 ]
               },
@@ -560,6 +564,10 @@
     "divide": {
       "type": "PATTERN",
       "value": "\\/+"
+    },
+    "modulus": {
+      "type": "PATTERN",
+      "value": "%+"
     },
     "int_literal": {
       "type": "PATTERN",
@@ -1324,6 +1332,10 @@
         {
           "type": "PATTERN",
           "value": "\\/+=+"
+        },
+        {
+          "type": "PATTERN",
+          "value": "%+=+"
         }
       ]
     },

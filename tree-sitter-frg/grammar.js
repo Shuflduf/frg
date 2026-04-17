@@ -126,7 +126,7 @@ module.exports = grammar({
         prec.left(11, seq($.expression, choice($.plus, $.minus), $.expression)),
         prec.left(
           12,
-          seq($.expression, choice($.times, $.divide), $.expression),
+          seq($.expression, choice($.times, $.divide, $.modulus), $.expression),
         ),
       ),
 
@@ -143,6 +143,7 @@ module.exports = grammar({
     minus: () => /-+/,
     times: () => /\*+/,
     divide: () => /\/+/,
+    modulus: () => /%+/,
 
     int_literal: (_) => /\d+/,
     float_literal: (_) => /\d+\.\d+/,
@@ -251,6 +252,7 @@ module.exports = grammar({
         /-+=+/,
         /\*+=+/,
         /\/+=+/,
+        /%+=+/,
         // seq(repeat1("+"), repeat1("=")),
         // seq(repeat1("-"), repeat1("=")),
         // seq(repeat1("*"), repeat1("=")),

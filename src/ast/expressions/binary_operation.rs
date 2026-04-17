@@ -1,4 +1,4 @@
-use super::{TreeCursor, BinaryOperation, expressions, skip_repeats, BinaryOperator};
+use super::{BinaryOperation, BinaryOperator, TreeCursor, expressions, skip_repeats};
 
 pub fn parse(cursor: &mut TreeCursor, code: &str) -> BinaryOperation {
     cursor.goto_first_child();
@@ -23,6 +23,10 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> BinaryOperation {
         '/' => {
             skip_repeats(cursor, code, "/");
             BinaryOperator::Divide
+        }
+        '%' => {
+            skip_repeats(cursor, code, "%");
+            BinaryOperator::Modulus
         }
         '=' => {
             skip_repeats(cursor, code, "=");
@@ -76,6 +80,7 @@ pub fn transpile(binary_op: &BinaryOperation) -> String {
         BinaryOperator::GreaterThanOrEqual => ">=",
         BinaryOperator::Equals => "==",
         BinaryOperator::NotEquals => "!=",
+        BinaryOperator::Modulus => "%",
     };
     format!("({left} {op} {right})")
 }

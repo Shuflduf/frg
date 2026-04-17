@@ -49,6 +49,10 @@
           "named": true
         },
         {
+          "type": "modulus",
+          "named": true
+        },
+        {
           "type": "not_equal",
           "named": true
         },
@@ -982,6 +986,10 @@
   },
   {
     "type": "minus",
+    "named": true
+  },
+  {
+    "type": "modulus",
     "named": true
   },
   {

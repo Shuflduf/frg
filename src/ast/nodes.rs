@@ -30,6 +30,7 @@ pub enum BinaryOperator {
     Subtract,
     Multiply,
     Divide,
+    Modulus,
     LessThan,
     LessThanOrEqual,
     GreaterThan,
@@ -131,6 +132,7 @@ pub enum AssignmentOp {
     MinusEquals,
     TimesEquals,
     DivideEquals,
+    ModulusEquals,
 }
 
 #[derive(Debug)]
