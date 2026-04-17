@@ -54,18 +54,30 @@ pub fn print_help() {
         ),
         format!("{} {} [FILE]\n", bu("Usage:".into()), b("frg".into())),
         bu("Options:".into()).clone(),
-        format!("  {:<23} Print help", b("-h, --help".into())),
+        format!("  {:<23} Print this help menu.", b("-h, --help".into())),
         format!(
-            "  {:<23} Show intermediary treesitter, AST, and Rust",
+            "  {:<23} Show input code and intermediary treesitter, AST, and Rust.",
             b("-v, --verbose".into())
         ),
         format!(
-            "  {:<23} Don't run generated Rust",
+            "  {:<23} Don't run generated Rust. Usually used with -v.",
             b("-n, --no-exec".into())
         ),
         format!(
             "  {:<23} Run an example. No args provided will list the examples.",
             b("-e, --example".into())
+        ),
+        String::new(),
+        bu("Examples:".into()).clone(),
+        format!("  {:<31} Execute a frg file.", b("frg my_code.frg".into())),
+        format!("  {:<31} List examples", b("frg --example".into())),
+        format!(
+            "  {:<31} Run the fibonacci example",
+            b("frg -e fibonacci".into())
+        ),
+        format!(
+            "  {:<31} Show the process of a frg file being turned into Rust.",
+            b("frg -v -n my_code.frg".into())
         ),
     ];
     let text = lines.join("\n");
