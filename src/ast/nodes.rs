@@ -12,6 +12,7 @@ pub enum VarType {
     Int,
     Float,
     Str,
+    Bool,
     StructDec,
     Struct(String),
     Reference(Box<VarType>),

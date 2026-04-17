@@ -10,7 +10,7 @@ void(int) fizzbuzz = (index) {
         output = (output.to_owned() + @str(index)).leak()
     }
     @println("{output}")
-};
+}
 
 (1..=100).for_each((i) {
     fizzbuzz(i)

@@ -1,4 +1,4 @@
-use super::{TreeCursor, VarType, types, expressions};
+use super::{TreeCursor, VarType, expressions, types};
 
 mod function;
 mod map;
@@ -15,6 +15,7 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> VarType {
         "int" => VarType::Int,
         "str" => VarType::Str,
         "float" => VarType::Float,
+        "bool" => VarType::Bool,
         "reference_type" => reference::parse(cursor, code),
         "function_type" => function::parse(cursor, code),
         "struct_identifier" => VarType::Struct(code[cursor.node().byte_range()].to_string()),
@@ -35,6 +36,7 @@ pub fn transpile(var_type: &VarType) -> String {
         VarType::Float => "f32",
         // could be a mistake
         VarType::Str => "&'static str",
+        VarType::Bool => "bool",
         VarType::Reference(ref_type) => &format!("&mut {}", transpile(ref_type)),
         VarType::Struct(struct_name) => struct_name,
         VarType::Function {

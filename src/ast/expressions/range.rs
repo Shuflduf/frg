@@ -24,8 +24,6 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> Range {
         }
         "range_to" => {
             cursor.goto_first_child();
-            println!("{}", &code[cursor.node().byte_range()]);
-
             upper_bound = Some((false, Box::new(expressions::parse(cursor, code))));
             cursor.goto_parent();
         }
