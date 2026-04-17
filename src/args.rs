@@ -1,6 +1,9 @@
-use std::{collections::HashMap, env};
+use std::env;
 
-pub const EXAMPLES: &[(&str, &str)] = &[("fibonacci", include_str!("../examples/fibonacci.frg"))];
+pub const EXAMPLES: &[(&str, &str)] = &[
+    ("fibonacci", include_str!("../examples/fibonacci.frg")),
+    ("factorial", include_str!("../examples/factorial.frg")),
+];
 
 #[derive(Debug, Default)]
 pub struct FrgArguments {
@@ -12,7 +15,6 @@ pub struct FrgArguments {
 }
 pub fn get_args() -> FrgArguments {
     let raw_args = &env::args().collect::<Vec<String>>()[1..];
-    // let mut args = FrgArguments::default();
     FrgArguments {
         help: raw_args.contains(&"-h".to_string()) || raw_args.contains(&"--help".to_string()),
         verbose: raw_args.contains(&"-v".to_string())

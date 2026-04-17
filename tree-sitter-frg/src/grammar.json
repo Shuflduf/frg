@@ -963,47 +963,55 @@
             "type": "CHOICE",
             "members": [
               {
-                "type": "PATTERN",
-                "value": "\\.\\.+"
+                "type": "SYMBOL",
+                "name": "range_all"
               },
               {
-                "type": "SEQ",
-                "members": [
-                  {
-                    "type": "PATTERN",
-                    "value": "\\.\\.+"
-                  },
-                  {
-                    "type": "CHOICE",
-                    "members": [
-                      {
-                        "type": "SYMBOL",
-                        "name": "expression"
-                      },
-                      {
-                        "type": "BLANK"
-                      }
-                    ]
-                  }
-                ]
+                "type": "SYMBOL",
+                "name": "range_to"
               },
               {
-                "type": "SEQ",
-                "members": [
-                  {
-                    "type": "PATTERN",
-                    "value": "\\.\\.+=+"
-                  },
-                  {
-                    "type": "SYMBOL",
-                    "name": "expression"
-                  }
-                ]
+                "type": "SYMBOL",
+                "name": "range_to_include"
               }
             ]
           }
         ]
       }
+    },
+    "range_all": {
+      "type": "PATTERN",
+      "value": "\\.\\.+"
+    },
+    "range_to": {
+      "type": "PREC_RIGHT",
+      "value": 1,
+      "content": {
+        "type": "SEQ",
+        "members": [
+          {
+            "type": "PATTERN",
+            "value": "\\.\\.+"
+          },
+          {
+            "type": "SYMBOL",
+            "name": "expression"
+          }
+        ]
+      }
+    },
+    "range_to_include": {
+      "type": "SEQ",
+      "members": [
+        {
+          "type": "PATTERN",
+          "value": "\\.\\.+=+"
+        },
+        {
+          "type": "SYMBOL",
+          "name": "expression"
+        }
+      ]
     },
     "builtin": {
       "type": "SEQ",

@@ -196,18 +196,13 @@ module.exports = grammar({
         3,
         seq(
           optional($.expression),
-          // /\.\.+/,
-          // optional($.expression),
-          choice(
-            /\.\.+/,
-            seq(/\.\.+/, optional($.expression)),
-            seq(/\.\.+=+/, $.expression),
-          ),
-
-          // optional("="),
-          // optional($.expression),
+          choice($.range_all, $.range_to, $.range_to_include),
         ),
       ),
+
+    range_all: () => /\.\.+/,
+    range_to: ($) => prec.right(1, seq(/\.\.+/, $.expression)),
+    range_to_include: ($) => seq(/\.\.+=+/, $.expression),
 
     builtin: ($) =>
       seq("@", $.identifier, "(", repeat(choice($.expression, ",")), ")"),

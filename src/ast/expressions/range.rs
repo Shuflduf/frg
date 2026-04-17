@@ -13,19 +13,24 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> Range {
         cursor.goto_next_sibling();
     }
 
-    // skip ".."
-    cursor.goto_next_sibling();
+    let upper_bound: Option<(bool, Box<Expression>)>;
 
-    let up_to = cursor.node().kind() == "=";
-    let upper_bound = if up_to {
-        cursor.goto_next_sibling();
-        Some((true, Box::new(expressions::parse(cursor, code))))
-    } else {
-        match cursor.node().kind() {
-            "expression" => Some((false, Box::new(expressions::parse(cursor, code)))),
-            _ => None,
+    match cursor.node().kind() {
+        "range_all" => upper_bound = None,
+        "range_to_include" => {
+            cursor.goto_first_child();
+            upper_bound = Some((true, Box::new(expressions::parse(cursor, code))));
+            cursor.goto_parent();
         }
-    };
+        "range_to" => {
+            cursor.goto_first_child();
+            println!("{}", &code[cursor.node().byte_range()]);
+
+            upper_bound = Some((false, Box::new(expressions::parse(cursor, code))));
+            cursor.goto_parent();
+        }
+        _ => unreachable!(),
+    }
 
     cursor.goto_parent();
     (lower_bound, upper_bound)
