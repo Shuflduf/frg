@@ -46,6 +46,7 @@ pub fn run(code: &str) -> Result<String, Box<dyn Error>> {
     let execute_res = Command::new(binary_path)
         .stdin(Stdio::inherit())
         .stdout(Stdio::inherit())
+        .stderr(Stdio::inherit())
         .output()?;
     println!();
 
