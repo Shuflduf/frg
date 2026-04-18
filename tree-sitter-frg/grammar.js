@@ -141,7 +141,7 @@ module.exports = grammar({
     or: () => /\|\|+/,
 
     plus: () => /\++/,
-    minus: () => /-+/,
+    minus: () => "-",
     times: () => /\*+/,
     divide: () => /\/+/,
     modulus: () => /%+/,

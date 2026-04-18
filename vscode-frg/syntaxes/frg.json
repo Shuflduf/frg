@@ -34,11 +34,15 @@
       "patterns": [
         {
           "name": "keyword.control",
-          "match": "\\b(if|else|return)\\b"
+          "match": "\\b(if|else|return|while)\\b"
         },
         {
           "name": "keyword",
           "match": "\\bstruct\\b"
+        },
+        {
+          "name": "constant.language",
+          "match": "\\b(true|false)\\b"
         },
         {
           "name": "support.type.primitive",
@@ -67,10 +71,6 @@
         {
           "name": "constant.numeric.integer",
           "match": "\\d+"
-        },
-        {
-          "name": "constant.language",
-          "match": "\\b(true|false)\\b"
         }
       ]
     },
@@ -93,16 +93,32 @@
     "operators": {
       "patterns": [
         {
-          "name": "keyword.operator.assignment.compound",
-          "match": "[+\\-*/]?="
+          "name": "keyword.operator.assignment",
+          "match": "([+\\-*/%])?="
         },
         {
-          "name": "keyword.operator",
-          "match": "\\+\\+|\\-\\-|&&|\\|\\||[+\\-*/><!&|=]"
+          "name": "keyword.operator.comparison",
+          "match": "(==|!=|<=|>=|<|>)"
+        },
+        {
+          "name": "keyword.operator.logical",
+          "match": "(&&|\\|\\||!)"
+        },
+        {
+          "name": "keyword.operator.arithmetic",
+          "match": "[+\\-*/%]"
+        },
+        {
+          "name": "keyword.operator.bitwise",
+          "match": "&"
         },
         {
           "name": "keyword.operator.range",
-          "match": "\\.\\."
+          "match": "(\\.\\.=?|\\.\\.\\+)"
+        },
+        {
+          "name": "keyword.operator.dereference",
+          "match": "\\.\\*"
         }
       ]
     },

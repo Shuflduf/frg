@@ -558,8 +558,8 @@
       "value": "\\++"
     },
     "minus": {
-      "type": "PATTERN",
-      "value": "-+"
+      "type": "STRING",
+      "value": "-"
     },
     "times": {
       "type": "PATTERN",

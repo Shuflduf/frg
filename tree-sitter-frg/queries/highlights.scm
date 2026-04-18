@@ -50,6 +50,16 @@
 (map_literal) @attribute
 (empty_collection) @attribute
 
+; Access and member operations
+(member_access) @property
+(index_access) @function
+(map_entry) @property
+
+; Struct operations
+(struct_literal) @function
+(struct_field) @property
+(struct_method) @function
+
 ; Function calls
 (function_call) @function
 
@@ -60,38 +70,54 @@
 (builtin) @function.builtin
 "@" @function.builtin
 
+; Blocks and parameters
+(block) @punctuation.bracket
+(parameter_list) @punctuation.bracket
+
 ; Keywords
 "if" @keyword
 "else" @keyword
 "return" @keyword
+"while" @keyword
+"struct" @keyword
+"true" @constant.builtin
+"false" @constant.builtin
 
 (if_statement) @keyword
 (else_if_statement) @keyword
 (else_statement) @keyword
+(while_statement) @keyword
+(return_statement) @keyword
 
-; Operators
+; Operators - binary/comparison
+(greater) @operator
+(less) @operator
+(greater_equal) @operator
+(less_equal) @operator
+(equal) @operator
+(not_equal) @operator
+(and) @operator
+(or) @operator
+
+; Operators - arithmetic
+(plus) @operator
+(minus) @operator
+(times) @operator
+(divide) @operator
+(modulus) @operator
+
+; Operators - unary/access
+(unary_expression) @operator
+(dereference) @operator
+
+; Assignment operators
+(assignment_operator) @operator
 "=" @operator
-"+=" @operator
-"-=" @operator
-"*=" @operator
-"/=" @operator
-"+" @operator
-"-" @operator
-"*" @operator
-"/" @operator
-">" @operator
-"<" @operator
-">=" @operator
-"<=" @operator
-"==" @operator
-"!=" @operator
-"&&" @operator
-"||" @operator
-"!" @operator
-"&" @operator
 
 ; Range operators
-".." @operator
+(range_all) @operator
+(range_to) @operator
+(range_to_include) @operator
 
 ; Delimiters
 "," @punctuation.delimiter

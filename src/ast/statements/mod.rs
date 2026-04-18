@@ -32,6 +32,7 @@ pub fn parse(cursor: &mut TreeCursor, code: &str) -> Statement {
         "expression" => Statement::Expression(expressions::parse(cursor, code)),
         "void_statement" => Statement::VoidStatement(void_statement::parse(cursor, code)),
         "while_statement" => Statement::WhileStatement(while_statement::parse(cursor, code)),
+        "comment" => Statement::Comment(code[cursor.node().byte_range()].to_string()),
         _ => todo!("{statement_name}"),
     };
     cursor.goto_parent();
@@ -49,5 +50,6 @@ pub fn transpile(statement: &Statement) -> String {
         Statement::VariableAssignment(var_ass) => variable_assignment::transpile(var_ass),
         Statement::VoidStatement(expr) => void_statement::transpile(expr),
         Statement::WhileStatement(while_statement) => while_statement::transpile(while_statement),
+        Statement::Comment(comment) => format!("{comment}"),
     }
 }

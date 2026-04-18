@@ -152,4 +152,5 @@ pub enum Statement {
     VariableAssignment((Expression, AssignmentOp, Expression)),
     VoidStatement(Expression),
     WhileStatement(WhileStatement),
+    Comment(String),
 }

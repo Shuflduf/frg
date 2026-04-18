@@ -5,8 +5,10 @@
 1. [Showcase](#showcase)
 2. [Purpose](#purpose)
 3. [Features](#features)
-4. [Installation / Usage](#installation)
-5. [Style Guide](#style-guide)
+4. [Installation](#installation)
+5. [Editor Setup](#editor-setup)
+6. [Usage](#usage)
+7. [Style Guide](#style-guide)
 
 # Showcase
 ```rs
@@ -120,18 +122,14 @@ int(&Frog,  ,int) jump = (jumping_frg jump_count,,) {
 }
 ```
 
-If you can't comprehend the last expression in a function being the returned value, you can use the `return` keyword. Or the `ret` keyword. Or `urn`. Or anything that has the letters from the word function as long as they're in order.
+If you can't comprehend the last expression in a function being the returned value, you can use the `return` keyword.
 ```rs
 return jumping_frg.leg_count
-ret jumping_frg.leg_count
-turn jumping_frg.leg_count
-tr jumping_frg.leg_count
-run jumping_frg.leg_count
 ```
 
 "Oh but how does it know when one statement ends and one begins! I don't have my fucking semicolons!". This system works on hopes and dreams and is flawless.
 ```rs
-int your_iq = 5 your_iq -= ((value_a value_b) { value_a - value_b })(,,112 your_iq)
+int your_iq = 5 int(int int) recalc = (value_a value_b) { return value_a - value_b } your_iq -= recalc(,,112 your_iq)
 ```
 
 But you can add semicolons if you want i guess.
@@ -165,7 +163,6 @@ The parser will not trust you after this one.
 - Booleans (`bool`)
 - Vectors (`vec(int)`)
 - Maps (`map(str, int)`)
-- Sets (`set(str)`)
 - Functions (`int(str)`)
 - Structs (`StructName`)
 - References (`&int`)
@@ -316,27 +313,83 @@ Yes, it's the same void as the type.
 > You can install Rust through [the official website](https://rust-lang.org/tools/install/).
 
 ## Cargo (Recommended)
+*You need Rust installed to use this project anyways.*
+
 1. `cargo install frg`
-2. Only 31 dependencies, installs quickly
-3. Execute with `frg -h` anywhere
+2. Only 29 dependencies, installs quickly and works on any platform
+3. Execute with `frg` anywhere
 
 ## Linux
 1. Go to the [latest release](https://github.com/Shuflduf/frg/releases/latest)
 2. Download `frg-linux-[ARCH]`
 3. Rename to `frg`
-4. Execute with `./frg -h` while in the directory with the binary
+4. Execute with `./frg` while in the directory with the binary
 
 ## Linux
 1. Go to the [latest release](https://github.com/Shuflduf/frg/releases/latest)
 2. Download `frg-macos-[ARCH]`
 3. Rename to `frg`
-4. Execute with `./frg -h` while in the directory with the binary
+4. Execute with `./frg` while in the directory with the binary
 
 ## Windows
 1. Go to the [latest release](https://github.com/Shuflduf/frg/releases/latest)
 2. Download `frg-windows-[ARCH].exe`
 3. Rename to `frg.exe`
-4. Execute with `frg.exe -h` while in the directory with the binary
+4. Execute with `frg.exe` while in the directory with the binary
+
+
+# Editor Setup
+
+## Helix
+1. Add this to your `languages.toml`:
+```toml
+[[grammar]]
+name = "frg"
+source = { git = "https://github.com/Shuflduf/frg", rev = "*", subpath = "tree-sitter-frg" }
+
+[[language]]
+name = "frg"
+scope = "source.frg"
+file-types = ["frg"]
+comment-tokens = ["//"]
+indent = { tab-width = 4, unit = "    " }
+```
+2. Run `helix --grammar fetch` and `helix --grammar build`
+
+## VSCode
+1. Download the extension from [OpenVSX](https://open-vsx.org/extension/Shuflduf/frg)
+2. Go the extensions panel in the sidebar (`Ctrl + Shift + X`)
+3. Open the three-dot menu and select `Install from VSIX`
+4. Select the downloaded extension.
+
+TODO: IMAGES
+
+
+# Usage
+Invoke the binary with its name, usually `frg`.
+
+```
+frg Transpiler and Runner (v2.0.0)
+
+Usage: frg [FILE]
+
+Options:
+  -h, --help     Print this help menu.
+  -v, --verbose  Show input code and intermediary treesitter, AST, and Rust.
+  -n, --no-exec  Don't run generated Rust. Usually used with -v.
+  -e, --example  Run an example. No args provided will list the examples.
+
+Examples:
+  frg my_code.frg        Execute a frg file.
+  frg --example          List examples
+  frg -e fibonacci       Run the fibonacci example
+  frg -v -n my_code.frg  Show the process of a frg file being turned into Rust.
+```
+
+To write your own frg code, use your [editor](#editor-setup) of choice, and add anything you want to a text file.
+Having the file extension be `.frg` is not required, but is recommended.
+
+If something isn't working as expected, use the `-v` flag to inspect the generated Rust to see if everything works.
 
 # Style Guide
 fuck around and find out

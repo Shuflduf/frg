@@ -415,6 +415,11 @@
     }
   },
   {
+    "type": "minus",
+    "named": true,
+    "fields": {}
+  },
+  {
     "type": "parameter_declaration",
     "named": true,
     "fields": {},
@@ -1006,10 +1011,6 @@
   {
     "type": "map",
     "named": false
-  },
-  {
-    "type": "minus",
-    "named": true
   },
   {
     "type": "modulus",
