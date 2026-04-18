@@ -125,5 +125,5 @@ jobs:
       - name: Publish to crates.io
         run: |
           cargo login ${{ secrets.CRATES_IO }}
-          cargo publish
+          cargo publish --allow-dirty
           rm -f ~/.cargo/credentials
