@@ -46,16 +46,10 @@ jobs:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             asset_suffix: linux-x86_64
-          - os: ubuntu-latest
-            target: x86_64-unknown-linux-musl
-            asset_suffix: linux-x86_64-musl
           # Linux ARM64
           - os: ubuntu-latest
             target: aarch64-unknown-linux-gnu
             asset_suffix: linux-arm64
-          - os: ubuntu-latest
-            target: aarch64-unknown-linux-musl
-            asset_suffix: linux-arm64-musl
           # Linux ARM 32-bit
           - os: ubuntu-latest
             target: armv7-unknown-linux-gnueabihf
