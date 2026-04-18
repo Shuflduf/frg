@@ -234,7 +234,7 @@ module.exports = grammar({
       seq(
         "struct",
         $.struct_identifier,
-        "=",
+        optional("="),
         "{",
         repeat(choice($.struct_field, $.struct_method, ",")),
         "}",
