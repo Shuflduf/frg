@@ -391,5 +391,12 @@ Having the file extension be `.frg` is not required, but is recommended.
 
 If something isn't working as expected, use the `-v` flag to inspect the generated Rust to see if everything works.
 
+## Examples
+- `fibonacci`: Calculate a target fibonacci number
+- `factorial`: Calculate a target factorial number
+- `primes`: Lists numbers 1 - 50 and tells you if they're prime
+- `guessing`: Higher or lower guessing game, this is the BIG one you SHOULD TEST
+
+
 # Style Guide
 fuck around and find out
