@@ -1,4 +1,5 @@
-# ![icon](frg-icon.png)
+<img height="64" src="frg-icon.png">
+
 *The best programming language since it's named after frogs*
 
 # Table of Contents
