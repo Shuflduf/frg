@@ -326,7 +326,7 @@ Yes, it's the same void as the type.
 3. Rename to `frg`
 4. Execute with `./frg` while in the directory with the binary
 
-## Linux
+## MacOS
 1. Go to the [latest release](https://github.com/Shuflduf/frg/releases/latest)
 2. Download `frg-macos-[ARCH]`
 3. Rename to `frg`
