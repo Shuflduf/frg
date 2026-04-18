@@ -7,17 +7,7 @@ repository = "https://github.com/Shuflduf/frg"
 license = "MIT"
 
 [dependencies]
-# pico-args = "0.5.0"
-# rust-sitter = "0.4.5"
 tree-sitter = "0.26.3"
-# tree-sitter-frg = "*"
-
-# [dependencies.tree-sitter-frg]
-# path = "tree-sitter-frg"
 
 [build-dependencies]
 cc = "1.2.50"
-# rust-sitter-tool = "0.4.5"
-
-# [lib]
-# crate-type = ["cdylib", "rlib"]

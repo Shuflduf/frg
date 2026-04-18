@@ -322,21 +322,61 @@ Yes, it's the same void as the type.
 
 ## Linux
 1. Go to the [latest release](https://github.com/Shuflduf/frg/releases/latest)
-2. Download `frg-linux-[ARCH]`
-3. Rename to `frg`
-4. Execute with `./frg` while in the directory with the binary
+2. Download the binary for your architecture:
+	- `frg-linux-x86_64` (Intel/AMD 64-bit)
+	- `frg-linux-arm64` (ARM 64-bit)
+	- `frg-linux-armv7` (ARM 32-bit)
+3. Make it executable: `chmod +x frg-linux-[ARCH]`
+4. **Option A: Add to PATH (recommended)**
+	```bash
+	sudo mv frg-linux-[ARCH] /usr/local/bin/frg
+
+	# now you can run frg from anywhere
+	frg --help
+	```
+5. **Option B: Run from current directory**
+	```bash
+	mv frg-linux-[ARCH] frg
+	./frg --help
+	```
 
 ## MacOS
 1. Go to the [latest release](https://github.com/Shuflduf/frg/releases/latest)
-2. Download `frg-macos-[ARCH]`
-3. Rename to `frg`
-4. Execute with `./frg` while in the directory with the binary
+2. Download the binary for your architecture:
+	- `frg-macos-x86_64` (Intel Macs)
+	- `frg-macos-arm64` (Apple Silicon)
+3. Make it executable: `chmod +x frg-macos-[ARCH]`
+4. **Option A: Add to PATH (recommended)**
+	```bash
+	sudo mv frg-macos-[ARCH] /usr/local/bin/frg
+
+	# now you can run frg from anywhere
+	frg --help
+	```
+5. **Option B: Run from current directory**
+	```bash
+	mv frg-macos-[ARCH] frg
+	./frg --help
+	```
 
 ## Windows
 1. Go to the [latest release](https://github.com/Shuflduf/frg/releases/latest)
-2. Download `frg-windows-[ARCH].exe`
-3. Rename to `frg.exe`
-4. Execute with `frg.exe` while in the directory with the binary
+2. Download the `.exe` for your architecture:
+	- `frg-windows-x86_64.exe` (Intel/AMD 64-bit)
+	- `frg-windows-arm64.exe` (ARM 64-bit)
+3. **Option A: Add to PATH (recommended)**
+	- Move `frg-windows-[ARCH].exe` to `C:\Users\YourUsername\AppData\Local\Programs\frg\` (create the folder if it doesn't exist)
+	- Open "Edit the system environment variables" and add the folder to your PATH.
+	- Restart your terminal and now you can run frg from anywhere!
+	```powershell
+	frg --help
+	```
+4. **Option B: Run from current directory**
+	```powershell
+	ren "frg-windows-[ARCH].exe" "frg.exe"
+
+	frg.exe --help
+	```
 
 
 # Editor Setup
