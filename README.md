@@ -1,4 +1,4 @@
-# 🐸
+# ![icon](frg-icon.png)
 *The best programming language since it's named after frogs*
 
 # Table of Contents
@@ -358,11 +358,14 @@ indent = { tab-width = 4, unit = "    " }
 
 ## VSCode
 1. Download the extension from [OpenVSX](https://open-vsx.org/extension/Shuflduf/frg)
+   
+	<img height="100" src="https://github.com/user-attachments/assets/b68c7ce1-140c-4bc0-98b2-e8edf2485b27" />
 2. Go the extensions panel in the sidebar (`Ctrl + Shift + X`)
 3. Open the three-dot menu and select `Install from VSIX`
+
+   <img height="200" src="https://github.com/user-attachments/assets/5d517ff2-40b2-4cc3-bbda-c6249fbf5d33" />
 4. Select the downloaded extension.
 
-TODO: IMAGES
 
 
 # Usage
