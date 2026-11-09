@@ -1,5 +1,10 @@
 use chumsky::prelude::*;
+use clap::Parser as _;
 
+mod ast;
+mod cli;
+
+#[allow(dead_code)]
 #[derive(Debug)]
 enum Expr<'src> {
     Int(i32),
@@ -13,9 +18,18 @@ enum Expr<'src> {
 }
 
 fn main() {
-    let src = "-59";
+    let args = cli::FrgArgs::parse();
+    match args {
+        cli::FrgArgs::Build(_build_args) => println!("build"),
+        cli::FrgArgs::Run(_run_args) => println!("run"),
+        cli::FrgArgs::Test => test(),
+    }
+}
+
+fn test() {
+    let src = "-59 + 3842 - (984 +4)*2";
     // println!("{:?}", parser().parse("59"));
-    match parser().parse(&src).into_result() {
+    match parser().parse(src).into_result() {
         Ok(ast) => match eval(&ast) {
             Ok(output) => println!("{output}"),
             Err(eval_err) => eprintln!("Eval Error: {eval_err}"),
@@ -47,6 +61,7 @@ fn parser<'src>() -> impl Parser<'src, &'src str, Expr<'src>> {
             .repeated(),
             |lhs, (op, rhs)| op(Box::new(lhs), Box::new(rhs)),
         );
+        #[allow(clippy::let_and_return)]
         let sum = product.clone().foldl(
             choice((
                 op("+").to(Expr::Add as fn(_, _) -> _),
