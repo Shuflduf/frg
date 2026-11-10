@@ -3,6 +3,7 @@ use clap::Parser as _;
 
 mod ast;
 mod cli;
+mod tokens;
 
 #[allow(dead_code)]
 #[derive(Debug)]
@@ -27,8 +28,8 @@ fn main() {
 }
 
 fn test() {
+    println!("{:?}", tokens::lex(r#" int kfsd = "ma king" "#));
     let src = "-59 + 3842 - (984 +4)*2";
-    // println!("{:?}", parser().parse("59"));
     match parser().parse(src).into_result() {
         Ok(ast) => match eval(&ast) {
             Ok(output) => println!("{output}"),
@@ -61,6 +62,7 @@ fn parser<'src>() -> impl Parser<'src, &'src str, Expr<'src>> {
             .repeated(),
             |lhs, (op, rhs)| op(Box::new(lhs), Box::new(rhs)),
         );
+
         #[allow(clippy::let_and_return)]
         let sum = product.clone().foldl(
             choice((
