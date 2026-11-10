@@ -11,19 +11,49 @@ pub enum LexError {
 
 #[derive(Debug)]
 pub struct TokenData<'src> {
-    token: Token<'src>,
-    span: Range<usize>,
+    pub token: Token<'src>,
+    pub span: Range<usize>,
 }
 
 #[derive(Logos, Debug)]
 #[logos(error = LexError)]
 #[logos(skip r"[ \t\n\f]+")]
 pub enum Token<'src> {
-    #[token("int")]
-    IntType,
-
     #[token("=")]
     Equals,
+    #[token("(")]
+    LeftParen,
+    #[token(")")]
+    RightParen,
+    #[token("{")]
+    LeftBrace,
+    #[token("}")]
+    RightBrace,
+    #[token("[")]
+    LeftBracket,
+    #[token("]")]
+    RightBracket,
+    #[token("+")]
+    Plus,
+    #[token("-")]
+    Minus,
+    #[token("*")]
+    Star,
+    #[token("/")]
+    Slash,
+    #[token("+=")]
+    PlusEquals,
+    #[token("-=")]
+    MinusEquals,
+    #[token("*=")]
+    StarEquals,
+    #[token("/=")]
+    SlashEquals,
+
+    #[token("int")]
+    IntType,
+    #[token("float")]
+    FloatType,
 
     #[regex("[a-z_][a-zA-Z0-9_]*", |lex| lex.slice())]
     Identifier(&'src str),

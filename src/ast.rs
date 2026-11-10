@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 #[allow(dead_code)]
 pub enum VarType {
     Void,
@@ -6,7 +6,7 @@ pub enum VarType {
     Float,
     Str,
     Bool,
-    StructDec,
+    Type,
 }
 
 #[derive(Debug)]
@@ -18,7 +18,7 @@ pub enum Literal {
     Bool(bool),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 #[allow(dead_code)]
 pub enum BinaryOperator {
     Add,
@@ -88,6 +88,7 @@ pub enum Expression<'src> {
 pub enum Statement<'src> {
     VariableDeclaration {
         vtype: VarType,
+        name: &'src str,
         value: Expression<'src>,
     },
 }
