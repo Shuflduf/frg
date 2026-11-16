@@ -7,6 +7,7 @@ repository = "https://github.com/Shuflduf/frg"
 license = "GPL-3.0-or-later"
 
 [dependencies]
+ariadne = "0.6.0"
 chumsky = "0.13.0"
 clap = { version = "4.6.7", features = ["derive"] }
 logos = "0.16.1"

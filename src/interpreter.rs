@@ -1,6 +1,9 @@
-use std::{collections::HashMap, ops::Add};
+use std::{
+    collections::HashMap,
+    ops::{Add, Neg},
+};
 
-use crate::ast::{BinaryOperator, Expression, Literal, Statement, VarType};
+use crate::ast::{BinaryOperator, Expression, Literal, Statement, UnaryOperator, VarType};
 
 #[derive(Debug)]
 enum Value {
@@ -20,6 +23,16 @@ impl Add for Value {
                 Self::Float(rnum) => Self::Float(lnum + rnum),
                 Self::Int(rnum) => Self::Float(lnum + rnum as f64),
             },
+        }
+    }
+}
+
+impl Neg for Value {
+    type Output = Value;
+    fn neg(self) -> Self::Output {
+        match self {
+            Self::Int(num) => Self::Int(-num),
+            Self::Float(num) => Self::Float(-num),
         }
     }
 }
@@ -45,6 +58,7 @@ pub fn run(program: &[Statement]) -> Result<i64, String> {
                 assert!(correct_type);
                 state.variables.insert(*name, val);
             }
+            _ => todo!(),
         }
     }
 
@@ -62,6 +76,10 @@ fn eval(state: &State, expr: &Expression) -> Value {
         },
         Expression::BinaryOperation { left, op, right } => match op {
             BinaryOperator::Add => eval(state, left) + eval(state, right),
+            _ => todo!(),
+        },
+        Expression::UnaryOperation { op, expr } => match op {
+            UnaryOperator::Negative => -eval(state, expr),
             _ => todo!(),
         },
         _ => todo!(),

@@ -91,4 +91,10 @@ pub enum Statement<'src> {
         name: &'src str,
         value: Expression<'src>,
     },
+    IfStatement {
+        condition: Expression<'src>,
+        body: Vec<Statement<'src>>,
+        else_ifs: Vec<(Expression<'src>, Vec<Statement<'src>>)>,
+        else_body: Vec<Statement<'src>>,
+    },
 }
