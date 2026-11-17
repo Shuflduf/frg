@@ -1,5 +1,8 @@
 use ariadne::{ColorGenerator, Label, Source};
-use chumsky::{input::BorrowInput, prelude::*};
+use chumsky::{
+    input::{BorrowInput, ValueInput},
+    prelude::*,
+};
 use clap::Parser as _;
 
 use crate::{
@@ -70,33 +73,79 @@ fn binary<'src>(lhs: Expr<'src>, op: BinaryOperator, rhs: Expr<'src>) -> Expr<'s
 
 fn parser<'src, I>() -> impl Parser<'src, I, Vec<Stmt<'src>>, extra::Err<Rich<'src, Token<'src>>>>
 where
-    I: BorrowInput<'src, Token = Token<'src>, Span = SimpleSpan>,
+    I: BorrowInput<'src, Token = Token<'src>, Span = SimpleSpan> + ValueInput<'src>,
 {
     let int_literal = select_ref! { Token::IntLiteral(n) => Expression::Literal(Literal::Int(*n)) };
     let float_literal =
         select_ref! { Token::FloatLiteral(n) => Expression::Literal(Literal::Float(*n)) };
     let identifier = select_ref! { Token::Identifier(name) => Expression::Identifier(name) };
-    let left_paren = select_ref! { Token::LeftParen => () };
-    let right_paren = select_ref! { Token::RightParen => () };
-    let plus = select_ref! { Token::Plus => () };
-    let minus = select_ref! { Token::Minus => () };
-    let star = select_ref! { Token::Star => () };
-    let slash = select_ref! { Token::Slash => () };
-    let left_brace = select_ref! { Token::LeftBrace => () };
-    let right_brace = select_ref! { Token::RightBrace => () };
-    let if_kw = select_ref! { Token::If => () };
-    let else_kw = select_ref! { Token::Else => () };
-    let int_type = select_ref! { Token::IntType => VarType::Int };
-    let float_type = select_ref! { Token::FloatType => VarType::Float };
-    let bool_type = select_ref! { Token::BoolType => VarType::Bool };
     let name = select_ref! { Token::Identifier(name) => *name };
-    let equals_assign = select_ref! { Token::Equals => () };
-    let equivalent = select_ref! { Token::Equivalent => () };
-    let not_equivalent = select_ref! { Token::NotEquivalent => () };
-    let bool_true = select_ref! { Token::BoolTrue => Expression::Literal(Literal::Bool(true)) };
-    let bool_false = select_ref! { Token::BoolFalse => Expression::Literal(Literal::Bool(false)) };
+    let plus = just(Token::Plus).to(());
+    let minus = just(Token::Minus).to(());
+    let star = just(Token::Star).to(());
+    let slash = just(Token::Slash).to(());
+    let left_paren = just(Token::LeftParen).to(());
+    let right_paren = just(Token::RightParen).to(());
+    let left_bracket = just(Token::LeftBracket).to(());
+    let right_bracket = just(Token::RightBracket).to(());
+    let left_brace = just(Token::LeftBrace).to(());
+    let right_brace = just(Token::RightBrace).to(());
+    let if_kw = just(Token::If).to(());
+    let else_kw = just(Token::Else).to(());
+    let int_type = just(Token::IntType).map(|_| VarType::Int);
+    let float_type = just(Token::FloatType).map(|_| VarType::Float);
+    let bool_type = just(Token::BoolType).map(|_| VarType::Bool);
+    let equals_assign = just(Token::Equals).to(());
+    let equivalent = just(Token::Equivalent).to(());
+    let not_equivalent = just(Token::NotEquivalent).to(());
+    let bool_true = just(Token::BoolTrue).map(|_| Expression::Literal(Literal::Bool(true)));
+    let bool_false = just(Token::BoolFalse).map(|_| Expression::Literal(Literal::Bool(false)));
 
     let bool_literal = choice((bool_true, bool_false));
+    let vtype = choice((int_type, float_type, bool_type));
+
+    let statement_start = choice((
+        just(Token::IntType),
+        just(Token::FloatType),
+        just(Token::BoolType),
+        just(Token::If),
+    ))
+    .ignored();
+    let block_end = just(Token::RightBrace).ignored();
+    let balanced_group = recursive(|balanced_group| {
+        let closing = choice((
+            just(Token::RightParen),
+            just(Token::RightBracket),
+            just(Token::RightBrace),
+        ))
+        .ignored();
+        let contents = choice((balanced_group, any().and_is(closing.not()).ignored())).repeated();
+
+        choice((
+            contents
+                .clone()
+                .delimited_by(left_paren.clone(), right_paren.clone()),
+            contents
+                .clone()
+                .delimited_by(left_bracket.clone(), right_bracket.clone()),
+            contents.delimited_by(left_brace.clone(), right_brace.clone()),
+        ))
+        .ignored()
+    });
+
+    let recovery_first = choice((balanced_group.clone(), any().ignored()));
+    let recovery_rest = choice((
+        balanced_group,
+        any()
+            .and_is(statement_start.clone().or(block_end.clone()).not())
+            .ignored(),
+    ));
+    let recovery = block_end
+        .clone()
+        .not()
+        .ignore_then(recovery_first)
+        .then(recovery_rest.repeated())
+        .map(|_| None);
 
     let expr = recursive(|expr| {
         let atom = choice((
@@ -106,7 +155,7 @@ where
             identifier.spanned(),
             expr.delimited_by(left_paren, right_paren),
         ));
-        let unary = minus.to_span().repeated().foldr(
+        let unary = minus.clone().to_span().repeated().foldr(
             atom,
             |op_span: SimpleSpan, rhs: Spanned<Expression<'_>>| {
                 let span = SimpleSpan::from(op_span.start..rhs.span.end);
@@ -150,14 +199,15 @@ where
         comparison.boxed()
     });
 
-    let vtype = choice((int_type, float_type, bool_type));
-
     let statement = recursive(|statement| {
         let block = statement
             .clone()
             .repeated()
-            .collect()
+            .collect::<Vec<Option<Stmt<'src>>>>()
+            .map(|statements| statements.into_iter().flatten().collect::<Vec<_>>())
             .delimited_by(left_brace, right_brace)
+            .labelled("block")
+            .as_context()
             .boxed();
 
         let var_decl = vtype
@@ -165,11 +215,14 @@ where
             .then_ignore(equals_assign)
             .then(expr.clone())
             .map(|((vtype, name), value)| Statement::VariableDeclaration { vtype, name, value })
+            .labelled("variable declaration")
+            .as_context()
             .spanned()
             .boxed();
 
         let else_if = else_kw
-            .ignore_then(if_kw)
+            .clone()
+            .ignore_then(if_kw.clone())
             .ignore_then(expr.clone())
             .then(block.clone());
         let if_stmt = if_kw
@@ -185,13 +238,22 @@ where
                     else_body: else_body.unwrap_or_default(),
                 },
             )
+            .labelled("if statement")
+            .as_context()
             .spanned()
             .boxed();
 
         choice((var_decl, if_stmt))
+            .map(Some)
+            .labelled("statement")
+            .as_context()
+            .recover_with(via_parser(recovery))
     });
 
-    statement.repeated().collect()
+    statement
+        .repeated()
+        .collect::<Vec<Option<Stmt<'src>>>>()
+        .map(|statements| statements.into_iter().flatten().collect::<Vec<_>>())
 
     // let int = text::int(10).map(|s: &str| Expr::Int(s.parse().unwrap()));
 
