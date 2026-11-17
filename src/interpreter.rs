@@ -36,6 +36,69 @@ impl Value {
             }),
         }
     }
+    fn sub(self, rhs: Self) -> Result<Self, OpError> {
+        match (self, rhs) {
+            (Self::Int(a), Self::Int(b)) => Ok(Self::Int(a - b)),
+            (Self::Float(a), Self::Float(b)) => Ok(Self::Float(a - b)),
+            (Self::Int(a), Self::Float(b)) => Ok(Self::Float(a as f64 - b)),
+            (Self::Float(a), Self::Int(b)) => Ok(Self::Float(a - b as f64)),
+            (left, right) => Err(OpError::InvalidBinaryOp {
+                op: "-",
+                left: left.type_name(),
+                right: right.type_name(),
+            }),
+        }
+    }
+    fn mul(self, rhs: Self) -> Result<Self, OpError> {
+        match (self, rhs) {
+            (Self::Int(a), Self::Int(b)) => Ok(Self::Int(a * b)),
+            (Self::Float(a), Self::Float(b)) => Ok(Self::Float(a * b)),
+            (Self::Int(a), Self::Float(b)) => Ok(Self::Float(a as f64 * b)),
+            (Self::Float(a), Self::Int(b)) => Ok(Self::Float(a * b as f64)),
+            (left, right) => Err(OpError::InvalidBinaryOp {
+                op: "*",
+                left: left.type_name(),
+                right: right.type_name(),
+            }),
+        }
+    }
+    fn div(self, rhs: Self) -> Result<Self, OpError> {
+        match (self, rhs) {
+            (Self::Int(a), Self::Int(b)) => {
+                if b == 0 {
+                    Err(OpError::DivisionByZero)
+                } else {
+                    Ok(Self::Int(a / b))
+                }
+            }
+            (Self::Float(a), Self::Float(b)) => {
+                if b == 0.0 {
+                    Err(OpError::DivisionByZero)
+                } else {
+                    Ok(Self::Float(a / b))
+                }
+            }
+            (Self::Int(a), Self::Float(b)) => {
+                if b == 0.0 {
+                    Err(OpError::DivisionByZero)
+                } else {
+                    Ok(Self::Float(a as f64 / b))
+                }
+            }
+            (Self::Float(a), Self::Int(b)) => {
+                if b == 0 {
+                    Err(OpError::DivisionByZero)
+                } else {
+                    Ok(Self::Float(a / b as f64))
+                }
+            }
+            (left, right) => Err(OpError::InvalidBinaryOp {
+                op: "/",
+                left: left.type_name(),
+                right: right.type_name(),
+            }),
+        }
+    }
     fn neg(self) -> Result<Self, OpError> {
         match self {
             Self::Int(n) => Ok(Self::Int(-n)),
@@ -155,6 +218,15 @@ fn eval(state: &State, expr: &Expr) -> Result<Value, RuntimeError> {
             match op {
                 BinaryOperator::Add => left
                     .add(right)
+                    .map_err(|e| RuntimeError::new(e.to_string(), expr.span)),
+                BinaryOperator::Subtract => left
+                    .sub(right)
+                    .map_err(|e| RuntimeError::new(e.to_string(), expr.span)),
+                BinaryOperator::Multiply => left
+                    .mul(right)
+                    .map_err(|e| RuntimeError::new(e.to_string(), expr.span)),
+                BinaryOperator::Divide => left
+                    .div(right)
                     .map_err(|e| RuntimeError::new(e.to_string(), expr.span)),
                 BinaryOperator::Equals => {
                     Ok(Value::Bool(left.equals(&right).map_err(|e| {

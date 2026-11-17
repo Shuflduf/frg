@@ -13,6 +13,19 @@ pub struct RuntimeLabel {
     pub message: String,
 }
 
+pub enum OpError {
+    InvalidBinaryOp {
+        op: &'static str,
+        left: &'static str,
+        right: &'static str,
+    },
+    InvalidUnaryOp {
+        op: &'static str,
+        expr: &'static str,
+    },
+    DivisionByZero,
+}
+
 impl RuntimeError {
     pub fn new(message: impl Into<String>, span: SimpleSpan) -> Self {
         let message = message.into();
@@ -65,19 +78,6 @@ impl Display for RuntimeError {
     }
 }
 
-// #[derive(Debug)]
-pub enum OpError {
-    InvalidBinaryOp {
-        op: &'static str,
-        left: &'static str,
-        right: &'static str,
-    },
-    InvalidUnaryOp {
-        op: &'static str,
-        expr: &'static str,
-    },
-}
-
 impl Display for OpError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
@@ -87,6 +87,7 @@ impl Display for OpError {
             Self::InvalidUnaryOp { op, expr } => {
                 write!(f, "cannot apply `{op}` to `{expr}`")
             }
+            Self::DivisionByZero => f.write_str("division by zero"),
         }
     }
 }

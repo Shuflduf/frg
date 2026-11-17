@@ -23,8 +23,7 @@ fn main() {
 }
 
 fn test() {
-    let src = "bool thing = true
-    bool other = thing == 6";
+    let src = "int thing = 8 / 3.0";
     let tokens = tokens::lex(src);
     // println!("{tokens:?}");
     let eoi = SimpleSpan::from(src.len()..src.len());
@@ -76,7 +75,7 @@ where
     let int_literal = select_ref! { Token::IntLiteral(n) => Expression::Literal(Literal::Int(*n)) };
     let float_literal =
         select_ref! { Token::FloatLiteral(n) => Expression::Literal(Literal::Float(*n)) };
-    let identifier = select_ref! { Token::Identifier(name) => Expression::Identifier(*name) };
+    let identifier = select_ref! { Token::Identifier(name) => Expression::Identifier(name) };
     let left_paren = select_ref! { Token::LeftParen => () };
     let right_paren = select_ref! { Token::RightParen => () };
     let plus = select_ref! { Token::Plus => () };
@@ -107,7 +106,7 @@ where
             identifier.spanned(),
             expr.delimited_by(left_paren, right_paren),
         ));
-        let unary = minus.clone().to_span().repeated().foldr(
+        let unary = minus.to_span().repeated().foldr(
             atom,
             |op_span: SimpleSpan, rhs: Spanned<Expression<'_>>| {
                 let span = SimpleSpan::from(op_span.start..rhs.span.end);
@@ -170,8 +169,7 @@ where
             .boxed();
 
         let else_if = else_kw
-            .clone()
-            .ignore_then(if_kw.clone())
+            .ignore_then(if_kw)
             .ignore_then(expr.clone())
             .then(block.clone());
         let if_stmt = if_kw
