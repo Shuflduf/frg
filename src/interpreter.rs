@@ -1,7 +1,4 @@
-use std::{
-    collections::HashMap,
-    ops::{Add, Neg},
-};
+use std::collections::HashMap;
 
 use crate::{
     ast::{BinaryOperator, Expr, Expression, Literal, Statement, Stmt, UnaryOperator, VarType},
@@ -122,27 +119,6 @@ impl Value {
                 left: left.type_name(),
                 right: right.type_name(),
             }),
-        }
-    }
-}
-
-impl PartialEq for Value {
-    fn eq(&self, rhs: &Self) -> bool {
-        match self {
-            Self::Int(lnum) => match rhs {
-                Self::Int(rnum) => lnum == rnum,
-                Self::Float(rnum) => *lnum as f64 == *rnum,
-                Self::Bool(_) => panic!("not allowed"),
-            },
-            Self::Float(lnum) => match rhs {
-                Self::Float(rnum) => lnum == rnum,
-                Self::Int(rnum) => *lnum == *rnum as f64,
-                Self::Bool(_) => panic!("not allowed"),
-            },
-            Self::Bool(lbool) => match rhs {
-                Self::Bool(rbool) => *lbool == *rbool,
-                _ => panic!("not allowed"),
-            },
         }
     }
 }
