@@ -16,6 +16,8 @@ mod errors;
 mod interpreter;
 mod tokens;
 
+type P<'src, I, O> = Boxed<'src, 'src, I, O, extra::Err<Rich<'src, Token<'src>>>>;
+
 fn main() {
     let args = cli::FrgArgs::parse();
     match args {
@@ -71,48 +73,21 @@ fn binary<'src>(lhs: Expr<'src>, op: BinaryOperator, rhs: Expr<'src>) -> Expr<'s
     }
 }
 
-fn parser<'src, I>() -> impl Parser<'src, I, Vec<Stmt<'src>>, extra::Err<Rich<'src, Token<'src>>>>
+fn recovery_parser<'src, I>() -> P<'src, I, Option<Stmt<'src>>>
 where
     I: BorrowInput<'src, Token = Token<'src>, Span = SimpleSpan> + ValueInput<'src>,
 {
-    let int_literal = select_ref! { Token::IntLiteral(n) => Expression::Literal(Literal::Int(*n)) };
-    let float_literal =
-        select_ref! { Token::FloatLiteral(n) => Expression::Literal(Literal::Float(*n)) };
-    let identifier = select_ref! { Token::Identifier(name) => Expression::Identifier(name) };
-    let name = select_ref! { Token::Identifier(name) => *name };
-    let plus = just(Token::Plus).to(());
-    let minus = just(Token::Minus).to(());
-    let star = just(Token::Star).to(());
-    let slash = just(Token::Slash).to(());
-    let left_paren = just(Token::LeftParen).to(());
-    let right_paren = just(Token::RightParen).to(());
-    let left_bracket = just(Token::LeftBracket).to(());
-    let right_bracket = just(Token::RightBracket).to(());
-    let left_brace = just(Token::LeftBrace).to(());
-    let right_brace = just(Token::RightBrace).to(());
-    let if_kw = just(Token::If).to(());
-    let else_kw = just(Token::Else).to(());
-    let int_type = just(Token::IntType).map(|_| VarType::Int);
-    let float_type = just(Token::FloatType).map(|_| VarType::Float);
-    let bool_type = just(Token::BoolType).map(|_| VarType::Bool);
-    let equals_assign = just(Token::Equals).to(());
-    let equivalent = just(Token::Equivalent).to(());
-    let not_equivalent = just(Token::NotEquivalent).to(());
-    let bool_true = just(Token::BoolTrue).map(|_| Expression::Literal(Literal::Bool(true)));
-    let bool_false = just(Token::BoolFalse).map(|_| Expression::Literal(Literal::Bool(false)));
-
-    let bool_literal = choice((bool_true, bool_false));
-    let vtype = choice((int_type, float_type, bool_type));
-
     let statement_start = choice((
         just(Token::IntType),
         just(Token::FloatType),
         just(Token::BoolType),
         just(Token::If),
     ))
-    .ignored();
-    let block_end = just(Token::RightBrace).ignored();
-    let balanced_group = recursive(|balanced_group| {
+    .ignored()
+    .boxed();
+    let block_end = just(Token::RightBrace).ignored().boxed();
+
+    let balanced_group: P<'src, I, ()> = recursive(|balanced_group| {
         let closing = choice((
             just(Token::RightParen),
             just(Token::RightBracket),
@@ -122,32 +97,75 @@ where
         let contents = choice((balanced_group, any().and_is(closing.not()).ignored())).repeated();
 
         choice((
-            contents
-                .clone()
-                .delimited_by(left_paren.clone(), right_paren.clone()),
-            contents
-                .clone()
-                .delimited_by(left_bracket.clone(), right_bracket.clone()),
-            contents.delimited_by(left_brace.clone(), right_brace.clone()),
+            contents.clone().delimited_by(
+                tok(Token::LeftParen).clone(),
+                tok(Token::RightParen).clone(),
+            ),
+            contents.clone().delimited_by(
+                tok(Token::LeftBracket).clone(),
+                tok(Token::RightBracket).clone(),
+            ),
+            contents.delimited_by(
+                tok(Token::LeftBrace).clone(),
+                tok(Token::RightBrace).clone(),
+            ),
         ))
         .ignored()
-    });
+        .boxed()
+    })
+    .boxed();
 
-    let recovery_first = choice((balanced_group.clone(), any().ignored()));
+    let recovery_first = choice((balanced_group.clone(), any().ignored())).boxed();
     let recovery_rest = choice((
         balanced_group,
         any()
             .and_is(statement_start.clone().or(block_end.clone()).not())
             .ignored(),
-    ));
-    let recovery = block_end
+    ))
+    .boxed();
+    block_end
         .clone()
         .not()
         .ignore_then(recovery_first)
         .then(recovery_rest.repeated())
-        .map(|_| None);
+        .map(|_| None)
+        .boxed()
+}
 
-    let expr = recursive(|expr| {
+fn tok<'src, I>(token: Token<'src>) -> P<'src, I, ()>
+where
+    I: BorrowInput<'src, Token = Token<'src>, Span = SimpleSpan> + ValueInput<'src>,
+{
+    just(token).to(()).boxed()
+}
+
+fn expr_parser<'src, I>() -> P<'src, I, Expr<'src>>
+where
+    I: BorrowInput<'src, Token = Token<'src>, Span = SimpleSpan> + ValueInput<'src>,
+{
+    let int_literal: P<'src, I, Expression<'src>> =
+        select_ref! { Token::IntLiteral(n) => Expression::Literal(Literal::Int(*n)) }.boxed();
+    let float_literal: P<'src, I, Expression<'src>> =
+        select_ref! { Token::FloatLiteral(n) => Expression::Literal(Literal::Float(*n)) }.boxed();
+    let identifier: P<'src, I, Expression<'src>> =
+        select_ref! { Token::Identifier(name) => Expression::Identifier(name) }.boxed();
+    let plus = tok(Token::Plus);
+    let minus = tok(Token::Minus);
+    let star = tok(Token::Star);
+    let slash = tok(Token::Slash);
+    let left_paren = tok(Token::LeftParen);
+    let right_paren = tok(Token::RightParen);
+    let equivalent = tok(Token::Equivalent);
+    let not_equivalent = tok(Token::NotEquivalent);
+    let bool_true: P<'src, I, Expression<'src>> = just(Token::BoolTrue)
+        .map(|_| Expression::Literal(Literal::Bool(true)))
+        .boxed();
+    let bool_false: P<'src, I, Expression<'src>> = just(Token::BoolFalse)
+        .map(|_| Expression::Literal(Literal::Bool(false)))
+        .boxed();
+    let bool_literal: P<'src, I, Expression<'src>> = choice((bool_true, bool_false)).boxed();
+
+    recursive(|expr| {
         let atom = choice((
             int_literal.spanned(),
             float_literal.spanned(),
@@ -197,9 +215,29 @@ where
         );
 
         comparison.boxed()
-    });
+    })
+    .boxed()
+}
 
-    let statement = recursive(|statement| {
+fn statement_parser<'src, I>()
+-> impl Parser<'src, I, Vec<Stmt<'src>>, extra::Err<Rich<'src, Token<'src>>>>
+where
+    I: BorrowInput<'src, Token = Token<'src>, Span = SimpleSpan> + ValueInput<'src>,
+{
+    let left_brace = tok(Token::LeftBrace);
+    let right_brace = tok(Token::RightBrace);
+    let int_type: P<'src, I, VarType> = just(Token::IntType).map(|_| VarType::Int).boxed();
+    let float_type: P<'src, I, VarType> = just(Token::FloatType).map(|_| VarType::Float).boxed();
+    let bool_type: P<'src, I, VarType> = just(Token::BoolType).map(|_| VarType::Bool).boxed();
+    let vtype: P<'src, I, VarType> = choice((int_type, float_type, bool_type)).boxed();
+    let name: P<'src, I, &'src str> = select_ref! { Token::Identifier(name) => *name }.boxed();
+    let equals_assign = tok(Token::Equals);
+    let if_kw = tok(Token::If);
+    let else_kw = tok(Token::Else);
+
+    let expr = expr_parser();
+
+    let statement: P<'src, I, Option<Stmt<'src>>> = recursive(|statement| {
         let block = statement
             .clone()
             .repeated()
@@ -247,88 +285,20 @@ where
             .map(Some)
             .labelled("statement")
             .as_context()
-            .recover_with(via_parser(recovery))
-    });
+            .recover_with(via_parser(recovery_parser()))
+            .boxed()
+    })
+    .boxed();
 
     statement
         .repeated()
         .collect::<Vec<Option<Stmt<'src>>>>()
         .map(|statements| statements.into_iter().flatten().collect::<Vec<_>>())
-
-    // let int = text::int(10).map(|s: &str| Expr::Int(s.parse().unwrap()));
-
-    // let atom = int.or(expr.delimited_by(just('('), just(')'))).padded();
-
-    // let op = |c| just(c).padded();
-
-    // let unary = op("-")
-    //     .repeated()
-    //     .foldr(atom, |_op, rhs| Expr::Neg(Box::new(rhs)));
-
-    // let product = unary.clone().foldl(
-    //     choice((
-    //         op("*").to(Expr::Mul as fn(_, _) -> _),
-    //         op("/").to(Expr::Div as fn(_, _) -> _),
-    //     ))
-    //     .then(unary)
-    //     .repeated(),
-    //     |lhs, (op, rhs)| op(Box::new(lhs), Box::new(rhs)),
-    // );
-
-    // #[allow(clippy::let_and_return)]
-    // let sum = product.clone().foldl(
-    //     choice((
-    //         op("+").to(Expr::Add as fn(_, _) -> _),
-    //         op("-").to(Expr::Sub as fn(_, _) -> _),
-    //     ))
-    //     .then(product)
-    //     .repeated(),
-    //     |lhs, (op, rhs)| op(Box::new(lhs), Box::new(rhs)),
-    // );
-
-    // sum
-    // })
 }
 
-// fn line_col(src: &str, span: SimpleSpan) -> (usize, usize) {
-//     let before = &src[..span.start];
-
-//     let line = before.bytes().filter(|&b| b == b'\n').count() + 1;
-//     let col = before
-//         .rsplit('\n')
-//         .next()
-//         .map_or(1, |s| s.chars().count() + 1);
-// }
-
-#[cfg(test)]
-mod tests {
-    // use super::*;
-
-    // #[test]
-    // fn add() {
-    //     let src = "6  +  4  ";
-    //     assert_eq!(eval(&parser().parse(src).unwrap()).unwrap(), 10);
-    // }
-
-    // #[test]
-    // fn sub() {
-    //     let src = "-6  -  4 +13 - 95 ";
-    //     assert_eq!(eval(&parser().parse(src).unwrap()).unwrap(), -92);
-    // }
-
-    // #[test]
-    // fn mul() {
-    //     let src = "-6  -  4 * 7 +13 - 95 ";
-    //     assert_eq!(eval(&parser().parse(src).unwrap()).unwrap(), -116);
-    // }
-    // #[test]
-    // fn div() {
-    //     let src = "-6 / 3  -  4 * 7 +13 - 95 / 5 ";
-    //     assert_eq!(eval(&parser().parse(src).unwrap()).unwrap(), -36);
-    // }
-    // #[test]
-    // fn paren() {
-    //     let src = "-6 / 3  -  4 * (7 +13) - 95 / 5 ";
-    //     assert_eq!(eval(&parser().parse(src).unwrap()).unwrap(), -101);
-    // }
+fn parser<'src, I>() -> impl Parser<'src, I, Vec<Stmt<'src>>, extra::Err<Rich<'src, Token<'src>>>>
+where
+    I: BorrowInput<'src, Token = Token<'src>, Span = SimpleSpan> + ValueInput<'src>,
+{
+    statement_parser()
 }
