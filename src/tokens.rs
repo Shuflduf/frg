@@ -52,6 +52,8 @@ pub enum Token<'src> {
     IntType,
     #[token("float")]
     FloatType,
+    #[token("bool")]
+    BoolType,
     #[token("list")]
     #[token("arr")]
     #[token("array")]
@@ -71,6 +73,11 @@ pub enum Token<'src> {
     If,
     #[token("else")]
     Else,
+
+    #[token("true")]
+    BoolTrue,
+    #[token("false")]
+    BoolFalse,
 
     #[regex("[a-z_][a-zA-Z0-9_]*", |lex| lex.slice())]
     Identifier(&'src str),

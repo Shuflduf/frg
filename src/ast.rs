@@ -1,3 +1,5 @@
+use chumsky::span::{SimpleSpan, Spanned};
+
 #[derive(Debug, PartialEq)]
 #[allow(dead_code)]
 pub enum VarType {
@@ -49,37 +51,37 @@ pub enum Expression<'src> {
     Identifier(&'src str),
     Literal(Literal),
     BinaryOperation {
-        left: Box<Expression<'src>>,
+        left: Box<Expr<'src>>,
         op: BinaryOperator,
-        right: Box<Expression<'src>>,
+        right: Box<Expr<'src>>,
     },
     UnaryOperation {
         op: UnaryOperator,
-        expr: Box<Expression<'src>>,
+        expr: Box<Expr<'src>>,
     },
     IndexAccess {
-        expr: Box<Expression<'src>>,
-        index: Box<Expression<'src>>,
+        expr: Box<Expr<'src>>,
+        index: Box<Expr<'src>>,
     },
     MemberAccess {
-        expr: Box<Expression<'src>>,
+        expr: Box<Expr<'src>>,
         member: &'src str,
     },
     FunctionLiteral {
         params: Vec<&'src str>,
-        body: Vec<Statement<'src>>,
+        body: Vec<Stmt<'src>>,
     },
     FunctionCall {
-        function: Box<Expression<'src>>,
-        params: Vec<Expression<'src>>,
+        function: Box<Expr<'src>>,
+        params: Vec<Expr<'src>>,
     },
     BuiltinCall {
         name: &'src str,
-        params: Vec<Expression<'src>>,
+        params: Vec<Expr<'src>>,
     },
-    MapLiteral(Vec<(&'src str, Expression<'src>)>),
-    VecLiteral(Vec<Expression<'src>>),
-    SetLiteral(Vec<Expression<'src>>),
+    MapLiteral(Vec<(&'src str, Expr<'src>)>),
+    VecLiteral(Vec<Expr<'src>>),
+    SetLiteral(Vec<Expr<'src>>),
     EmptyCollection,
 }
 
@@ -88,13 +90,16 @@ pub enum Expression<'src> {
 pub enum Statement<'src> {
     VariableDeclaration {
         vtype: VarType,
-        name: &'src str,
-        value: Expression<'src>,
+        name: Spanned<&'src str>,
+        value: Expr<'src>,
     },
     IfStatement {
-        condition: Expression<'src>,
-        body: Vec<Statement<'src>>,
-        else_ifs: Vec<(Expression<'src>, Vec<Statement<'src>>)>,
-        else_body: Vec<Statement<'src>>,
+        condition: Expr<'src>,
+        body: Vec<Stmt<'src>>,
+        else_ifs: Vec<(Expr<'src>, Vec<Stmt<'src>>)>,
+        else_body: Vec<Stmt<'src>>,
     },
 }
+
+pub type Expr<'src> = Spanned<Expression<'src>, SimpleSpan>;
+pub type Stmt<'src> = Spanned<Statement<'src>, SimpleSpan>;

@@ -3,27 +3,15 @@ use chumsky::{input::BorrowInput, prelude::*};
 use clap::Parser as _;
 
 use crate::{
-    ast::{BinaryOperator, Expression, Literal, Statement, UnaryOperator, VarType},
+    ast::{BinaryOperator, Expr, Expression, Literal, Statement, Stmt, UnaryOperator, VarType},
     tokens::Token,
 };
 
 mod ast;
 mod cli;
+mod errors;
 mod interpreter;
 mod tokens;
-
-#[allow(dead_code)]
-#[derive(Debug)]
-enum Expr<'src> {
-    Int(i32),
-    Var(&'src str),
-
-    Neg(Box<Expr<'src>>),
-    Add(Box<Expr<'src>>, Box<Expr<'src>>),
-    Sub(Box<Expr<'src>>, Box<Expr<'src>>),
-    Mul(Box<Expr<'src>>, Box<Expr<'src>>),
-    Div(Box<Expr<'src>>, Box<Expr<'src>>),
-}
 
 fn main() {
     let args = cli::FrgArgs::parse();
@@ -35,17 +23,18 @@ fn main() {
 }
 
 fn test() {
-    let src = "if 5 + 2 {}";
+    let src = "bool thing = true
+    bool other = thing == 6";
     let tokens = tokens::lex(src);
-    println!("{tokens:?}");
+    // println!("{tokens:?}");
     let eoi = SimpleSpan::from(src.len()..src.len());
     let input = tokens.as_slice().split_spanned(eoi);
     match parser().parse(input).into_result() {
         Ok(ast) => {
-            println!("{ast:#?}");
+            // println!("{ast:#?}");
             match interpreter::run(&ast) {
                 Ok(output) => println!("{output}"),
-                Err(eval_err) => eprintln!("Eval Error: {eval_err}"),
+                Err(eval_err) => eval_err.report(src, "tester"),
             };
         }
         Err(parse_errs) => {
@@ -59,28 +48,35 @@ fn test() {
                 })
                 .collect();
             ariadne::Report::build(ariadne::ReportKind::Error, ("tester", eoi.into_range()))
+                .with_message("failed to parse")
                 .with_labels(labels)
-                // .with_label(Label::new(("tester", e.)))
                 .finish()
                 .eprint(("tester", Source::from(src)))
                 .unwrap();
-            for e in parse_errs {
-                let span = e.span();
-                eprintln!("Parse error at {}..{}: {e:?}", span.start, span.end);
-            }
         }
     }
 }
 
-fn parser<'src, I>()
--> impl Parser<'src, I, Vec<Statement<'src>>, extra::Err<Rich<'src, Token<'src>>>>
+fn binary<'src>(lhs: Expr<'src>, op: BinaryOperator, rhs: Expr<'src>) -> Expr<'src> {
+    let span = SimpleSpan::from(lhs.span.start..rhs.span.end);
+    Spanned {
+        inner: Expression::BinaryOperation {
+            left: Box::new(lhs),
+            op,
+            right: Box::new(rhs),
+        },
+        span,
+    }
+}
+
+fn parser<'src, I>() -> impl Parser<'src, I, Vec<Stmt<'src>>, extra::Err<Rich<'src, Token<'src>>>>
 where
     I: BorrowInput<'src, Token = Token<'src>, Span = SimpleSpan>,
 {
     let int_literal = select_ref! { Token::IntLiteral(n) => Expression::Literal(Literal::Int(*n)) };
     let float_literal =
         select_ref! { Token::FloatLiteral(n) => Expression::Literal(Literal::Float(*n)) };
-    let identifier = select_ref! { Token::Identifier(name) => Expression::Identifier(name) };
+    let identifier = select_ref! { Token::Identifier(name) => Expression::Identifier(*name) };
     let left_paren = select_ref! { Token::LeftParen => () };
     let right_paren = select_ref! { Token::RightParen => () };
     let plus = select_ref! { Token::Plus => () };
@@ -93,23 +89,37 @@ where
     let else_kw = select_ref! { Token::Else => () };
     let int_type = select_ref! { Token::IntType => VarType::Int };
     let float_type = select_ref! { Token::FloatType => VarType::Float };
+    let bool_type = select_ref! { Token::BoolType => VarType::Bool };
     let name = select_ref! { Token::Identifier(name) => *name };
-    let equals = select_ref! { Token::Equals => () };
+    let equals_assign = select_ref! { Token::Equals => () };
+    let equivalent = select_ref! { Token::Equivalent => () };
+    let not_equivalent = select_ref! { Token::NotEquivalent => () };
+    let bool_true = select_ref! { Token::BoolTrue => Expression::Literal(Literal::Bool(true)) };
+    let bool_false = select_ref! { Token::BoolFalse => Expression::Literal(Literal::Bool(false)) };
+
+    let bool_literal = choice((bool_true, bool_false));
 
     let expr = recursive(|expr| {
         let atom = choice((
-            int_literal,
-            float_literal,
-            identifier,
+            int_literal.spanned(),
+            float_literal.spanned(),
+            bool_literal.spanned(),
+            identifier.spanned(),
             expr.delimited_by(left_paren, right_paren),
         ));
-        let unary = minus
-            .clone()
-            .repeated()
-            .foldr(atom, |_op, rhs| Expression::UnaryOperation {
-                op: UnaryOperator::Negative,
-                expr: Box::new(rhs),
-            });
+        let unary = minus.clone().to_span().repeated().foldr(
+            atom,
+            |op_span: SimpleSpan, rhs: Spanned<Expression<'_>>| {
+                let span = SimpleSpan::from(op_span.start..rhs.span.end);
+                Spanned {
+                    inner: Expression::UnaryOperation {
+                        op: UnaryOperator::Negative,
+                        expr: Box::new(rhs),
+                    },
+                    span,
+                }
+            },
+        );
         let product = unary.clone().foldl(
             choice((
                 star.to(BinaryOperator::Multiply),
@@ -117,11 +127,7 @@ where
             ))
             .then(unary)
             .repeated(),
-            |lhs, (op, rhs)| Expression::BinaryOperation {
-                left: Box::new(lhs),
-                op,
-                right: Box::new(rhs),
-            },
+            |lhs, (op, rhs)| binary(lhs, op, rhs),
         );
         let sum = product.clone().foldl(
             choice((
@@ -130,40 +136,59 @@ where
             ))
             .then(product)
             .repeated(),
-            |lhs, (op, rhs)| Expression::BinaryOperation {
-                left: Box::new(lhs),
-                op,
-                right: Box::new(rhs),
-            },
+            |lhs, (op, rhs)| binary(lhs, op, rhs),
+        );
+        let comparison = sum.clone().foldl(
+            choice((
+                equivalent.to(BinaryOperator::Equals),
+                not_equivalent.to(BinaryOperator::NotEquals),
+            ))
+            .then(sum)
+            .repeated(),
+            |lhs, (op, rhs)| binary(lhs, op, rhs),
         );
 
-        sum
+        comparison.boxed()
     });
 
-    let vtype = choice((int_type, float_type));
+    let vtype = choice((int_type, float_type, bool_type));
 
     let statement = recursive(|statement| {
         let block = statement
             .clone()
             .repeated()
             .collect()
-            .delimited_by(left_brace, right_brace);
+            .delimited_by(left_brace, right_brace)
+            .boxed();
 
-        let var_decl =
-            vtype.then(name).then_ignore(equals).then(expr.clone()).map(
-                |((vtype, name), value)| Statement::VariableDeclaration { vtype, name, value },
-            );
+        let var_decl = vtype
+            .then(name.spanned())
+            .then_ignore(equals_assign)
+            .then(expr.clone())
+            .map(|((vtype, name), value)| Statement::VariableDeclaration { vtype, name, value })
+            .spanned()
+            .boxed();
 
+        let else_if = else_kw
+            .clone()
+            .ignore_then(if_kw.clone())
+            .ignore_then(expr.clone())
+            .then(block.clone());
         let if_stmt = if_kw
             .ignore_then(expr.clone())
             .then(block.clone())
+            .then(else_if.repeated().collect::<Vec<_>>())
             .then(else_kw.ignore_then(block).or_not())
-            .map(|((condition, body), else_body)| Statement::IfStatement {
-                condition,
-                body,
-                else_ifs: vec![],
-                else_body: else_body.unwrap_or_default(),
-            });
+            .map(
+                |(((condition, body), else_ifs), else_body)| Statement::IfStatement {
+                    condition,
+                    body,
+                    else_ifs,
+                    else_body: else_body.unwrap_or_default(),
+                },
+            )
+            .spanned()
+            .boxed();
 
         choice((var_decl, if_stmt))
     });

@@ -3,36 +3,83 @@ use std::{
     ops::{Add, Neg},
 };
 
-use crate::ast::{BinaryOperator, Expression, Literal, Statement, UnaryOperator, VarType};
+use crate::{
+    ast::{BinaryOperator, Expr, Expression, Literal, Statement, Stmt, UnaryOperator, VarType},
+    errors::{OpError, RuntimeError, RuntimeLabel},
+};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum Value {
     Int(i64),
     Float(f64),
+    Bool(bool),
 }
 
-impl Add for Value {
-    type Output = Value;
-    fn add(self, rhs: Self) -> Self::Output {
+impl Value {
+    fn type_name(&self) -> &'static str {
         match self {
-            Self::Int(lnum) => match rhs {
-                Self::Int(rnum) => Self::Int(lnum + rnum),
-                Self::Float(rnum) => Self::Float(lnum as f64 + rnum),
-            },
-            Self::Float(lnum) => match rhs {
-                Self::Float(rnum) => Self::Float(lnum + rnum),
-                Self::Int(rnum) => Self::Float(lnum + rnum as f64),
-            },
+            Self::Int(_) => "int",
+            Self::Float(_) => "float",
+            Self::Bool(_) => "bool",
+        }
+    }
+    fn add(self, rhs: Self) -> Result<Self, OpError> {
+        match (self, rhs) {
+            (Self::Int(a), Self::Int(b)) => Ok(Self::Int(a + b)),
+            (Self::Float(a), Self::Float(b)) => Ok(Self::Float(a + b)),
+            (Self::Int(a), Self::Float(b)) => Ok(Self::Float(a as f64 + b)),
+            (Self::Float(a), Self::Int(b)) => Ok(Self::Float(a + b as f64)),
+            (left, right) => Err(OpError::InvalidBinaryOp {
+                op: "+",
+                left: left.type_name(),
+                right: right.type_name(),
+            }),
+        }
+    }
+    fn neg(self) -> Result<Self, OpError> {
+        match self {
+            Self::Int(n) => Ok(Self::Int(-n)),
+            Self::Float(n) => Ok(Self::Float(-n)),
+            other => Err(OpError::InvalidUnaryOp {
+                op: "-",
+                expr: other.type_name(),
+            }),
+        }
+    }
+
+    fn equals(&self, rhs: &Self) -> Result<bool, OpError> {
+        match (self, rhs) {
+            (Self::Int(a), Self::Int(b)) => Ok(a == b),
+            (Self::Float(a), Self::Float(b)) => Ok(a == b),
+            (Self::Int(a), Self::Float(b)) => Ok(*a as f64 == *b),
+            (Self::Float(a), Self::Int(b)) => Ok(*a == *b as f64),
+            (Self::Bool(a), Self::Bool(b)) => Ok(a == b),
+            (left, right) => Err(OpError::InvalidBinaryOp {
+                op: "==",
+                left: left.type_name(),
+                right: right.type_name(),
+            }),
         }
     }
 }
 
-impl Neg for Value {
-    type Output = Value;
-    fn neg(self) -> Self::Output {
+impl PartialEq for Value {
+    fn eq(&self, rhs: &Self) -> bool {
         match self {
-            Self::Int(num) => Self::Int(-num),
-            Self::Float(num) => Self::Float(-num),
+            Self::Int(lnum) => match rhs {
+                Self::Int(rnum) => lnum == rnum,
+                Self::Float(rnum) => *lnum as f64 == *rnum,
+                Self::Bool(_) => panic!("not allowed"),
+            },
+            Self::Float(lnum) => match rhs {
+                Self::Float(rnum) => lnum == rnum,
+                Self::Int(rnum) => *lnum == *rnum as f64,
+                Self::Bool(_) => panic!("not allowed"),
+            },
+            Self::Bool(lbool) => match rhs {
+                Self::Bool(rbool) => *lbool == *rbool,
+                _ => panic!("not allowed"),
+            },
         }
     }
 }
@@ -42,23 +89,42 @@ struct State<'src> {
     variables: HashMap<&'src str, Value>,
 }
 
-pub fn run(program: &[Statement]) -> Result<i64, String> {
-    let mut statements = program.iter();
+pub fn run(program: &[Stmt]) -> Result<i64, RuntimeError> {
     let mut state = State {
         variables: HashMap::new(),
     };
-    while let Some(stmt) = statements.next() {
-        match stmt {
+    for stmt in program {
+        match &stmt.inner {
             Statement::VariableDeclaration { vtype, name, value } => {
-                let val = eval(&state, value);
-                let correct_type = match val {
-                    Value::Int(_) => vtype == &VarType::Int,
-                    Value::Float(_) => vtype == &VarType::Float,
-                };
-                assert!(correct_type);
-                state.variables.insert(*name, val);
+                let val = eval(&state, value)?;
+                if !var_type_check(vtype, &val) {
+                    let expected = var_type_name(vtype);
+                    let found = val.type_name();
+                    return Err(RuntimeError::with_labels(
+                        format!(
+                            "variable `{}` expects `{expected}`, got `{found}`",
+                            name.inner
+                        ),
+                        vec![
+                            RuntimeLabel {
+                                span: name.span,
+                                message: format!("declared as `{expected}`"),
+                            },
+                            RuntimeLabel {
+                                span: value.span,
+                                message: format!("this is `{found}`"),
+                            },
+                        ],
+                    ));
+                }
+                state.variables.insert(name.inner, val);
             }
-            _ => todo!(),
+            other => {
+                return Err(RuntimeError::new(
+                    format!("unsupported statement: {other:?}"),
+                    stmt.span,
+                ));
+            }
         }
     }
 
@@ -67,21 +133,81 @@ pub fn run(program: &[Statement]) -> Result<i64, String> {
     Ok(0)
 }
 
-fn eval(state: &State, expr: &Expression) -> Value {
-    match expr {
+fn eval(state: &State, expr: &Expr) -> Result<Value, RuntimeError> {
+    match &expr.inner {
+        Expression::Identifier(name) => state
+            .variables
+            .get(name)
+            .cloned()
+            .ok_or_else(|| RuntimeError::new(format!("undefined variable `{name}`"), expr.span)),
         Expression::Literal(lit) => match lit {
-            Literal::Int(num) => Value::Int(*num),
-            Literal::Float(num) => Value::Float(*num),
-            _ => todo!(),
+            Literal::Int(n) => Ok(Value::Int(*n)),
+            Literal::Float(n) => Ok(Value::Float(*n)),
+            Literal::Bool(b) => Ok(Value::Bool(*b)),
+            other => Err(RuntimeError::new(
+                format!("unsupported literal: {other:?}"),
+                expr.span,
+            )),
         },
-        Expression::BinaryOperation { left, op, right } => match op {
-            BinaryOperator::Add => eval(state, left) + eval(state, right),
-            _ => todo!(),
-        },
-        Expression::UnaryOperation { op, expr } => match op {
-            UnaryOperator::Negative => -eval(state, expr),
-            _ => todo!(),
-        },
-        _ => todo!(),
+        Expression::BinaryOperation { left, op, right } => {
+            let left = eval(state, left)?;
+            let right = eval(state, right)?;
+            match op {
+                BinaryOperator::Add => left
+                    .add(right)
+                    .map_err(|e| RuntimeError::new(e.to_string(), expr.span)),
+                BinaryOperator::Equals => {
+                    Ok(Value::Bool(left.equals(&right).map_err(|e| {
+                        RuntimeError::new(e.to_string(), expr.span)
+                    })?))
+                }
+                BinaryOperator::NotEquals => {
+                    let equal = left
+                        .equals(&right)
+                        .map_err(|e| RuntimeError::new(e.to_string(), expr.span))?;
+                    Ok(Value::Bool(!equal))
+                }
+                other => Err(RuntimeError::new(
+                    format!("unsupported binary operator: {other:?}"),
+                    expr.span,
+                )),
+            }
+        }
+        Expression::UnaryOperation { op, expr: inner } => {
+            let value = eval(state, inner)?;
+            match op {
+                UnaryOperator::Negative => value
+                    .neg()
+                    .map_err(|e| RuntimeError::new(e.to_string(), expr.span)),
+                other => Err(RuntimeError::new(
+                    format!("unsupported unary operator: {other:?}"),
+                    expr.span,
+                )),
+            }
+        }
+        other => Err(RuntimeError::new(
+            format!("unsupported expression: {other:?}"),
+            expr.span,
+        )),
     }
+}
+
+fn var_type_name(vtype: &VarType) -> &'static str {
+    match vtype {
+        VarType::Void => "void",
+        VarType::Int => "int",
+        VarType::Float => "float",
+        VarType::Str => "str",
+        VarType::Bool => "bool",
+        VarType::Type => "type",
+    }
+}
+
+fn var_type_check(vtype: &VarType, value: &Value) -> bool {
+    matches!(
+        (vtype, value),
+        (VarType::Int, Value::Int(_))
+            | (VarType::Float, Value::Float(_))
+            | (VarType::Bool, Value::Bool(_))
+    )
 }
