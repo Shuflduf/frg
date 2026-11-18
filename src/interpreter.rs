@@ -1,8 +1,10 @@
 use std::collections::HashMap;
 
+use chumsky::span::SimpleSpan;
+
 use crate::{
     ast::{BinaryOperator, Expr, Expression, Literal, Statement, Stmt, UnaryOperator, VarType},
-    errors::{OpError, RuntimeError, RuntimeLabel},
+    errors::{Diagnostic, OpError},
 };
 
 #[derive(Debug, Clone)]
@@ -128,7 +130,7 @@ struct State<'src> {
     variables: HashMap<&'src str, Value>,
 }
 
-pub fn run(program: &[Stmt]) -> Result<i64, RuntimeError> {
+pub fn run(program: &[Stmt]) -> Result<i64, Diagnostic> {
     let mut state = State {
         variables: HashMap::new(),
     };
@@ -139,27 +141,17 @@ pub fn run(program: &[Stmt]) -> Result<i64, RuntimeError> {
                 if !var_type_check(vtype, &val) {
                     let expected = var_type_name(vtype);
                     let found = val.type_name();
-                    return Err(RuntimeError::with_labels(
-                        format!(
-                            "variable `{}` expects `{expected}`, got `{found}`",
-                            name.inner
-                        ),
-                        vec![
-                            RuntimeLabel {
-                                span: name.span,
-                                message: format!("declared as `{expected}`"),
-                            },
-                            RuntimeLabel {
-                                span: value.span,
-                                message: format!("this is `{found}`"),
-                            },
-                        ],
-                    ));
+                    return Err(Diagnostic::new(format!(
+                        "variable `{}` expects `{expected}`, got `{found}`",
+                        name.inner
+                    ))
+                    .with_label(format!("declared as `{expected}`"), name.span)
+                    .with_label(format!("this is `{found}`"), value.span));
                 }
                 state.variables.insert(name.inner, val);
             }
             other => {
-                return Err(RuntimeError::new(
+                return Err(Diagnostic::basic(
                     format!("unsupported statement: {other:?}"),
                     stmt.span,
                 ));
@@ -172,18 +164,18 @@ pub fn run(program: &[Stmt]) -> Result<i64, RuntimeError> {
     Ok(0)
 }
 
-fn eval(state: &State, expr: &Expr) -> Result<Value, RuntimeError> {
+fn eval(state: &State, expr: &Expr) -> Result<Value, Diagnostic> {
     match &expr.inner {
         Expression::Identifier(name) => state
             .variables
             .get(name)
             .cloned()
-            .ok_or_else(|| RuntimeError::new(format!("undefined variable `{name}`"), expr.span)),
+            .ok_or_else(|| Diagnostic::basic(format!("undefined variable `{name}`"), expr.span)),
         Expression::Literal(lit) => match lit {
             Literal::Int(n) => Ok(Value::Int(*n)),
             Literal::Float(n) => Ok(Value::Float(*n)),
             Literal::Bool(b) => Ok(Value::Bool(*b)),
-            other => Err(RuntimeError::new(
+            other => Err(Diagnostic::basic(
                 format!("unsupported literal: {other:?}"),
                 expr.span,
             )),
@@ -194,28 +186,28 @@ fn eval(state: &State, expr: &Expr) -> Result<Value, RuntimeError> {
             match op {
                 BinaryOperator::Add => left
                     .add(right)
-                    .map_err(|e| RuntimeError::new(e.to_string(), expr.span)),
+                    .map_err(|e| Diagnostic::basic(e.to_string(), expr.span)),
                 BinaryOperator::Subtract => left
                     .sub(right)
-                    .map_err(|e| RuntimeError::new(e.to_string(), expr.span)),
+                    .map_err(|e| Diagnostic::basic(e.to_string(), expr.span)),
                 BinaryOperator::Multiply => left
                     .mul(right)
-                    .map_err(|e| RuntimeError::new(e.to_string(), expr.span)),
+                    .map_err(|e| Diagnostic::basic(e.to_string(), expr.span)),
                 BinaryOperator::Divide => left
                     .div(right)
-                    .map_err(|e| RuntimeError::new(e.to_string(), expr.span)),
+                    .map_err(|e| Diagnostic::basic(e.to_string(), expr.span)),
                 BinaryOperator::Equals => {
                     Ok(Value::Bool(left.equals(&right).map_err(|e| {
-                        RuntimeError::new(e.to_string(), expr.span)
+                        Diagnostic::basic(e.to_string(), expr.span)
                     })?))
                 }
                 BinaryOperator::NotEquals => {
                     let equal = left
                         .equals(&right)
-                        .map_err(|e| RuntimeError::new(e.to_string(), expr.span))?;
+                        .map_err(|e| Diagnostic::basic(e.to_string(), expr.span))?;
                     Ok(Value::Bool(!equal))
                 }
-                other => Err(RuntimeError::new(
+                other => Err(Diagnostic::basic(
                     format!("unsupported binary operator: {other:?}"),
                     expr.span,
                 )),
@@ -226,14 +218,14 @@ fn eval(state: &State, expr: &Expr) -> Result<Value, RuntimeError> {
             match op {
                 UnaryOperator::Negative => value
                     .neg()
-                    .map_err(|e| RuntimeError::new(e.to_string(), expr.span)),
-                other => Err(RuntimeError::new(
+                    .map_err(|e| Diagnostic::basic(e.to_string(), expr.span)),
+                other => Err(Diagnostic::basic(
                     format!("unsupported unary operator: {other:?}"),
                     expr.span,
                 )),
             }
         }
-        other => Err(RuntimeError::new(
+        other => Err(Diagnostic::basic(
             format!("unsupported expression: {other:?}"),
             expr.span,
         )),
@@ -259,3 +251,7 @@ fn var_type_check(vtype: &VarType, value: &Value) -> bool {
             | (VarType::Bool, Value::Bool(_))
     )
 }
+
+// fn Diagnostic::basic(message: impl Into<String>, span: SimpleSpan) -> Diagnostic {
+//     Diagnostic::new(message.into().clone()).with_label(message, span)
+// }

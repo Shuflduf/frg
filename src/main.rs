@@ -28,7 +28,7 @@ fn main() {
 }
 
 fn test() {
-    let src = "int thing = 8 / 3.0";
+    let src = "int thing = true)";
     let tokens = tokens::lex(src);
     // println!("{tokens:?}");
     let eoi = SimpleSpan::from(src.len()..src.len());
@@ -47,7 +47,7 @@ fn test() {
                 .iter()
                 .map(|e| {
                     Label::new(("tester", e.span().start..e.span().end))
-                        .with_message(format!("{:?}", e))
+                        .with_message(format!("{}", e))
                         .with_color(colours.next())
                 })
                 .collect();
