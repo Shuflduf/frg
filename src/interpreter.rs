@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-
 use crate::{
     ast::{BinaryOperator, Expr, Expression, Literal, Statement, Stmt, UnaryOperator, VarType},
     errors::{Diagnostic, OpError},
@@ -11,6 +10,7 @@ enum Value {
     Int(i64),
     Float(f64),
     Bool(bool),
+    String(String),
 }
 
 impl Value {
@@ -19,6 +19,7 @@ impl Value {
             Self::Int(_) => "int",
             Self::Float(_) => "float",
             Self::Bool(_) => "bool",
+            Self::String(_) => "str",
         }
     }
     fn add(self, rhs: Self) -> Result<Self, OpError> {
@@ -174,6 +175,8 @@ fn eval(state: &State, expr: &Expr) -> Result<Value, Diagnostic> {
             Literal::Int(n) => Ok(Value::Int(*n)),
             Literal::Float(n) => Ok(Value::Float(*n)),
             Literal::Bool(b) => Ok(Value::Bool(*b)),
+            Literal::Str(s) => Ok(Value::String(s.to_string())),
+            #[allow(unreachable_patterns)]
             other => Err(Diagnostic::basic(
                 format!("unsupported literal: {other:?}"),
                 expr.span,
@@ -248,6 +251,7 @@ fn var_type_check(vtype: &VarType, value: &Value) -> bool {
         (VarType::Int, Value::Int(_))
             | (VarType::Float, Value::Float(_))
             | (VarType::Bool, Value::Bool(_))
+            | (VarType::Str, Value::String(_))
     )
 }
 

@@ -1,7 +1,6 @@
 use chumsky::{
     input::{BorrowInput, ValueInput},
     prelude::*,
-    text::newline,
 };
 
 use crate::{
@@ -97,6 +96,9 @@ where
         select_ref! { Token::IntLiteral(n) => Expression::Literal(Literal::Int(*n)) }.boxed();
     let float_literal: P<'src, I, Expression<'src>> =
         select_ref! { Token::FloatLiteral(n) => Expression::Literal(Literal::Float(*n)) }.boxed();
+    let str_literal: P<'src, I, Expression<'src>> =
+        select_ref! { Token::StringLiteral(s) => Expression::Literal(Literal::Str(s.to_string())) }
+            .boxed();
     let identifier: P<'src, I, Expression<'src>> =
         select_ref! { Token::Identifier(name) => Expression::Identifier(name) }.boxed();
     let plus = tok(Token::Plus);
@@ -120,6 +122,7 @@ where
             int_literal.spanned(),
             float_literal.spanned(),
             bool_literal.spanned(),
+            str_literal.spanned(),
             identifier.spanned(),
             expr.delimited_by(left_paren, right_paren),
         ));
@@ -176,11 +179,12 @@ where
 {
     let left_brace = tok(Token::LeftBrace);
     let right_brace = tok(Token::RightBrace);
-    let int_type: P<'src, I, VarType> = just(Token::IntType).map(|_| VarType::Int).boxed();
-    let float_type: P<'src, I, VarType> = just(Token::FloatType).map(|_| VarType::Float).boxed();
-    let bool_type: P<'src, I, VarType> = just(Token::BoolType).map(|_| VarType::Bool).boxed();
-    let vtype: P<'src, I, VarType> = choice((int_type, float_type, bool_type)).boxed();
-    let name: P<'src, I, &'src str> = select_ref! { Token::Identifier(name) => *name }.boxed();
+    let int_type = just(Token::IntType).map(|_| VarType::Int).boxed();
+    let float_type = just(Token::FloatType).map(|_| VarType::Float).boxed();
+    let bool_type = just(Token::BoolType).map(|_| VarType::Bool).boxed();
+    let str_type = just(Token::StringType).map(|_| VarType::Str).boxed();
+    let vtype = choice((int_type, float_type, bool_type, str_type)).boxed();
+    let name = select_ref! { Token::Identifier(name) => *name }.boxed();
     let equals_assign = tok(Token::Equals);
     let if_kw = tok(Token::If);
     let else_kw = tok(Token::Else);

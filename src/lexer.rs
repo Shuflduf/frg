@@ -32,6 +32,7 @@ impl Display for LexError {
 // #[logos(skip(r"<!--[\s\S]*?-->", allow_greedy = true))]
 #[logos(skip(r"--[^\n]*", allow_greedy = true))]
 #[logos(skip(r"#[^\n]*", allow_greedy = true))]
+#[allow(clippy::duplicated_attributes)]
 pub enum Token<'src> {
     #[token("=")]
     #[strum(to_string = "=")]
@@ -97,6 +98,9 @@ pub enum Token<'src> {
     #[token("bool")]
     #[strum(to_string = "bool")]
     BoolType,
+    #[token("str")]
+    #[strum(to_string = "str")]
+    StringType,
     #[token("list")]
     #[token("arr")]
     #[token("array")]
