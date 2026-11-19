@@ -28,6 +28,7 @@ impl Value {
             (Self::Float(a), Self::Float(b)) => Ok(Self::Float(a + b)),
             (Self::Int(a), Self::Float(b)) => Ok(Self::Float(a as f64 + b)),
             (Self::Float(a), Self::Int(b)) => Ok(Self::Float(a + b as f64)),
+            (Self::String(a), Self::String(b)) => Ok(Self::String(a + &b)),
             (left, right) => Err(OpError::InvalidBinaryOp {
                 op: "+",
                 left: left.type_name(),
@@ -116,6 +117,7 @@ impl Value {
             (Self::Int(a), Self::Float(b)) => Ok(*a as f64 == *b),
             (Self::Float(a), Self::Int(b)) => Ok(*a == *b as f64),
             (Self::Bool(a), Self::Bool(b)) => Ok(a == b),
+            (Self::String(a), Self::String(b)) => Ok(a == b),
             (left, right) => Err(OpError::InvalidBinaryOp {
                 op: "==",
                 left: left.type_name(),
@@ -185,24 +187,13 @@ fn eval(state: &State, expr: &Expr) -> Result<Value, Diagnostic> {
         Expression::BinaryOperation { left, op, right } => {
             let left = eval(state, left)?;
             let right = eval(state, right)?;
+            let map_op_err = |e: OpError| Diagnostic::basic(e.to_string(), expr.span);
             match op {
-                BinaryOperator::Add => left
-                    .add(right)
-                    .map_err(|e| Diagnostic::basic(e.to_string(), expr.span)),
-                BinaryOperator::Subtract => left
-                    .sub(right)
-                    .map_err(|e| Diagnostic::basic(e.to_string(), expr.span)),
-                BinaryOperator::Multiply => left
-                    .mul(right)
-                    .map_err(|e| Diagnostic::basic(e.to_string(), expr.span)),
-                BinaryOperator::Divide => left
-                    .div(right)
-                    .map_err(|e| Diagnostic::basic(e.to_string(), expr.span)),
-                BinaryOperator::Equals => {
-                    Ok(Value::Bool(left.equals(&right).map_err(|e| {
-                        Diagnostic::basic(e.to_string(), expr.span)
-                    })?))
-                }
+                BinaryOperator::Add => left.add(right).map_err(map_op_err),
+                BinaryOperator::Subtract => left.sub(right).map_err(map_op_err),
+                BinaryOperator::Multiply => left.mul(right).map_err(map_op_err),
+                BinaryOperator::Divide => left.div(right).map_err(map_op_err),
+                BinaryOperator::Equals => Ok(Value::Bool(left.equals(&right).map_err(map_op_err)?)),
                 BinaryOperator::NotEquals => {
                     let equal = left
                         .equals(&right)
@@ -217,10 +208,9 @@ fn eval(state: &State, expr: &Expr) -> Result<Value, Diagnostic> {
         }
         Expression::UnaryOperation { op, expr: inner } => {
             let value = eval(state, inner)?;
+            let map_op_err = |e: OpError| Diagnostic::basic(e.to_string(), expr.span);
             match op {
-                UnaryOperator::Negative => value
-                    .neg()
-                    .map_err(|e| Diagnostic::basic(e.to_string(), expr.span)),
+                UnaryOperator::Negative => value.neg().map_err(map_op_err),
                 other => Err(Diagnostic::basic(
                     format!("unsupported unary operator: {other:?}"),
                     expr.span,

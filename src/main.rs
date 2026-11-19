@@ -33,7 +33,7 @@ fn run(args: RunArgs) {
 }
 
 fn test() {
-    let src = r#"str my_str = "my stringy" "#;
+    let src = r#"str my_str = "my stringy" + "my other stringy" "#;
     let filename = "tester.frg";
     execute(src, filename);
 }
