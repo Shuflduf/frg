@@ -7,6 +7,7 @@ use clap::Parser as _;
 
 use crate::{
     ast::{BinaryOperator, Expr, Expression, Literal, Statement, Stmt, UnaryOperator, VarType},
+    errors::{Diagnostic, check_delimiters},
     tokens::Token,
 };
 
@@ -28,36 +29,75 @@ fn main() {
 }
 
 fn test() {
-    let src = "int thing = true)";
+    let src = "int thing = true";
     let tokens = tokens::lex(src);
     // println!("{tokens:?}");
     let eoi = SimpleSpan::from(src.len()..src.len());
-    let input = tokens.as_slice().split_spanned(eoi);
+    let delimiter_check = check_delimiters(&tokens);
+    let can_parse = delimiter_check.can_parse;
+    let mut diags = delimiter_check.diagnostics;
+    let delimiter_spans: Vec<SimpleSpan> =
+        diags.iter().filter_map(Diagnostic::primary_span).collect();
+    if !can_parse {
+        report_all(&diags, src);
+        return;
+    }
+    let parse_tokens: Vec<_> = tokens
+        .iter()
+        .filter(|token| !delimiter_spans.contains(&token.span))
+        .cloned()
+        .collect();
+    let input = parse_tokens.as_slice().split_spanned(eoi);
     match parser().parse(input).into_result() {
         Ok(ast) => {
-            // println!("{ast:#?}");
-            match interpreter::run(&ast) {
-                Ok(output) => println!("{output}"),
-                Err(eval_err) => eval_err.report(src, "tester"),
-            };
+            if diags.is_empty() {
+                // println!("{ast:#?}");
+                match interpreter::run(&ast) {
+                    Ok(output) => println!("{output}"),
+                    Err(eval_err) => eval_err.report(src, "tester"),
+                };
+            } else {
+                report_all(&diags, src);
+            }
         }
         Err(parse_errs) => {
-            let mut colours = ColorGenerator::new();
-            let labels: Vec<Label<(&str, std::ops::Range<usize>)>> = parse_errs
-                .iter()
-                .map(|e| {
-                    Label::new(("tester", e.span().start..e.span().end))
-                        .with_message(format!("{}", e))
-                        .with_color(colours.next())
-                })
-                .collect();
-            ariadne::Report::build(ariadne::ReportKind::Error, ("tester", eoi.into_range()))
-                .with_message("failed to parse")
-                .with_labels(labels)
-                .finish()
-                .eprint(("tester", Source::from(src)))
-                .unwrap();
+            for error in parse_errs {
+                let diag = Diagnostic::from_parse_error(&error, &tokens, src);
+
+                if diag
+                    .primary_span()
+                    .is_some_and(|span| delimiter_spans.contains(&span))
+                {
+                    continue;
+                }
+
+                diags.push(diag);
+            }
+            report_all(&diags, src);
+            // let mut colours = ColorGenerator::new();
+            // let labels: Vec<Label<(&str, std::ops::Range<usize>)>> = parse_errs
+            //     .iter()
+            //     .map(|e| {
+            //         Label::new(("tester", e.span().start..e.span().end))
+            //             .with_message(format!("{}", e))
+            //             .with_color(colours.next())
+            //     })
+            //     .collect();
+            // ariadne::Report::build(ariadne::ReportKind::Error, ("tester", eoi.into_range()))
+            //     .with_message("failed to parse")
+            //     .with_labels(labels)
+            //     .finish()
+            //     .eprint(("tester", Source::from(src)))
+            //     .unwrap();
         }
+    }
+}
+
+fn report_all(diags: &[Diagnostic], src: &str) {
+    let mut diags: Vec<_> = diags.iter().collect();
+    diags.sort_by_key(|diag| diag.primary_span().map_or(usize::MAX, |span| span.start));
+    for diag in diags {
+        diag.report(src, "tester");
     }
 }
 
@@ -214,7 +254,7 @@ where
             |lhs, (op, rhs)| binary(lhs, op, rhs),
         );
 
-        comparison.boxed()
+        comparison.labelled("expression").as_context().boxed()
     })
     .boxed()
 }

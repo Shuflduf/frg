@@ -91,6 +91,10 @@ impl Diagnostic {
             .unwrap();
     }
 
+    pub fn primary_span(&self) -> Option<SimpleSpan> {
+        self.labels.first().map(|label| label.span)
+    }
+
     pub fn from_parse_error(
         error: &Rich<'_, Token<'_>>,
         tokens: &[Spanned<Token<'_>>],
