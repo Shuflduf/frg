@@ -107,8 +107,6 @@ where
     let slash = tok(Token::Slash);
     let left_paren = tok(Token::LeftParen);
     let right_paren = tok(Token::RightParen);
-    let equivalent = tok(Token::Equivalent);
-    let not_equivalent = tok(Token::NotEquivalent);
     let bool_true: P<'src, I, Expression<'src>> = just(Token::BoolTrue)
         .map(|_| Expression::Literal(Literal::Bool(true)))
         .boxed();
@@ -159,8 +157,12 @@ where
         );
         let comparison = sum.clone().foldl(
             choice((
-                equivalent.to(BinaryOperator::Equals),
-                not_equivalent.to(BinaryOperator::NotEquals),
+                tok(Token::Equivalent).to(BinaryOperator::Equals),
+                tok(Token::NotEquivalent).to(BinaryOperator::NotEquals),
+                tok(Token::LeftAngle).to(BinaryOperator::LessThan),
+                tok(Token::RightAngle).to(BinaryOperator::GreaterThan),
+                tok(Token::LessThanOrEqual).to(BinaryOperator::LessThanOrEqual),
+                tok(Token::GreaterThanOrEqual).to(BinaryOperator::GreaterThanOrEqual),
             ))
             .then(sum)
             .repeated(),

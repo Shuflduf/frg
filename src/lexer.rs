@@ -55,6 +55,12 @@ pub enum Token<'src> {
     #[token("]")]
     #[strum(to_string = "]")]
     RightBracket,
+    #[token("<")]
+    #[strum(to_string = "<")]
+    LeftAngle,
+    #[token(">")]
+    #[strum(to_string = ">")]
+    RightAngle,
     #[token("+")]
     #[strum(to_string = "+")]
     Plus,
@@ -88,6 +94,12 @@ pub enum Token<'src> {
     #[token("!=")]
     #[strum(to_string = "!=")]
     NotEquivalent,
+    #[token("<=")]
+    #[strum(to_string = "<=")]
+    LessThanOrEqual,
+    #[token(">=")]
+    #[strum(to_string = ">=")]
+    GreaterThanOrEqual,
 
     #[token("int")]
     #[strum(to_string = "int")]

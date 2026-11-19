@@ -33,7 +33,10 @@ fn run(args: RunArgs) {
 }
 
 fn test() {
-    let src = r#"str my_str = "my stringy" + "my other stringy" "#;
+    let src = r"
+    bool sb_false = 5 <= 6
+    bool sb_true = 5 >= 4
+    ";
     let filename = "tester.frg";
     execute(src, filename);
 }
