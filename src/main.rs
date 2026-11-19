@@ -1,4 +1,3 @@
-use ariadne::{ColorGenerator, Label, Source};
 use chumsky::{
     input::{BorrowInput, ValueInput},
     prelude::*,
@@ -30,7 +29,13 @@ fn main() {
 
 fn test() {
     let src = "int thing = true";
-    let tokens = tokens::lex(src);
+    let tokens = match tokens::lex(src) {
+        Ok(t) => t,
+        Err(diag) => {
+            diag.report(src, "tester");
+            return;
+        }
+    };
     // println!("{tokens:?}");
     let eoi = SimpleSpan::from(src.len()..src.len());
     let delimiter_check = check_delimiters(&tokens);
@@ -74,21 +79,6 @@ fn test() {
                 diags.push(diag);
             }
             report_all(&diags, src);
-            // let mut colours = ColorGenerator::new();
-            // let labels: Vec<Label<(&str, std::ops::Range<usize>)>> = parse_errs
-            //     .iter()
-            //     .map(|e| {
-            //         Label::new(("tester", e.span().start..e.span().end))
-            //             .with_message(format!("{}", e))
-            //             .with_color(colours.next())
-            //     })
-            //     .collect();
-            // ariadne::Report::build(ariadne::ReportKind::Error, ("tester", eoi.into_range()))
-            //     .with_message("failed to parse")
-            //     .with_labels(labels)
-            //     .finish()
-            //     .eprint(("tester", Source::from(src)))
-            //     .unwrap();
         }
     }
 }

@@ -153,10 +153,8 @@ impl Diagnostic {
             && equals.inner == Token::Equals
             && equals.span != span
         {
-            diagnostic = diagnostic.with_label(
-                format!("expected an expression after this `=`"),
-                equals.span,
-            );
+            diagnostic =
+                diagnostic.with_label("expected an expression after this `=`", equals.span);
         }
 
         diagnostic

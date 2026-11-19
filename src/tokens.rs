@@ -4,6 +4,8 @@ use chumsky::span::{SimpleSpan, Spanned};
 use logos::Logos;
 use strum_macros::Display;
 
+use crate::errors::Diagnostic;
+
 #[derive(Default, Clone, PartialEq, Debug)]
 pub enum LexError {
     #[default]
@@ -139,19 +141,22 @@ pub enum Token<'src> {
     StringLiteral(String),
 }
 
-pub fn lex<'src>(src: &'src str) -> Vec<Spanned<Token<'src>>> {
+pub fn lex<'src>(src: &'src str) -> Result<Vec<Spanned<Token<'src>>>, Diagnostic> {
     let mut l = Token::lexer(src);
     let mut tokens = vec![];
     while let Some(result) = l.next() {
+        let span = SimpleSpan::from(l.span());
         match result {
-            Ok(token) => tokens.push(Spanned {
-                inner: token,
-                span: SimpleSpan::from(l.span()),
-            }),
-            Err(_) => todo!(),
+            Ok(token) => tokens.push(Spanned { inner: token, span }),
+            Err(_) => {
+                let text = &src[span.into_range()];
+                return Err(
+                    Diagnostic::new(format!("invalid token `{text}`")).with_label("here", span)
+                );
+            }
         }
     }
-    tokens
+    Ok(tokens)
 }
 
 fn unescape(raw: &str) -> Result<String, LexError> {

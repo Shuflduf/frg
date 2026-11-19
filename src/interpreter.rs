@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-use chumsky::span::SimpleSpan;
 
 use crate::{
     ast::{BinaryOperator, Expr, Expression, Literal, Statement, Stmt, UnaryOperator, VarType},
