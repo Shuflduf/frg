@@ -34,8 +34,15 @@ fn run(args: RunArgs) {
 
 fn test() {
     let src = r"
-    bool sb_false = 5 <= 6
-    bool sb_true = 5 >= 4
+    if 8 < 4 {
+        int branch_1 = 234
+    } else if 4 <= 3 {
+        int branch_2 = 837
+    } else if true {
+        float branch_3 = 4385.0e99
+    } else {
+        int branch_4 = 3
+    }
     ";
     let filename = "tester.frg";
     execute(src, filename);

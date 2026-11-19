@@ -150,7 +150,19 @@ pub fn run(program: &[Stmt]) -> Result<i64, Diagnostic> {
     let mut state = State {
         variables: HashMap::new(),
     };
-    for stmt in program {
+
+    let result = run_statements(&mut state, program);
+
+    println!("{state:?}");
+
+    result
+}
+
+fn run_statements<'state>(
+    state: &mut State<'state>,
+    stmts: &[Stmt<'state>],
+) -> Result<i64, Diagnostic> {
+    'outer: for stmt in stmts {
         match &stmt.inner {
             Statement::VariableDeclaration { vtype, name, value } => {
                 let val = eval(&state, value)?;
@@ -166,6 +178,29 @@ pub fn run(program: &[Stmt]) -> Result<i64, Diagnostic> {
                 }
                 state.variables.insert(name.inner, val);
             }
+            Statement::IfStatement {
+                condition,
+                body,
+                else_ifs,
+                else_body,
+            } => {
+                if let Ok(ran) = if_branch(state, condition, body)
+                    && ran
+                {
+                    continue;
+                }
+
+                for branch in else_ifs {
+                    if let Ok(ran) = if_branch(state, &branch.0, &branch.1)
+                        && ran
+                    {
+                        continue 'outer;
+                    }
+                }
+
+                _ = run_statements(state, else_body);
+            }
+            #[allow(unreachable_patterns)]
             other => {
                 return Err(Diagnostic::basic(
                     format!("unsupported statement: {other:?}"),
@@ -175,9 +210,27 @@ pub fn run(program: &[Stmt]) -> Result<i64, Diagnostic> {
         }
     }
 
-    println!("{state:?}");
-
     Ok(0)
+}
+
+fn if_branch<'state>(
+    state: &mut State<'state>,
+    condition: &Expr<'state>,
+    body: &[Stmt<'state>],
+) -> Result<bool, Diagnostic> {
+    let condition_result = eval(&state, condition)?;
+    if let Value::Bool(should_go) = condition_result {
+        if should_go {
+            _ = run_statements(state, body)?;
+            return Ok(true);
+        } else {
+            return Ok(false);
+        }
+    } else {
+        let found = condition_result.type_name();
+        return Err(Diagnostic::new(format!("if statement expects a `bool`"))
+            .with_label(format!("this is `{found}`"), condition.span));
+    }
 }
 
 fn eval(state: &State, expr: &Expr) -> Result<Value, Diagnostic> {
