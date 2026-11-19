@@ -6,7 +6,7 @@ use chumsky::{
     span::{SimpleSpan, Spanned},
 };
 
-use crate::tokens::Token;
+use crate::lexer::Token;
 
 pub struct Diagnostic {
     message: String,

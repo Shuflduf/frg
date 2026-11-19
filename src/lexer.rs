@@ -27,6 +27,11 @@ impl Display for LexError {
 #[derive(Logos, PartialEq, Clone, Display)]
 #[logos(error = LexError)]
 #[logos(skip r"[ \t\n\f]+")]
+#[logos(skip(r"//[^\n]*", allow_greedy = true))]
+// #[logos(skip(r"/\*[\s\S]*?\*/", allow_greedy = true))]
+// #[logos(skip(r"<!--[\s\S]*?-->", allow_greedy = true))]
+#[logos(skip(r"--[^\n]*", allow_greedy = true))]
+#[logos(skip(r"#[^\n]*", allow_greedy = true))]
 pub enum Token<'src> {
     #[token("=")]
     #[strum(to_string = "=")]
