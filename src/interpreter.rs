@@ -143,14 +143,14 @@ impl Value {
         }
     }
 
-    fn greater(&self, rhs: &Self) -> Result<bool, OpError> {
+    fn greater(&self, rhs: &Self, op: &'static str) -> Result<bool, OpError> {
         match (self, rhs) {
             (Self::Int(a), Self::Int(b)) => Ok(a > b),
             (Self::Float(a), Self::Float(b)) => Ok(a > b),
             (Self::Int(a), Self::Float(b)) => Ok(*a as f64 > *b),
             (Self::Float(a), Self::Int(b)) => Ok(*a > *b as f64),
             (left, right) => Err(OpError::InvalidBinaryOp {
-                op: ">",
+                op,
                 left: left.type_name(),
                 right: right.type_name(),
             }),
@@ -248,10 +248,10 @@ fn run_statements<'ast>(
                 };
                 match op {
                     AssignmentOperator::Equals => variable_entry.value = value,
-                    AssignmentOperator::PlusEquals => _ = ass(Value::add),
-                    AssignmentOperator::MinusEquals => _ = ass(Value::sub),
-                    AssignmentOperator::TimesEquals => _ = ass(Value::mul),
-                    AssignmentOperator::DivideEquals => _ = ass(Value::div),
+                    AssignmentOperator::PlusEquals => ass(Value::add)?,
+                    AssignmentOperator::MinusEquals => ass(Value::sub)?,
+                    AssignmentOperator::TimesEquals => ass(Value::mul)?,
+                    AssignmentOperator::DivideEquals => ass(Value::div)?,
                     AssignmentOperator::ModulusEquals => todo!(),
                 }
             }
@@ -309,19 +309,19 @@ fn eval(state: &State, expr: &Expr) -> Result<Value, Diagnostic> {
                 BinaryOperator::Divide => left.div(right).map_err(map_op_err),
                 BinaryOperator::Equals => Ok(Value::Bool(left.equals(&right).map_err(map_op_err)?)),
                 BinaryOperator::GreaterThan => {
-                    Ok(Value::Bool(left.greater(&right).map_err(map_op_err)?))
+                    Ok(Value::Bool(left.greater(&right, ">").map_err(map_op_err)?))
                 }
                 BinaryOperator::LessThan => Ok(Value::Bool(
-                    !left.greater(&right).map_err(map_op_err)?
+                    !left.greater(&right, "<").map_err(map_op_err)?
                         && !left.equals(&right).map_err(map_op_err)?,
                 )),
                 BinaryOperator::GreaterThanOrEqual => Ok(Value::Bool(
-                    left.greater(&right).map_err(map_op_err)?
+                    left.greater(&right, ">=").map_err(map_op_err)?
                         || left.equals(&right).map_err(map_op_err)?,
                 )),
-                BinaryOperator::LessThanOrEqual => {
-                    Ok(Value::Bool(!left.greater(&right).map_err(map_op_err)?))
-                }
+                BinaryOperator::LessThanOrEqual => Ok(Value::Bool(
+                    !left.greater(&right, "<=").map_err(map_op_err)?,
+                )),
                 BinaryOperator::NotEquals => {
                     let equal = left
                         .equals(&right)
