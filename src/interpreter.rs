@@ -12,6 +12,7 @@ use crate::{
 
 #[derive(Debug, Clone)]
 enum Value {
+    Undefined,
     Int(i64),
     Float(f64),
     Bool(bool),
@@ -31,6 +32,7 @@ struct State<'ast> {
 impl Value {
     fn type_name(&self) -> &'static str {
         match self {
+            Self::Undefined => "undefined",
             Self::Int(_) => "int",
             Self::Float(_) => "float",
             Self::Bool(_) => "bool",
@@ -180,15 +182,18 @@ fn run_statements<'ast>(
                 name,
                 value,
             } => {
-                let val = eval(&state, value)?;
-                if !var_type_check(vtype, &val) {
-                    let expected = vtype_name.inner;
-                    let found = val.type_name();
-                    return Err(Diagnostic::new(format!(
-                        "cannot assign a `{found}` to a variable of type `{expected}`"
-                    ))
-                    .with_label(format!("declared as `{expected}`"), vtype_name.span)
-                    .with_label(format!("this is `{found}`"), value.span));
+                let mut val = Value::Undefined;
+                if let Some(value) = value {
+                    val = eval(&state, value)?;
+                    if !var_type_check(vtype, &val) {
+                        let expected = vtype_name.inner;
+                        let found = val.type_name();
+                        return Err(Diagnostic::new(format!(
+                            "cannot assign a `{found}` to a variable of type `{expected}`"
+                        ))
+                        .with_label(format!("declared as `{expected}`"), vtype_name.span)
+                        .with_label(format!("this is `{found}`"), value.span));
+                    }
                 }
                 state.variables.insert(
                     name.inner.to_string(),

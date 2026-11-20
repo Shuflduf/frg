@@ -225,14 +225,13 @@ where
 
         let var_decl = vtype
             .then(name.spanned())
-            .then_ignore(equals_assign)
-            .then(expr.clone())
+            .then(equals_assign.ignored().then(expr.clone()).or_not())
             .map(
                 |((decl_vtype, decl_name), decl_value)| Statement::VariableDeclaration {
                     vtype_name: decl_vtype.1,
                     vtype: decl_vtype.0,
                     name: decl_name,
-                    value: decl_value,
+                    value: decl_value.map(|s| s.1),
                 },
             )
             .labelled("variable declaration")

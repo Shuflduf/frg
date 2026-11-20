@@ -106,7 +106,7 @@ pub enum Statement<'src> {
         vtype_name: Spanned<&'src str>,
         vtype: VarType,
         name: Spanned<&'src str>,
-        value: Expr<'src>,
+        value: Option<Expr<'src>>,
     },
     IfStatement {
         condition: Expr<'src>,
