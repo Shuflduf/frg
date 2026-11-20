@@ -1,9 +1,12 @@
 use std::collections::HashMap;
 
-use chumsky::span::SimpleSpan;
+use chumsky::span::Spanned;
 
 use crate::{
-    ast::{BinaryOperator, Expr, Expression, Literal, Statement, Stmt, UnaryOperator, VarType},
+    ast::{
+        AssignmentOperator, BinaryOperator, Expr, Expression, Literal, Statement, Stmt,
+        UnaryOperator, VarType,
+    },
     errors::{Diagnostic, OpError},
 };
 
@@ -16,10 +19,9 @@ enum Value {
 }
 #[derive(Debug)]
 struct Variable<'ast> {
-    vtype_name: &'ast str,
+    vtype_name: Spanned<&'ast str>,
     vtype: &'ast VarType,
     value: Value,
-    name_span: SimpleSpan,
 }
 #[derive(Debug)]
 struct State<'ast> {
@@ -180,22 +182,20 @@ fn run_statements<'ast>(
             } => {
                 let val = eval(&state, value)?;
                 if !var_type_check(vtype, &val) {
-                    let expected = vtype_name;
+                    let expected = vtype_name.inner;
                     let found = val.type_name();
                     return Err(Diagnostic::new(format!(
-                        "variable `{}` expects `{expected}`, got `{found}`",
-                        name.inner
+                        "cannot assign a `{found}` to a variable of type `{expected}`"
                     ))
-                    .with_label(format!("declared as `{expected}`"), name.span)
+                    .with_label(format!("declared as `{expected}`"), vtype_name.span)
                     .with_label(format!("this is `{found}`"), value.span));
                 }
                 state.variables.insert(
                     name.inner.to_string(),
                     Variable {
-                        vtype_name,
+                        vtype_name: *vtype_name,
                         vtype,
                         value: val,
-                        name_span: name.span,
                     },
                 );
             }
@@ -224,29 +224,31 @@ fn run_statements<'ast>(
             Statement::VariableAssignment { variable, op, expr } => {
                 let value = eval(state, expr)?.clone();
                 let variable_entry = get_variable(state, variable)?;
+                let map_op_err = |e: OpError| Diagnostic::basic(e.to_string(), expr.span);
                 if !var_type_check(variable_entry.vtype, &value) {
                     let found = value.type_name();
                     let expected = variable_entry.vtype_name;
+                    let expected_inner = variable_entry.vtype_name.inner;
                     return Err(Diagnostic::new(format!(
-                        "cannot assign a `{found}` to a variable of type `{expected}`"
+                        "cannot assign a `{found}` to a variable of type `{expected_inner}`"
                     ))
-                    .with_label(format!("declared as {expected}"), variable_entry.name_span));
+                    .with_label(format!("declared as `{expected_inner}`"), expected.span)
+                    .with_label(format!("this is `{found}`"), expr.span));
                 }
-                variable_entry.value = value;
-
-                // println!("{key:?}");
-                // match key {
-                //     Value::String(identifier) => {
-                //         if let Some(variable) = state.variables.get_mut(&identifier) {
-                //             variable.value = value;
-                //         }
-                //     }
-                //     _ => todo!(),
-                // }
-                // if let Value::String(id) = key {
-
-                // }
-                // if let Some(variable) = state.variables.entry(key)
+                // bullshittery
+                let mut ass = |ass_func: fn(Value, Value) -> Result<Value, OpError>| -> Result<(),Diagnostic> {
+                    variable_entry.value =
+                        ass_func(variable_entry.value.clone(), value.clone()).map_err(map_op_err)?;
+                        Ok(())
+                };
+                match op {
+                    AssignmentOperator::Equals => variable_entry.value = value,
+                    AssignmentOperator::PlusEquals => _ = ass(Value::add),
+                    AssignmentOperator::MinusEquals => _ = ass(Value::sub),
+                    AssignmentOperator::TimesEquals => _ = ass(Value::mul),
+                    AssignmentOperator::DivideEquals => _ = ass(Value::div),
+                    AssignmentOperator::ModulusEquals => todo!(),
+                }
             }
             #[allow(unreachable_patterns)]
             _ => todo!(),

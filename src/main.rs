@@ -34,8 +34,7 @@ fn run(args: RunArgs) {
 
 fn test() {
     let src = r"
-    num thing = 4
-    thing = 2.0
+    num thing = 4.0
     ";
     let filename = "tester.frg";
     execute(src, filename);
