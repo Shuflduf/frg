@@ -1,6 +1,9 @@
 use chumsky::span::{SimpleSpan, Spanned};
 
-#[derive(Debug, PartialEq)]
+pub type Expr<'src> = Spanned<Expression<'src>, SimpleSpan>;
+pub type Stmt<'src> = Spanned<Statement<'src>, SimpleSpan>;
+
+#[derive(Debug, PartialEq, Clone)]
 #[allow(dead_code)]
 pub enum VarType {
     Void,
@@ -43,6 +46,17 @@ pub enum UnaryOperator {
     Dereference,
     Negative,
     Not,
+}
+
+#[derive(Debug, Clone)]
+#[allow(dead_code)]
+pub enum AssignmentOperator {
+    Equals,
+    PlusEquals,
+    MinusEquals,
+    TimesEquals,
+    DivideEquals,
+    ModulusEquals,
 }
 
 #[derive(Debug)]
@@ -89,6 +103,7 @@ pub enum Expression<'src> {
 #[allow(dead_code)]
 pub enum Statement<'src> {
     VariableDeclaration {
+        vtype_name: Spanned<&'src str>,
         vtype: VarType,
         name: Spanned<&'src str>,
         value: Expr<'src>,
@@ -99,7 +114,9 @@ pub enum Statement<'src> {
         else_ifs: Vec<(Expr<'src>, Vec<Stmt<'src>>)>,
         else_body: Vec<Stmt<'src>>,
     },
+    VariableAssignment {
+        variable: Expr<'src>,
+        op: AssignmentOperator,
+        expr: Expr<'src>,
+    },
 }
-
-pub type Expr<'src> = Spanned<Expression<'src>, SimpleSpan>;
-pub type Stmt<'src> = Spanned<Statement<'src>, SimpleSpan>;

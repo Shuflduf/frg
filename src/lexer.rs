@@ -73,6 +73,9 @@ pub enum Token<'src> {
     #[token("/")]
     #[strum(to_string = "/")]
     Slash,
+    #[token("%")]
+    #[strum(to_string = "%")]
+    Percent,
     #[token("!")]
     #[strum(to_string = "!")]
     Exclamation,
@@ -88,6 +91,10 @@ pub enum Token<'src> {
     #[token("/=")]
     #[strum(to_string = "/=")]
     SlashEquals,
+    #[token("%=")]
+    #[strum(to_string = "%=")]
+    PercentEquals,
+
     #[token("==")]
     #[strum(to_string = "==")]
     Equivalent,
@@ -102,6 +109,7 @@ pub enum Token<'src> {
     GreaterThanOrEqual,
 
     #[token("int")]
+    #[token("num")]
     #[strum(to_string = "int")]
     IntType,
     #[token("float")]

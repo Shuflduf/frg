@@ -4,7 +4,10 @@ use chumsky::{
 };
 
 use crate::{
-    ast::{BinaryOperator, Expr, Expression, Literal, Statement, Stmt, UnaryOperator, VarType},
+    ast::{
+        AssignmentOperator, BinaryOperator, Expr, Expression, Literal, Statement, Stmt,
+        UnaryOperator, VarType,
+    },
     lexer::Token,
 };
 
@@ -174,22 +177,38 @@ where
     .boxed()
 }
 
-fn statement_parser<'src, I>()
--> impl Parser<'src, I, Vec<Stmt<'src>>, extra::Err<Rich<'src, Token<'src>>>>
+fn statement_parser<'src, I>(
+    src: &'src str,
+) -> impl Parser<'src, I, Vec<Stmt<'src>>, extra::Err<Rich<'src, Token<'src>>>>
 where
     I: BorrowInput<'src, Token = Token<'src>, Span = SimpleSpan> + ValueInput<'src>,
 {
     let left_brace = tok(Token::LeftBrace);
     let right_brace = tok(Token::RightBrace);
-    let int_type = just(Token::IntType).map(|_| VarType::Int).boxed();
-    let float_type = just(Token::FloatType).map(|_| VarType::Float).boxed();
-    let bool_type = just(Token::BoolType).map(|_| VarType::Bool).boxed();
-    let str_type = just(Token::StringType).map(|_| VarType::Str).boxed();
-    let vtype = choice((int_type, float_type, bool_type, str_type)).boxed();
     let name = select_ref! { Token::Identifier(name) => *name }.boxed();
     let equals_assign = tok(Token::Equals);
     let if_kw = tok(Token::If);
     let else_kw = tok(Token::Else);
+
+    let vtype_token: P<'src, I, VarType> = choice((
+        just(Token::IntType).to(VarType::Int),
+        just(Token::FloatType).to(VarType::Float),
+        just(Token::BoolType).to(VarType::Bool),
+        just(Token::StringType).to(VarType::Str),
+    ))
+    .boxed();
+
+    let vtype = vtype_token
+        .map_with(move |vtype, e| {
+            (
+                vtype,
+                Spanned {
+                    inner: &src[e.span().into_range()],
+                    span: e.span(),
+                },
+            )
+        })
+        .boxed();
 
     let expr = expr_parser();
 
@@ -208,8 +227,32 @@ where
             .then(name.spanned())
             .then_ignore(equals_assign)
             .then(expr.clone())
-            .map(|((vtype, name), value)| Statement::VariableDeclaration { vtype, name, value })
+            .map(
+                |((decl_vtype, decl_name), decl_value)| Statement::VariableDeclaration {
+                    vtype_name: decl_vtype.1,
+                    vtype: decl_vtype.0,
+                    name: decl_name,
+                    value: decl_value,
+                },
+            )
             .labelled("variable declaration")
+            .as_context()
+            .spanned()
+            .boxed();
+
+        let var_assign = expr
+            .clone()
+            .then(choice((
+                tok(Token::Equals).to(AssignmentOperator::Equals),
+                tok(Token::PlusEquals).to(AssignmentOperator::PlusEquals),
+                tok(Token::MinusEquals).to(AssignmentOperator::MinusEquals),
+                tok(Token::StarEquals).to(AssignmentOperator::TimesEquals),
+                tok(Token::SlashEquals).to(AssignmentOperator::DivideEquals),
+                tok(Token::PercentEquals).to(AssignmentOperator::ModulusEquals),
+            )))
+            .then(expr.clone())
+            .map(|((variable, op), expr)| Statement::VariableAssignment { variable, op, expr })
+            .labelled("variable assignment")
             .as_context()
             .spanned()
             .boxed();
@@ -237,7 +280,7 @@ where
             .spanned()
             .boxed();
 
-        choice((var_decl, if_stmt))
+        choice((var_decl, var_assign, if_stmt))
             .map(Some)
             .labelled("statement")
             .as_context()
@@ -252,10 +295,11 @@ where
         .map(|statements| statements.into_iter().flatten().collect::<Vec<_>>())
 }
 
-pub fn create_parser<'src, I>()
--> impl Parser<'src, I, Vec<Stmt<'src>>, extra::Err<Rich<'src, Token<'src>>>>
+pub fn create_parser<'src, I>(
+    src: &'src str,
+) -> impl Parser<'src, I, Vec<Stmt<'src>>, extra::Err<Rich<'src, Token<'src>>>>
 where
     I: BorrowInput<'src, Token = Token<'src>, Span = SimpleSpan> + ValueInput<'src>,
 {
-    statement_parser()
+    statement_parser(src)
 }

@@ -34,15 +34,8 @@ fn run(args: RunArgs) {
 
 fn test() {
     let src = r"
-    if 8 < 4 {
-        int branch_1 = 234
-    } else if 4 <= 3 {
-        int branch_2 = 837
-    } else if true {
-        float branch_3 = 4385.0e99
-    } else {
-        int branch_4 = 3
-    }
+    num thing = 4
+    thing = 2.0
     ";
     let filename = "tester.frg";
     execute(src, filename);
@@ -73,7 +66,7 @@ fn execute(src: &str, filename: &str) {
         .cloned()
         .collect();
     let input = parse_tokens.as_slice().split_spanned(eoi);
-    let ast = match parser::create_parser().parse(input).into_result() {
+    let ast = match parser::create_parser(src).parse(input).into_result() {
         Ok(ast) => {
             if diags.is_empty() {
                 ast
@@ -99,6 +92,7 @@ fn execute(src: &str, filename: &str) {
             return;
         }
     };
+    println!("{ast:#?}");
     match interpreter::run(&ast) {
         Ok(output) => println!("{output}"),
         Err(eval_err) => eval_err.report(src, filename),

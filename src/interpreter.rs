@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use chumsky::span::SimpleSpan;
+
 use crate::{
     ast::{BinaryOperator, Expr, Expression, Literal, Statement, Stmt, UnaryOperator, VarType},
     errors::{Diagnostic, OpError},
@@ -11,6 +13,17 @@ enum Value {
     Float(f64),
     Bool(bool),
     String(String),
+}
+#[derive(Debug)]
+struct Variable<'ast> {
+    vtype_name: &'ast str,
+    vtype: &'ast VarType,
+    value: Value,
+    name_span: SimpleSpan,
+}
+#[derive(Debug)]
+struct State<'ast> {
+    variables: HashMap<String, Variable<'ast>>,
 }
 
 impl Value {
@@ -141,11 +154,6 @@ impl Value {
     }
 }
 
-#[derive(Debug)]
-struct State<'src> {
-    variables: HashMap<&'src str, Value>,
-}
-
 pub fn run(program: &[Stmt]) -> Result<i64, Diagnostic> {
     let mut state = State {
         variables: HashMap::new(),
@@ -158,16 +166,21 @@ pub fn run(program: &[Stmt]) -> Result<i64, Diagnostic> {
     result
 }
 
-fn run_statements<'state>(
-    state: &mut State<'state>,
-    stmts: &[Stmt<'state>],
+fn run_statements<'ast>(
+    state: &mut State<'ast>,
+    stmts: &'ast [Stmt<'_>],
 ) -> Result<i64, Diagnostic> {
     'outer: for stmt in stmts {
         match &stmt.inner {
-            Statement::VariableDeclaration { vtype, name, value } => {
+            Statement::VariableDeclaration {
+                vtype_name,
+                vtype,
+                name,
+                value,
+            } => {
                 let val = eval(&state, value)?;
                 if !var_type_check(vtype, &val) {
-                    let expected = var_type_name(vtype);
+                    let expected = vtype_name;
                     let found = val.type_name();
                     return Err(Diagnostic::new(format!(
                         "variable `{}` expects `{expected}`, got `{found}`",
@@ -176,7 +189,15 @@ fn run_statements<'state>(
                     .with_label(format!("declared as `{expected}`"), name.span)
                     .with_label(format!("this is `{found}`"), value.span));
                 }
-                state.variables.insert(name.inner, val);
+                state.variables.insert(
+                    name.inner.to_string(),
+                    Variable {
+                        vtype_name,
+                        vtype,
+                        value: val,
+                        name_span: name.span,
+                    },
+                );
             }
             Statement::IfStatement {
                 condition,
@@ -200,23 +221,45 @@ fn run_statements<'state>(
 
                 _ = run_statements(state, else_body);
             }
-            #[allow(unreachable_patterns)]
-            other => {
-                return Err(Diagnostic::basic(
-                    format!("unsupported statement: {other:?}"),
-                    stmt.span,
-                ));
+            Statement::VariableAssignment { variable, op, expr } => {
+                let value = eval(state, expr)?.clone();
+                let variable_entry = get_variable(state, variable)?;
+                if !var_type_check(variable_entry.vtype, &value) {
+                    let found = value.type_name();
+                    let expected = variable_entry.vtype_name;
+                    return Err(Diagnostic::new(format!(
+                        "cannot assign a `{found}` to a variable of type `{expected}`"
+                    ))
+                    .with_label(format!("declared as {expected}"), variable_entry.name_span));
+                }
+                variable_entry.value = value;
+
+                // println!("{key:?}");
+                // match key {
+                //     Value::String(identifier) => {
+                //         if let Some(variable) = state.variables.get_mut(&identifier) {
+                //             variable.value = value;
+                //         }
+                //     }
+                //     _ => todo!(),
+                // }
+                // if let Value::String(id) = key {
+
+                // }
+                // if let Some(variable) = state.variables.entry(key)
             }
+            #[allow(unreachable_patterns)]
+            _ => todo!(),
         }
     }
 
     Ok(0)
 }
 
-fn if_branch<'state>(
-    state: &mut State<'state>,
-    condition: &Expr<'state>,
-    body: &[Stmt<'state>],
+fn if_branch<'ast>(
+    state: &mut State<'ast>,
+    condition: &Expr<'_>,
+    body: &'ast [Stmt<'_>],
 ) -> Result<bool, Diagnostic> {
     let condition_result = eval(&state, condition)?;
     if let Value::Bool(should_go) = condition_result {
@@ -237,19 +280,16 @@ fn eval(state: &State, expr: &Expr) -> Result<Value, Diagnostic> {
     match &expr.inner {
         Expression::Identifier(name) => state
             .variables
-            .get(name)
-            .cloned()
-            .ok_or_else(|| Diagnostic::basic(format!("undefined variable `{name}`"), expr.span)),
+            .get(&name.to_string())
+            .ok_or_else(|| Diagnostic::basic(format!("undefined variable `{name}`"), expr.span))
+            .map(|e| e.value.clone()),
         Expression::Literal(lit) => match lit {
             Literal::Int(n) => Ok(Value::Int(*n)),
             Literal::Float(n) => Ok(Value::Float(*n)),
             Literal::Bool(b) => Ok(Value::Bool(*b)),
             Literal::Str(s) => Ok(Value::String(s.to_string())),
             #[allow(unreachable_patterns)]
-            other => Err(Diagnostic::basic(
-                format!("unsupported literal: {other:?}"),
-                expr.span,
-            )),
+            _ => todo!(),
         },
         Expression::BinaryOperation { left, op, right } => {
             let left = eval(state, left)?;
@@ -298,21 +338,20 @@ fn eval(state: &State, expr: &Expr) -> Result<Value, Diagnostic> {
                 )),
             }
         }
-        other => Err(Diagnostic::basic(
-            format!("unsupported expression: {other:?}"),
-            expr.span,
-        )),
+        _ => todo!(),
     }
 }
 
-fn var_type_name(vtype: &VarType) -> &'static str {
-    match vtype {
-        VarType::Void => "void",
-        VarType::Int => "int",
-        VarType::Float => "float",
-        VarType::Str => "str",
-        VarType::Bool => "bool",
-        VarType::Type => "type",
+fn get_variable<'a, 'state>(
+    state: &'a mut State<'state>,
+    expr: &Expr,
+) -> Result<&'a mut Variable<'state>, Diagnostic> {
+    match **expr {
+        Expression::Identifier(identifier) => state
+            .variables
+            .get_mut(identifier)
+            .ok_or(Diagnostic::new("var not found")),
+        _ => Err(Diagnostic::new("shit")),
     }
 }
 
