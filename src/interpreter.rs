@@ -10,6 +10,8 @@ use crate::{
     errors::{Diagnostic, OpError},
 };
 
+const STD: Expression = Expression::Identifier("std");
+
 #[derive(Debug, Clone)]
 enum Value {
     Undefined,
@@ -344,6 +346,14 @@ fn eval(state: &State, expr: &Expr) -> Result<Value, Diagnostic> {
                     expr.span,
                 )),
             }
+        }
+        Expression::MemberAccess { expr, member } => {
+            if let Expression::Identifier(id) = expr.inner
+                && id == "std"
+            {
+                return Ok(Value::Int(1));
+            }
+            Err(Diagnostic::new("shit"))
         }
         _ => todo!(),
     }

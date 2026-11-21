@@ -34,7 +34,7 @@ fn run(args: RunArgs) {
 
 fn test() {
     let src = r#"
-    int ma_func = thing.jfos
+    int ma_func = std.fdsl
     "#;
     let filename = "tester.frg";
     execute(src, filename);
