@@ -13,6 +13,11 @@ use crate::{
 
 type P<'src, I, O> = Boxed<'src, 'src, I, O, extra::Err<Rich<'src, Token<'src>>>>;
 
+enum Postfix<'src> {
+    Call(Spanned<Vec<Expr<'src>>>),
+    Index(Spanned<Expr<'src>>),
+}
+
 fn binary<'src>(lhs: Expr<'src>, op: BinaryOperator, rhs: Expr<'src>) -> Expr<'src> {
     let span = SimpleSpan::from(lhs.span.start..rhs.span.end);
     Spanned {
@@ -110,6 +115,8 @@ where
     let slash = tok(Token::Slash);
     let left_paren = tok(Token::LeftParen);
     let right_paren = tok(Token::RightParen);
+    let left_bracket = tok(Token::LeftBracket);
+    let right_bracket = tok(Token::RightBracket);
     let bool_true: P<'src, I, Expression<'src>> = just(Token::BoolTrue)
         .map(|_| Expression::Literal(Literal::Bool(true)))
         .boxed();
@@ -125,10 +132,76 @@ where
             bool_literal.spanned(),
             str_literal.spanned(),
             identifier.spanned(),
-            expr.delimited_by(left_paren, right_paren),
+            expr.clone()
+                .delimited_by(left_paren.clone(), right_paren.clone()),
         ));
+        let func_args = choice((
+            expr.clone().map(Some),
+            tok(Token::Comma).map(|_| None::<Expr<'src>>),
+        ))
+        .repeated()
+        .collect::<Vec<_>>()
+        .map(|items| items.into_iter().flatten().collect::<Vec<_>>())
+        .delimited_by(left_paren, right_paren)
+        .map_with(|params, e| {
+            Postfix::Call(Spanned {
+                inner: params,
+                span: e.span(),
+            })
+        })
+        .labelled("function call")
+        .as_context()
+        .boxed();
+
+        let index = expr
+            .clone()
+            .delimited_by(left_bracket, right_bracket)
+            .map_with(|index, e| {
+                Postfix::Index(Spanned {
+                    inner: index,
+                    span: e.span(),
+                })
+            })
+            .labelled("index access")
+            .as_context()
+            .boxed();
+
+        let postfix = atom
+            .foldl(choice((func_args, index)).repeated(), |base, op| {
+                let start = base.span.start;
+                match op {
+                    Postfix::Call(params) => Spanned {
+                        inner: Expression::FunctionCall {
+                            function: Box::new(base),
+                            params: params.inner,
+                        },
+                        span: SimpleSpan::from(start..params.span.end),
+                    },
+                    Postfix::Index(index) => Spanned {
+                        inner: Expression::IndexAccess {
+                            expr: Box::new(base),
+                            index: Box::new(index.inner),
+                        },
+                        span: SimpleSpan::from(start..index.span.end),
+                    },
+                }
+            })
+            .boxed();
+        // let func = expr
+        //     .clone()
+        //     .foldl(func_args.repeated(), |function, params| {
+        //         Expression::FunctionCall {
+        //             function: Box::new(function),
+        //             params,
+        //         }
+        //     })
+        //     .spanned()
+        //     .labelled("function call")
+        //     .as_context()
+        //     .boxed();
+
         let unary = minus.clone().to_span().repeated().foldr(
-            atom,
+            postfix,
             |op_span: SimpleSpan, rhs: Spanned<Expression<'_>>| {
                 let span = SimpleSpan::from(op_span.start..rhs.span.end);
                 Spanned {
@@ -177,6 +250,32 @@ where
     .boxed()
 }
 
+fn type_parser<'src, I>(src: &'src str) -> P<'src, I, (VarType, Spanned<&'src str>)>
+where
+    I: BorrowInput<'src, Token = Token<'src>, Span = SimpleSpan> + ValueInput<'src>,
+{
+    let vtype_token: P<'src, I, VarType> = choice((
+        just(Token::IntType).to(VarType::Int),
+        just(Token::FloatType).to(VarType::Float),
+        just(Token::BoolType).to(VarType::Bool),
+        just(Token::StringType).to(VarType::Str),
+    ))
+    .boxed();
+
+    vtype_token
+        .map_with(move |vtype, e| {
+            let span = e.span();
+            (
+                vtype,
+                Spanned {
+                    inner: &src[span.into_range()],
+                    span: span,
+                },
+            )
+        })
+        .boxed()
+}
+
 fn statement_parser<'src, I>(
     src: &'src str,
 ) -> impl Parser<'src, I, Vec<Stmt<'src>>, extra::Err<Rich<'src, Token<'src>>>>
@@ -189,26 +288,7 @@ where
     let equals_assign = tok(Token::Equals);
     let if_kw = tok(Token::If);
     let else_kw = tok(Token::Else);
-
-    let vtype_token: P<'src, I, VarType> = choice((
-        just(Token::IntType).to(VarType::Int),
-        just(Token::FloatType).to(VarType::Float),
-        just(Token::BoolType).to(VarType::Bool),
-        just(Token::StringType).to(VarType::Str),
-    ))
-    .boxed();
-
-    let vtype = vtype_token
-        .map_with(move |vtype, e| {
-            (
-                vtype,
-                Spanned {
-                    inner: &src[e.span().into_range()],
-                    span: e.span(),
-                },
-            )
-        })
-        .boxed();
+    let vtype = type_parser(src);
 
     let expr = expr_parser();
 

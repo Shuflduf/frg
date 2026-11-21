@@ -95,6 +95,10 @@ pub enum Token<'src> {
     #[strum(to_string = "%=")]
     PercentEquals,
 
+    #[token(",")]
+    #[strum(to_string = ",")]
+    Comma,
+
     #[token("==")]
     #[strum(to_string = "==")]
     Equivalent,

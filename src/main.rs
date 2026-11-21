@@ -34,8 +34,7 @@ fn run(args: RunArgs) {
 
 fn test() {
     let src = r#"
-    str thing = "kfjsd"
-    bool akfj = thing <= 4.0
+    str thing = bleh(1, 4, ,,5)
     "#;
     let filename = "tester.frg";
     execute(src, filename);
@@ -92,7 +91,7 @@ fn execute(src: &str, filename: &str) {
             return;
         }
     };
-    // println!("{ast:#?}");
+    println!("{ast:#?}");
     match interpreter::run(&ast) {
         Ok(output) => println!("{output}"),
         Err(eval_err) => eval_err.report(src, filename),

@@ -1,7 +1,7 @@
-use chumsky::span::{SimpleSpan, Spanned};
+use chumsky::span::Spanned;
 
-pub type Expr<'src> = Spanned<Expression<'src>, SimpleSpan>;
-pub type Stmt<'src> = Spanned<Statement<'src>, SimpleSpan>;
+pub type Expr<'src> = Spanned<Expression<'src>>;
+pub type Stmt<'src> = Spanned<Statement<'src>>;
 
 #[derive(Debug, PartialEq, Clone)]
 #[allow(dead_code)]
