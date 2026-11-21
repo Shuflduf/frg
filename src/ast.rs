@@ -79,7 +79,7 @@ pub enum Expression<'src> {
     },
     MemberAccess {
         expr: Box<Expr<'src>>,
-        member: &'src str,
+        member: Spanned<&'src str>,
     },
     FunctionLiteral {
         params: Vec<&'src str>,
@@ -89,10 +89,10 @@ pub enum Expression<'src> {
         function: Box<Expr<'src>>,
         params: Vec<Expr<'src>>,
     },
-    BuiltinCall {
-        name: &'src str,
-        params: Vec<Expr<'src>>,
-    },
+    // BuiltinCall {
+    //     name: &'src str,
+    //     params: Vec<Expr<'src>>,
+    // },
     MapLiteral(Vec<(&'src str, Expr<'src>)>),
     VecLiteral(Vec<Expr<'src>>),
     SetLiteral(Vec<Expr<'src>>),

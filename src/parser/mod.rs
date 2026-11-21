@@ -16,6 +16,7 @@ type P<'src, I, O> = Boxed<'src, 'src, I, O, extra::Err<Rich<'src, Token<'src>>>
 enum Postfix<'src> {
     Call(Spanned<Vec<Expr<'src>>>),
     Index(Spanned<Expr<'src>>),
+    Member(Spanned<&'src str>),
 }
 
 fn binary<'src>(lhs: Expr<'src>, op: BinaryOperator, rhs: Expr<'src>) -> Expr<'src> {
@@ -100,15 +101,16 @@ fn expr_parser<'src, I>() -> P<'src, I, Expr<'src>>
 where
     I: BorrowInput<'src, Token = Token<'src>, Span = SimpleSpan> + ValueInput<'src>,
 {
-    let int_literal: P<'src, I, Expression<'src>> =
+    let int_literal =
         select_ref! { Token::IntLiteral(n) => Expression::Literal(Literal::Int(*n)) }.boxed();
-    let float_literal: P<'src, I, Expression<'src>> =
+    let float_literal =
         select_ref! { Token::FloatLiteral(n) => Expression::Literal(Literal::Float(*n)) }.boxed();
-    let str_literal: P<'src, I, Expression<'src>> =
+    let str_literal =
         select_ref! { Token::StringLiteral(s) => Expression::Literal(Literal::Str(s.to_string())) }
             .boxed();
-    let identifier: P<'src, I, Expression<'src>> =
+    let identifier =
         select_ref! { Token::Identifier(name) => Expression::Identifier(name) }.boxed();
+    let name = select_ref! { Token::Identifier(name) => name }.boxed();
     let plus = tok(Token::Plus);
     let minus = tok(Token::Minus);
     let star = tok(Token::Star);
@@ -166,8 +168,18 @@ where
             .as_context()
             .boxed();
 
+        let member = tok(Token::Period)
+            .ignore_then(name.clone().map_with(|name, e| Spanned {
+                inner: *name,
+                span: e.span(),
+            }))
+            .map(Postfix::Member)
+            .labelled("member access")
+            .as_context()
+            .boxed();
+
         let postfix = atom
-            .foldl(choice((func_args, index)).repeated(), |base, op| {
+            .foldl(choice((func_args, index, member)).repeated(), |base, op| {
                 let start = base.span.start;
                 match op {
                     Postfix::Call(params) => Spanned {
@@ -184,21 +196,16 @@ where
                         },
                         span: SimpleSpan::from(start..index.span.end),
                     },
+                    Postfix::Member(member) => Spanned {
+                        inner: Expression::MemberAccess {
+                            expr: Box::new(base),
+                            member: member,
+                        },
+                        span: SimpleSpan::from(start..member.span.end),
+                    },
                 }
             })
             .boxed();
-        // let func = expr
-        //     .clone()
-        //     .foldl(func_args.repeated(), |function, params| {
-        //         Expression::FunctionCall {
-        //             function: Box::new(function),
-        //             params,
-        //         }
-        //     })
-        //     .spanned()
-        //     .labelled("function call")
-        //     .as_context()
-        //     .boxed();
 
         let unary = minus.clone().to_span().repeated().foldr(
             postfix,

@@ -98,6 +98,9 @@ pub enum Token<'src> {
     #[token(",")]
     #[strum(to_string = ",")]
     Comma,
+    #[token(".")]
+    #[strum(to_string = ".")]
+    Period,
 
     #[token("==")]
     #[strum(to_string = "==")]
