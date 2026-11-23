@@ -42,6 +42,7 @@ Frog me = Frog {
     legs = 2,,
     age = 0.1,
 }
+int feet = me.legs
     "#;
     let filename = "tester.frg";
     execute(src, filename);

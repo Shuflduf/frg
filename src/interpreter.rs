@@ -44,7 +44,7 @@ pub fn run(program: &[Stmt]) -> Result<i64, Diagnostic> {
 
     let result = run_statements(&mut state, program);
 
-    println!("{state:?}");
+    println!("{state:#?}");
 
     result
 }
@@ -100,11 +100,37 @@ fn eval<'ast>(state: &State<'ast>, expr: &Expr<'ast>) -> Result<Value<'ast>, Dia
             unary_operation::eval(state, expr.span, op, right)
         }
         Expression::MemberAccess { parent, member } => {
-            if let STD = parent.inner
-                && member.inner == "debug"
-            {
-                return Ok(Value::Int(1));
+            match &parent.inner {
+                &STD => {
+                    if member.inner == "debug" {
+                        return Ok(Value::Int(1));
+                    }
+                }
+                Expression::StructLiteral {
+                    parent: _struct_name,
+                    fields,
+                } => {
+                    return Ok(eval(
+                        state,
+                        &fields
+                            .iter()
+                            .find(|(name, _)| *name == member.inner)
+                            .unwrap()
+                            .1,
+                    )?);
+                }
+                _other => {} // Expression::Identifier(id) => get_variable(&mut state, id),
+                             // other => {
+                             //     match get_variable(&mut state, other) {}
+                             //     todo!("{other:?}")
+                             // }
             }
+            match eval(state, parent)? {
+                Value::Struct(vars) => return Ok(vars.get(member.inner).unwrap().value.clone()),
+
+                other => todo!("{other:?}"),
+            };
+            // println!("{parent:?}");
             Err(Diagnostic::new("shit"))
         }
         Expression::StructTypeDeclaration { fields } => Ok(Value::Type(CustomType::StructType(
@@ -160,7 +186,3 @@ fn var_type_check(vtype: &VarType, value: &Value) -> bool {
             | (VarType::Custom(_), Value::Struct(_))
     )
 }
-
-// fn Diagnostic::basic(message: impl Into<String>, span: SimpleSpan) -> Diagnostic {
-//     Diagnostic::new(message.into().clone()).with_label(message, span)
-// }
