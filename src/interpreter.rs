@@ -13,25 +13,32 @@ use crate::{
 const STD: Expression = Expression::Identifier("std");
 
 #[derive(Debug, Clone)]
-enum Value {
+enum CustomType<'ast> {
+    StructType(HashMap<String, Variable<'ast>>),
+}
+
+#[derive(Debug, Clone)]
+enum Value<'ast> {
     Undefined,
     Int(i64),
     Float(f64),
     Bool(bool),
     String(String),
+    Type(CustomType<'ast>),
+    // Module()
 }
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct Variable<'ast> {
     vtype_name: Spanned<&'ast str>,
     vtype: &'ast VarType,
-    value: Value,
+    value: Value<'ast>,
 }
 #[derive(Debug)]
 struct State<'ast> {
     variables: HashMap<String, Variable<'ast>>,
 }
 
-impl Value {
+impl<'ast> Value<'_> {
     fn type_name(&self) -> &'static str {
         match self {
             Self::Undefined => "undefined",
@@ -39,6 +46,7 @@ impl Value {
             Self::Float(_) => "float",
             Self::Bool(_) => "bool",
             Self::String(_) => "str",
+            Self::Type(_) => "int",
         }
     }
     fn add(self, rhs: Self) -> Result<Self, OpError> {
@@ -243,10 +251,14 @@ fn run_statements<'ast>(
                     .with_label(format!("this is `{found}`"), expr.span));
                 }
                 // bullshittery
-                let mut ass = |ass_func: fn(Value, Value) -> Result<Value, OpError>| -> Result<(),Diagnostic> {
-                    variable_entry.value =
-                        ass_func(variable_entry.value.clone(), value.clone()).map_err(map_op_err)?;
-                        Ok(())
+                let mut ass = |ass_func: fn(
+                    Value<'ast>,
+                    Value<'ast>,
+                ) -> Result<Value<'ast>, OpError>|
+                 -> Result<(), Diagnostic> {
+                    variable_entry.value = ass_func(variable_entry.value.clone(), value.clone())
+                        .map_err(map_op_err)?;
+                    Ok(())
                 };
                 match op {
                     AssignmentOperator::Equals => variable_entry.value = value,
@@ -285,7 +297,7 @@ fn if_branch<'ast>(
     }
 }
 
-fn eval(state: &State, expr: &Expr) -> Result<Value, Diagnostic> {
+fn eval<'ast>(state: &State<'ast>, expr: &Expr) -> Result<Value<'ast>, Diagnostic> {
     match &expr.inner {
         Expression::Identifier(name) => state
             .variables
