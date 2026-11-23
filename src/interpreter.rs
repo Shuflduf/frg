@@ -377,7 +377,7 @@ fn eval<'ast>(state: &State<'ast>, expr: &Expr<'ast>) -> Result<Value<'ast>, Dia
                 .map(|field: &(VarType, Spanned<&str>, &str)| (field.0.clone(), field.2))
                 .collect::<Vec<_>>(),
         ))),
-        Expression::StructLiteral { expr, fields } => struct_literal::eval(expr, fields),
+        Expression::StructLiteral { expr, fields } => struct_literal::eval(state, expr, fields),
         _ => todo!(),
     }
 }
