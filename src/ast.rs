@@ -5,16 +5,17 @@ pub type Stmt<'src> = Spanned<Statement<'src>>;
 
 #[derive(Debug, PartialEq, Clone)]
 #[allow(dead_code)]
-pub enum VarType {
+pub enum VarType<'src> {
     Void,
     Int,
     Float,
     Str,
     Bool,
     Type,
+    Custom(Expr<'src>),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 #[allow(dead_code)]
 pub enum Literal {
     Int(i64),
@@ -23,7 +24,7 @@ pub enum Literal {
     Bool(bool),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 #[allow(dead_code)]
 pub enum BinaryOperator {
     Add,
@@ -39,7 +40,7 @@ pub enum BinaryOperator {
     NotEquals,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 #[allow(dead_code)]
 pub enum UnaryOperator {
     Reference,
@@ -48,7 +49,7 @@ pub enum UnaryOperator {
     Not,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 #[allow(dead_code)]
 pub enum AssignmentOperator {
     Equals,
@@ -59,7 +60,7 @@ pub enum AssignmentOperator {
     ModulusEquals,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq)]
 #[allow(dead_code)]
 pub enum Expression<'src> {
     Identifier(&'src str),
@@ -97,14 +98,22 @@ pub enum Expression<'src> {
     VecLiteral(Vec<Expr<'src>>),
     SetLiteral(Vec<Expr<'src>>),
     EmptyCollection,
+
+    StructTypeDeclaration {
+        fields: Vec<(VarType<'src>, Spanned<&'src str>, &'src str)>,
+    },
+    StructLiteral {
+        expr: Box<Expr<'src>>,
+        fields: Vec<(&'src str, Expr<'src>)>,
+    },
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Clone)]
 #[allow(dead_code)]
 pub enum Statement<'src> {
     VariableDeclaration {
         vtype_name: Spanned<&'src str>,
-        vtype: VarType,
+        vtype: VarType<'src>,
         name: Spanned<&'src str>,
         value: Option<Expr<'src>>,
     },

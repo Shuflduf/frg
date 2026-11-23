@@ -162,7 +162,7 @@ pub enum Token<'src> {
     #[strum(to_string = "false")]
     BoolFalse,
 
-    #[regex("[a-z_][a-zA-Z0-9_]*", |lex| lex.slice())]
+    #[regex("[a-zA-Z_][a-zA-Z0-9_]*", |lex| lex.slice())]
     Identifier(&'src str),
 
     #[regex("[0-9]+", |lex| lex.slice().parse::<i64>().map_err(|_| LexError::InvalidNumber(lex.slice().to_owned())))]

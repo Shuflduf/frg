@@ -34,7 +34,14 @@ fn run(args: RunArgs) {
 
 fn test() {
     let src = r#"
-    int ma_func = std.fdsl
+type Frog = struct {
+    int legs,,,,
+    float age,,
+}
+Frog me = Frog {
+    legs = 2,,
+    age = 0.1,
+}
     "#;
     let filename = "tester.frg";
     execute(src, filename);

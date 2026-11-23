@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use chumsky::span::Spanned;
+use chumsky::span::{SimpleSpan, Spanned};
 
 use crate::{
     ast::{
@@ -10,11 +10,13 @@ use crate::{
     errors::{Diagnostic, OpError},
 };
 
+mod struct_literal;
+
 const STD: Expression = Expression::Identifier("std");
 
 #[derive(Debug, Clone)]
 enum CustomType<'ast> {
-    StructType(HashMap<String, Variable<'ast>>),
+    StructType(Vec<(VarType<'ast>, &'ast str)>),
 }
 
 #[derive(Debug, Clone)]
@@ -25,12 +27,13 @@ enum Value<'ast> {
     Bool(bool),
     String(String),
     Type(CustomType<'ast>),
+    Struct(HashMap<String, Variable<'ast>>),
     // Module()
 }
 #[derive(Debug, Clone)]
 struct Variable<'ast> {
     vtype_name: Spanned<&'ast str>,
-    vtype: &'ast VarType,
+    vtype: VarType<'ast>,
     value: Value<'ast>,
 }
 #[derive(Debug)]
@@ -46,7 +49,8 @@ impl<'ast> Value<'_> {
             Self::Float(_) => "float",
             Self::Bool(_) => "bool",
             Self::String(_) => "str",
-            Self::Type(_) => "int",
+            Self::Type(_) => "type",
+            Self::Struct(_) => "struct",
         }
     }
     fn add(self, rhs: Self) -> Result<Self, OpError> {
@@ -209,7 +213,7 @@ fn run_statements<'ast>(
                     name.inner.to_string(),
                     Variable {
                         vtype_name: *vtype_name,
-                        vtype,
+                        vtype: vtype.clone(),
                         value: val,
                     },
                 );
@@ -240,7 +244,7 @@ fn run_statements<'ast>(
                 let value = eval(state, expr)?.clone();
                 let variable_entry = get_variable(state, variable)?;
                 let map_op_err = |e: OpError| Diagnostic::basic(e.to_string(), expr.span);
-                if !var_type_check(variable_entry.vtype, &value) {
+                if !var_type_check(&variable_entry.vtype, &value) {
                     let found = value.type_name();
                     let expected = variable_entry.vtype_name;
                     let expected_inner = variable_entry.vtype_name.inner;
@@ -297,7 +301,7 @@ fn if_branch<'ast>(
     }
 }
 
-fn eval<'ast>(state: &State<'ast>, expr: &Expr) -> Result<Value<'ast>, Diagnostic> {
+fn eval<'ast>(state: &State<'ast>, expr: &Expr<'ast>) -> Result<Value<'ast>, Diagnostic> {
     match &expr.inner {
         Expression::Identifier(name) => state
             .variables
@@ -367,6 +371,13 @@ fn eval<'ast>(state: &State<'ast>, expr: &Expr) -> Result<Value<'ast>, Diagnosti
             }
             Err(Diagnostic::new("shit"))
         }
+        Expression::StructTypeDeclaration { fields } => Ok(Value::Type(CustomType::StructType(
+            fields
+                .iter()
+                .map(|field: &(VarType, Spanned<&str>, &str)| (field.0.clone(), field.2))
+                .collect::<Vec<_>>(),
+        ))),
+        Expression::StructLiteral { expr, fields } => struct_literal::eval(expr, fields),
         _ => todo!(),
     }
 }
@@ -383,6 +394,23 @@ fn get_variable<'a, 'state>(
         _ => Err(Diagnostic::new("shit")),
     }
 }
+fn get_type<'a, 'state>(
+    state: &'a State<'state>,
+    expr: &Expr,
+) -> Result<CustomType<'state>, Diagnostic> {
+    match **expr {
+        Expression::Identifier(identifier) => match state
+            .variables
+            .get(identifier)
+            .ok_or(Diagnostic::new("var not found"))
+            .map(|var| &var.value)
+        {
+            Ok(Value::Type(vtype)) => Ok(vtype.clone()),
+            _ => Err(Diagnostic::new("this ts not type")),
+        },
+        _ => Err(Diagnostic::new("var doesnt exist")),
+    }
+}
 
 fn var_type_check(vtype: &VarType, value: &Value) -> bool {
     matches!(
@@ -391,6 +419,8 @@ fn var_type_check(vtype: &VarType, value: &Value) -> bool {
             | (VarType::Float, Value::Float(_))
             | (VarType::Bool, Value::Bool(_))
             | (VarType::Str, Value::String(_))
+            | (VarType::Type, Value::Type(_))
+            | (VarType::Custom(_), Value::Struct(_))
     )
 }
 
