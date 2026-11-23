@@ -221,21 +221,21 @@ where
                     },
                     Postfix::Index(index) => Spanned {
                         inner: Expression::IndexAccess {
-                            expr: Box::new(base),
+                            parent: Box::new(base),
                             index: Box::new(index.inner),
                         },
                         span: SimpleSpan::from(start..index.span.end),
                     },
                     Postfix::Member(member) => Spanned {
                         inner: Expression::MemberAccess {
-                            expr: Box::new(base),
+                            parent: Box::new(base),
                             member: member,
                         },
                         span: SimpleSpan::from(start..member.span.end),
                     },
                     Postfix::StructLiteral(fields) => Spanned {
                         inner: Expression::StructLiteral {
-                            expr: Box::new(base),
+                            parent: Box::new(base),
                             fields: fields.inner,
                         },
                         span: SimpleSpan::from(start..fields.span.end),
@@ -252,7 +252,7 @@ where
             Spanned {
                 inner: Expression::UnaryOperation {
                     op: UnaryOperator::Negative,
-                    expr: Box::new(rhs),
+                    right: Box::new(rhs),
                 },
                 span,
             }

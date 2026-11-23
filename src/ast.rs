@@ -72,14 +72,14 @@ pub enum Expression<'src> {
     },
     UnaryOperation {
         op: UnaryOperator,
-        expr: Box<Expr<'src>>,
+        right: Box<Expr<'src>>,
     },
     IndexAccess {
-        expr: Box<Expr<'src>>,
+        parent: Box<Expr<'src>>,
         index: Box<Expr<'src>>,
     },
     MemberAccess {
-        expr: Box<Expr<'src>>,
+        parent: Box<Expr<'src>>,
         member: Spanned<&'src str>,
     },
     FunctionLiteral {
@@ -103,7 +103,7 @@ pub enum Expression<'src> {
         fields: Vec<(VarType<'src>, Spanned<&'src str>, &'src str)>,
     },
     StructLiteral {
-        expr: Box<Expr<'src>>,
+        parent: Box<Expr<'src>>,
         fields: Vec<(&'src str, Expr<'src>)>,
     },
 }

@@ -9,8 +9,15 @@ use crate::{
     },
     errors::{Diagnostic, OpError},
 };
+use value::Value;
 
+mod binary_operation;
+mod if_statement;
 mod struct_literal;
+mod unary_operation;
+mod value;
+mod variable_assignment;
+mod variable_declaration;
 
 const STD: Expression = Expression::Identifier("std");
 
@@ -20,17 +27,6 @@ enum CustomType<'ast> {
 }
 
 #[derive(Debug, Clone)]
-enum Value<'ast> {
-    Undefined,
-    Int(i64),
-    Float(f64),
-    Bool(bool),
-    String(String),
-    Type(CustomType<'ast>),
-    Struct(HashMap<String, Variable<'ast>>),
-    // Module()
-}
-#[derive(Debug, Clone)]
 struct Variable<'ast> {
     vtype_name: Spanned<&'ast str>,
     vtype: VarType<'ast>,
@@ -39,137 +35,6 @@ struct Variable<'ast> {
 #[derive(Debug)]
 struct State<'ast> {
     variables: HashMap<String, Variable<'ast>>,
-}
-
-impl<'ast> Value<'_> {
-    fn type_name(&self) -> &'static str {
-        match self {
-            Self::Undefined => "undefined",
-            Self::Int(_) => "int",
-            Self::Float(_) => "float",
-            Self::Bool(_) => "bool",
-            Self::String(_) => "str",
-            Self::Type(_) => "type",
-            Self::Struct(_) => "struct",
-        }
-    }
-    fn add(self, rhs: Self) -> Result<Self, OpError> {
-        match (self, rhs) {
-            (Self::Int(a), Self::Int(b)) => Ok(Self::Int(a + b)),
-            (Self::Float(a), Self::Float(b)) => Ok(Self::Float(a + b)),
-            (Self::Int(a), Self::Float(b)) => Ok(Self::Float(a as f64 + b)),
-            (Self::Float(a), Self::Int(b)) => Ok(Self::Float(a + b as f64)),
-            (Self::String(a), Self::String(b)) => Ok(Self::String(a + &b)),
-            (left, right) => Err(OpError::InvalidBinaryOp {
-                op: "+",
-                left: left.type_name(),
-                right: right.type_name(),
-            }),
-        }
-    }
-    fn sub(self, rhs: Self) -> Result<Self, OpError> {
-        match (self, rhs) {
-            (Self::Int(a), Self::Int(b)) => Ok(Self::Int(a - b)),
-            (Self::Float(a), Self::Float(b)) => Ok(Self::Float(a - b)),
-            (Self::Int(a), Self::Float(b)) => Ok(Self::Float(a as f64 - b)),
-            (Self::Float(a), Self::Int(b)) => Ok(Self::Float(a - b as f64)),
-            (left, right) => Err(OpError::InvalidBinaryOp {
-                op: "-",
-                left: left.type_name(),
-                right: right.type_name(),
-            }),
-        }
-    }
-    fn mul(self, rhs: Self) -> Result<Self, OpError> {
-        match (self, rhs) {
-            (Self::Int(a), Self::Int(b)) => Ok(Self::Int(a * b)),
-            (Self::Float(a), Self::Float(b)) => Ok(Self::Float(a * b)),
-            (Self::Int(a), Self::Float(b)) => Ok(Self::Float(a as f64 * b)),
-            (Self::Float(a), Self::Int(b)) => Ok(Self::Float(a * b as f64)),
-            (left, right) => Err(OpError::InvalidBinaryOp {
-                op: "*",
-                left: left.type_name(),
-                right: right.type_name(),
-            }),
-        }
-    }
-    fn div(self, rhs: Self) -> Result<Self, OpError> {
-        match (self, rhs) {
-            (Self::Int(a), Self::Int(b)) => {
-                if b == 0 {
-                    Err(OpError::DivisionByZero)
-                } else {
-                    Ok(Self::Int(a / b))
-                }
-            }
-            (Self::Float(a), Self::Float(b)) => {
-                if b == 0.0 {
-                    Err(OpError::DivisionByZero)
-                } else {
-                    Ok(Self::Float(a / b))
-                }
-            }
-            (Self::Int(a), Self::Float(b)) => {
-                if b == 0.0 {
-                    Err(OpError::DivisionByZero)
-                } else {
-                    Ok(Self::Float(a as f64 / b))
-                }
-            }
-            (Self::Float(a), Self::Int(b)) => {
-                if b == 0 {
-                    Err(OpError::DivisionByZero)
-                } else {
-                    Ok(Self::Float(a / b as f64))
-                }
-            }
-            (left, right) => Err(OpError::InvalidBinaryOp {
-                op: "/",
-                left: left.type_name(),
-                right: right.type_name(),
-            }),
-        }
-    }
-    fn neg(self) -> Result<Self, OpError> {
-        match self {
-            Self::Int(n) => Ok(Self::Int(-n)),
-            Self::Float(n) => Ok(Self::Float(-n)),
-            other => Err(OpError::InvalidUnaryOp {
-                op: "-",
-                expr: other.type_name(),
-            }),
-        }
-    }
-
-    fn equals(&self, rhs: &Self) -> Result<bool, OpError> {
-        match (self, rhs) {
-            (Self::Int(a), Self::Int(b)) => Ok(a == b),
-            (Self::Float(a), Self::Float(b)) => Ok(a == b),
-            (Self::Int(a), Self::Float(b)) => Ok(*a as f64 == *b),
-            (Self::Float(a), Self::Int(b)) => Ok(*a == *b as f64),
-            (Self::Bool(a), Self::Bool(b)) => Ok(a == b),
-            (Self::String(a), Self::String(b)) => Ok(a == b),
-            (left, right) => Err(OpError::InvalidBinaryOp {
-                op: "==",
-                left: left.type_name(),
-                right: right.type_name(),
-            }),
-        }
-    }
-
-    fn greater(&self, rhs: &Self, op: &'static str) -> Result<bool, OpError> {
-        match (self, rhs) {
-            (Self::Int(a), Self::Int(b)) => Ok(a > b),
-            (Self::Float(a), Self::Float(b)) => Ok(a > b),
-            (Self::Int(a), Self::Float(b)) => Ok(*a as f64 > *b),
-            (Self::Float(a), Self::Int(b)) => Ok(*a > *b as f64),
-            (left, right) => Err(OpError::InvalidBinaryOp {
-                op,
-                left: left.type_name(),
-                right: right.type_name(),
-            }),
-        }
-    }
 }
 
 pub fn run(program: &[Stmt]) -> Result<i64, Diagnostic> {
@@ -188,90 +53,22 @@ fn run_statements<'ast>(
     state: &mut State<'ast>,
     stmts: &'ast [Stmt<'_>],
 ) -> Result<i64, Diagnostic> {
-    'outer: for stmt in stmts {
+    for stmt in stmts {
         match &stmt.inner {
             Statement::VariableDeclaration {
                 vtype_name,
                 vtype,
                 name,
                 value,
-            } => {
-                let mut val = Value::Undefined;
-                if let Some(value) = value {
-                    val = eval(&state, value)?;
-                    if !var_type_check(vtype, &val) {
-                        let expected = vtype_name.inner;
-                        let found = val.type_name();
-                        return Err(Diagnostic::new(format!(
-                            "cannot assign a `{found}` to a variable of type `{expected}`"
-                        ))
-                        .with_label(format!("declared as `{expected}`"), vtype_name.span)
-                        .with_label(format!("this is `{found}`"), value.span));
-                    }
-                }
-                state.variables.insert(
-                    name.inner.to_string(),
-                    Variable {
-                        vtype_name: *vtype_name,
-                        vtype: vtype.clone(),
-                        value: val,
-                    },
-                );
-            }
+            } => variable_declaration::eval(state, vtype_name, vtype, name, value)?,
             Statement::IfStatement {
                 condition,
                 body,
                 else_ifs,
                 else_body,
-            } => {
-                if let Ok(ran) = if_branch(state, condition, body)
-                    && ran
-                {
-                    continue;
-                }
-
-                for branch in else_ifs {
-                    if let Ok(ran) = if_branch(state, &branch.0, &branch.1)
-                        && ran
-                    {
-                        continue 'outer;
-                    }
-                }
-
-                _ = run_statements(state, else_body);
-            }
+            } => if_statement::eval(state, condition, body, else_ifs, else_body)?,
             Statement::VariableAssignment { variable, op, expr } => {
-                let value = eval(state, expr)?.clone();
-                let variable_entry = get_variable(state, variable)?;
-                let map_op_err = |e: OpError| Diagnostic::basic(e.to_string(), expr.span);
-                if !var_type_check(&variable_entry.vtype, &value) {
-                    let found = value.type_name();
-                    let expected = variable_entry.vtype_name;
-                    let expected_inner = variable_entry.vtype_name.inner;
-                    return Err(Diagnostic::new(format!(
-                        "cannot assign a `{found}` to a variable of type `{expected_inner}`"
-                    ))
-                    .with_label(format!("declared as `{expected_inner}`"), expected.span)
-                    .with_label(format!("this is `{found}`"), expr.span));
-                }
-                // bullshittery
-                let mut ass = |ass_func: fn(
-                    Value<'ast>,
-                    Value<'ast>,
-                ) -> Result<Value<'ast>, OpError>|
-                 -> Result<(), Diagnostic> {
-                    variable_entry.value = ass_func(variable_entry.value.clone(), value.clone())
-                        .map_err(map_op_err)?;
-                    Ok(())
-                };
-                match op {
-                    AssignmentOperator::Equals => variable_entry.value = value,
-                    AssignmentOperator::PlusEquals => ass(Value::add)?,
-                    AssignmentOperator::MinusEquals => ass(Value::sub)?,
-                    AssignmentOperator::TimesEquals => ass(Value::mul)?,
-                    AssignmentOperator::DivideEquals => ass(Value::div)?,
-                    AssignmentOperator::ModulusEquals => todo!(),
-                }
+                variable_assignment::eval(state, variable, op, expr)?
             }
             #[allow(unreachable_patterns)]
             _ => todo!(),
@@ -279,26 +76,6 @@ fn run_statements<'ast>(
     }
 
     Ok(0)
-}
-
-fn if_branch<'ast>(
-    state: &mut State<'ast>,
-    condition: &Expr<'_>,
-    body: &'ast [Stmt<'_>],
-) -> Result<bool, Diagnostic> {
-    let condition_result = eval(&state, condition)?;
-    if let Value::Bool(should_go) = condition_result {
-        if should_go {
-            _ = run_statements(state, body)?;
-            return Ok(true);
-        } else {
-            return Ok(false);
-        }
-    } else {
-        let found = condition_result.type_name();
-        return Err(Diagnostic::new(format!("if statement expects a `bool`"))
-            .with_label(format!("this is `{found}`"), condition.span));
-    }
 }
 
 fn eval<'ast>(state: &State<'ast>, expr: &Expr<'ast>) -> Result<Value<'ast>, Diagnostic> {
@@ -317,55 +94,14 @@ fn eval<'ast>(state: &State<'ast>, expr: &Expr<'ast>) -> Result<Value<'ast>, Dia
             _ => todo!(),
         },
         Expression::BinaryOperation { left, op, right } => {
-            let left = eval(state, left)?;
-            let right = eval(state, right)?;
-            let map_op_err = |e: OpError| Diagnostic::basic(e.to_string(), expr.span);
-            match op {
-                BinaryOperator::Add => left.add(right).map_err(map_op_err),
-                BinaryOperator::Subtract => left.sub(right).map_err(map_op_err),
-                BinaryOperator::Multiply => left.mul(right).map_err(map_op_err),
-                BinaryOperator::Divide => left.div(right).map_err(map_op_err),
-                BinaryOperator::Equals => Ok(Value::Bool(left.equals(&right).map_err(map_op_err)?)),
-                BinaryOperator::GreaterThan => {
-                    Ok(Value::Bool(left.greater(&right, ">").map_err(map_op_err)?))
-                }
-                BinaryOperator::LessThan => Ok(Value::Bool(
-                    !left.greater(&right, "<").map_err(map_op_err)?
-                        && !left.equals(&right).map_err(map_op_err)?,
-                )),
-                BinaryOperator::GreaterThanOrEqual => Ok(Value::Bool(
-                    left.greater(&right, ">=").map_err(map_op_err)?
-                        || left.equals(&right).map_err(map_op_err)?,
-                )),
-                BinaryOperator::LessThanOrEqual => Ok(Value::Bool(
-                    !left.greater(&right, "<=").map_err(map_op_err)?,
-                )),
-                BinaryOperator::NotEquals => {
-                    let equal = left
-                        .equals(&right)
-                        .map_err(|e| Diagnostic::basic(e.to_string(), expr.span))?;
-                    Ok(Value::Bool(!equal))
-                }
-                other => Err(Diagnostic::basic(
-                    format!("unsupported binary operator: {other:?}"),
-                    expr.span,
-                )),
-            }
+            binary_operation::eval(state, expr.span, left, op, right)
         }
-        Expression::UnaryOperation { op, expr: inner } => {
-            let value = eval(state, inner)?;
-            let map_op_err = |e: OpError| Diagnostic::basic(e.to_string(), expr.span);
-            match op {
-                UnaryOperator::Negative => value.neg().map_err(map_op_err),
-                other => Err(Diagnostic::basic(
-                    format!("unsupported unary operator: {other:?}"),
-                    expr.span,
-                )),
-            }
+        Expression::UnaryOperation { op, right } => {
+            unary_operation::eval(state, expr.span, op, right)
         }
-        Expression::MemberAccess { expr, member } => {
-            if let Expression::Identifier(id) = expr.inner
-                && id == "std"
+        Expression::MemberAccess { parent, member } => {
+            if let STD = parent.inner
+                && member.inner == "debug"
             {
                 return Ok(Value::Int(1));
             }
@@ -377,7 +113,7 @@ fn eval<'ast>(state: &State<'ast>, expr: &Expr<'ast>) -> Result<Value<'ast>, Dia
                 .map(|field: &(VarType, Spanned<&str>, &str)| (field.0.clone(), field.2))
                 .collect::<Vec<_>>(),
         ))),
-        Expression::StructLiteral { expr, fields } => struct_literal::eval(state, expr, fields),
+        Expression::StructLiteral { parent, fields } => struct_literal::eval(state, parent, fields),
         _ => todo!(),
     }
 }
@@ -394,6 +130,7 @@ fn get_variable<'a, 'state>(
         _ => Err(Diagnostic::new("shit")),
     }
 }
+
 fn get_type<'a, 'state>(
     state: &'a State<'state>,
     expr: &Expr,

@@ -1,23 +1,15 @@
-use std::collections::HashMap;
-
-use chumsky::span::{SimpleSpan, Spanned};
-
-use crate::{
-    ast::Expr,
-    errors::Diagnostic,
-    interpreter::{self, CustomType, State, Value, Variable, get_type, var_type_check},
-};
+use super::*;
 
 pub fn eval<'ast>(
     state: &State<'ast>,
-    expr: &Box<Expr<'ast>>,
+    parent: &Box<Expr<'ast>>,
     fields: &Vec<(&'ast str, Expr<'ast>)>,
 ) -> Result<Value<'ast>, Diagnostic> {
-    if let Ok(CustomType::StructType(vtype)) = get_type(&state, &expr) {
+    if let Ok(CustomType::StructType(vtype)) = get_type(&state, &parent) {
         println!("{vtype:?}");
         let mut struct_fields = HashMap::new();
         for (field_name, field_value) in fields {
-            let field_value = interpreter::eval(state, &field_value)?;
+            let field_value = super::eval(state, &field_value)?;
             let field_type = vtype.iter().find(|t| t.1 == *field_name).unwrap().0.clone();
             if !var_type_check(&field_type, &field_value) {
                 return Err(Diagnostic::new("shittter"));
