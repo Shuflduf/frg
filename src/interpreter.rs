@@ -106,32 +106,12 @@ fn eval<'ast>(state: &State<'ast>, expr: &Expr<'ast>) -> Result<Value<'ast>, Dia
                         return Ok(Value::Int(1));
                     }
                 }
-                Expression::StructLiteral {
-                    parent: _struct_name,
-                    fields,
-                } => {
-                    return Ok(eval(
-                        state,
-                        &fields
-                            .iter()
-                            .find(|(name, _)| *name == member.inner)
-                            .unwrap()
-                            .1,
-                    )?);
-                }
-                _other => {} // Expression::Identifier(id) => get_variable(&mut state, id),
-                             // other => {
-                             //     match get_variable(&mut state, other) {}
-                             //     todo!("{other:?}")
-                             // }
+                _other => {}
             }
             match eval(state, parent)? {
                 Value::Struct(vars) => return Ok(vars.get(member.inner).unwrap().value.clone()),
-
                 other => todo!("{other:?}"),
             };
-            // println!("{parent:?}");
-            Err(Diagnostic::new("shit"))
         }
         Expression::StructTypeDeclaration { fields } => Ok(Value::Type(CustomType::StructType(
             fields

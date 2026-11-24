@@ -17,7 +17,6 @@ enum Postfix<'src> {
     Call(Spanned<Vec<Expr<'src>>>),
     Index(Spanned<Expr<'src>>),
     Member(Spanned<&'src str>),
-    StructLiteral(Spanned<Vec<(&'src str, Expr<'src>)>>),
 }
 
 fn binary<'src>(lhs: Expr<'src>, op: BinaryOperator, rhs: Expr<'src>) -> Expr<'src> {
@@ -135,7 +134,31 @@ where
         .boxed();
     let bool_literal: P<'src, I, Expression<'src>> = choice((bool_true, bool_false)).boxed();
 
+    let struct_literal = expr
+        .clone()
+        .then(
+            choice((
+                name.clone()
+                    .then_ignore(tok(Token::Equals))
+                    .then(expr.clone())
+                    .map(Some),
+                tok(Token::Comma).map(|_| None),
+            ))
+            .repeated()
+            .collect::<Vec<_>>()
+            .map(|items| items.into_iter().flatten().collect::<Vec<_>>())
+            .delimited_by(left_brace.clone(), right_brace.clone()),
+        )
+        .map_with(|fields, e| Expression::StructLiteral {
+            parent: Box::new(fields.0),
+            fields: fields.1,
+        })
+        .labelled("struct literal")
+        .as_context()
+        .boxed();
+
     let atom = choice((
+        struct_literal,
         int_literal.spanned(),
         float_literal.spanned(),
         bool_literal.spanned(),
@@ -185,64 +208,33 @@ where
         .as_context()
         .boxed();
 
-    let struct_literal = choice((
-        name.clone()
-            .then_ignore(tok(Token::Equals))
-            .then(expr.clone())
-            .map(Some),
-        tok(Token::Comma).map(|_| None),
-    ))
-    .repeated()
-    .collect::<Vec<_>>()
-    .map(|items| items.into_iter().flatten().collect::<Vec<_>>())
-    .delimited_by(left_brace.clone(), right_brace.clone())
-    .map_with(|fields, e| {
-        Postfix::StructLiteral(Spanned {
-            inner: fields,
-            span: e.span(),
-        })
-    })
-    .labelled("struct literal")
-    .as_context()
-    .boxed();
-
     let postfix = atom
-        .foldl(
-            choice((func_args, index, member, struct_literal)).repeated(),
-            |base, op| {
-                let start = base.span.start;
-                match op {
-                    Postfix::Call(params) => Spanned {
-                        inner: Expression::FunctionCall {
-                            function: Box::new(base),
-                            params: params.inner,
-                        },
-                        span: SimpleSpan::from(start..params.span.end),
+        .foldl(choice((func_args, index, member)).repeated(), |base, op| {
+            let start = base.span.start;
+            match op {
+                Postfix::Call(params) => Spanned {
+                    inner: Expression::FunctionCall {
+                        function: Box::new(base),
+                        params: params.inner,
                     },
-                    Postfix::Index(index) => Spanned {
-                        inner: Expression::IndexAccess {
-                            parent: Box::new(base),
-                            index: Box::new(index.inner),
-                        },
-                        span: SimpleSpan::from(start..index.span.end),
+                    span: SimpleSpan::from(start..params.span.end),
+                },
+                Postfix::Index(index) => Spanned {
+                    inner: Expression::IndexAccess {
+                        parent: Box::new(base),
+                        index: Box::new(index.inner),
                     },
-                    Postfix::Member(member) => Spanned {
-                        inner: Expression::MemberAccess {
-                            parent: Box::new(base),
-                            member: member,
-                        },
-                        span: SimpleSpan::from(start..member.span.end),
+                    span: SimpleSpan::from(start..index.span.end),
+                },
+                Postfix::Member(member) => Spanned {
+                    inner: Expression::MemberAccess {
+                        parent: Box::new(base),
+                        member: member,
                     },
-                    Postfix::StructLiteral(fields) => Spanned {
-                        inner: Expression::StructLiteral {
-                            parent: Box::new(base),
-                            fields: fields.inner,
-                        },
-                        span: SimpleSpan::from(start..fields.span.end),
-                    },
-                }
-            },
-        )
+                    span: SimpleSpan::from(start..member.span.end),
+                },
+            }
+        })
         .boxed();
 
     let unary = minus.clone().to_span().repeated().foldr(
@@ -292,31 +284,6 @@ where
 
     let boring_expr = comparison.labelled("expression").as_context().boxed();
 
-    let struct_type_decl = tok(Token::StructDecl)
-        .ignore_then(
-            choice((
-                vtype.then(name.clone()).map(Some),
-                tok(Token::Comma).map(|_| None),
-            ))
-            .repeated()
-            .collect::<Vec<_>>()
-            .map(|items| {
-                items
-                    .into_iter()
-                    .flatten()
-                    .map(|((vtype, vtype_name), field_name)| (vtype, vtype_name, field_name))
-                    .collect::<Vec<_>>()
-            })
-            .delimited_by(left_brace.clone(), right_brace.clone()),
-        )
-        .map_with(|fields, e| Spanned {
-            inner: Expression::StructTypeDeclaration { fields },
-            span: e.span(),
-        })
-        .labelled("struct type")
-        .as_context()
-        .boxed();
-
     choice((struct_type_decl, boring_expr)).boxed()
 }
 
@@ -328,28 +295,55 @@ where
     I: BorrowInput<'src, Token = Token<'src>, Span = SimpleSpan> + ValueInput<'src>,
     EP: Parser<'src, I, Expr<'src>, extra::Err<Rich<'src, Token<'src>>>> + 'src,
 {
-    let vtype_token: P<'src, I, VarType> = choice((
-        just(Token::IntType).to(VarType::Int),
-        just(Token::FloatType).to(VarType::Float),
-        just(Token::BoolType).to(VarType::Bool),
-        just(Token::StringType).to(VarType::Str),
-        just(Token::TypeType).to(VarType::Type),
-        expr.map(VarType::Custom),
-    ))
-    .boxed();
-
-    vtype_token
-        .map_with(move |vtype, e| {
-            let span = e.span();
-            (
-                vtype,
-                Spanned {
-                    inner: &src[span.into_range()],
-                    span: span,
-                },
+    recursive(|vtype| {
+        let struct_type_decl = tok(Token::StructDecl)
+            .ignore_then(
+                choice((
+                    vtype.then(name.clone()).map(Some),
+                    tok(Token::Comma).map(|_| None),
+                ))
+                .repeated()
+                .collect::<Vec<_>>()
+                .map(|items| {
+                    items
+                        .into_iter()
+                        .flatten()
+                        .map(|((vtype, vtype_name), field_name)| (vtype, vtype_name, field_name))
+                        .collect::<Vec<_>>()
+                })
+                .delimited_by(left_brace.clone(), right_brace.clone()),
             )
-        })
-        .boxed()
+            .map_with(|fields, e| Spanned {
+                inner: Expression::StructTypeDeclaration { fields },
+                span: e.span(),
+            })
+            .labelled("struct type")
+            .as_context()
+            .boxed();
+
+        let vtype_token: P<'src, I, VarType> = choice((
+            just(Token::IntType).to(VarType::Int),
+            just(Token::FloatType).to(VarType::Float),
+            just(Token::BoolType).to(VarType::Bool),
+            just(Token::StringType).to(VarType::Str),
+            just(Token::TypeType).to(VarType::Type),
+            expr.map(VarType::Custom),
+        ))
+        .boxed();
+
+        vtype_token
+            .map_with(move |vtype, e| {
+                let span = e.span();
+                (
+                    vtype,
+                    Spanned {
+                        inner: &src[span.into_range()],
+                        span: span,
+                    },
+                )
+            })
+            .boxed()
+    })
 }
 
 fn statement_parser<'src, I>(

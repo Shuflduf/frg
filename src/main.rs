@@ -38,11 +38,12 @@ type Frog = struct {
     int legs,,,,
     float age,,
 }
-Frog me = Frog {
+int me = Frog {
     legs = 2,,
     age = 0.1,
 }
 int feet = me.legs
+float seconds = me.age
     "#;
     let filename = "tester.frg";
     execute(src, filename);
