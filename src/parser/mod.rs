@@ -17,6 +17,7 @@ enum Postfix<'src> {
     Call(Spanned<Vec<Expr<'src>>>),
     Index(Spanned<Expr<'src>>),
     Member(Spanned<&'src str>),
+    StructLiteral(Spanned<Vec<(&'src str, Expr<'src>)>>),
 }
 
 fn binary<'src>(lhs: Expr<'src>, op: BinaryOperator, rhs: Expr<'src>) -> Expr<'src> {
@@ -39,7 +40,13 @@ where
         just(Token::IntType),
         just(Token::FloatType),
         just(Token::BoolType),
+        just(Token::StringType),
+        just(Token::ListType),
+        just(Token::TypeType),
+        just(Token::VoidType),
+        just(Token::StructDecl),
         just(Token::If),
+        just(Token::Return),
     ))
     .ignored()
     .boxed();
@@ -97,14 +104,16 @@ where
     just(token).to(()).boxed()
 }
 
-fn expr_parser<'src, I, EP>(
+fn expr_parser<'src, I, EP, BP>(
     _src: &'src str,
     expr: EP,
     vtype: P<'src, I, (VarType<'src>, Spanned<&'src str>)>,
+    block: BP,
 ) -> P<'src, I, Expr<'src>>
 where
     I: BorrowInput<'src, Token = Token<'src>, Span = SimpleSpan> + ValueInput<'src>,
     EP: Parser<'src, I, Expr<'src>, extra::Err<Rich<'src, Token<'src>>>> + Clone + 'src,
+    BP: Parser<'src, I, Vec<Stmt<'src>>, extra::Err<Rich<'src, Token<'src>>>> + Clone + 'src,
 {
     let int_literal =
         select_ref! { Token::IntLiteral(n) => Expression::Literal(Literal::Int(*n)) }.boxed();
@@ -126,6 +135,21 @@ where
     let right_bracket = tok(Token::RightBracket);
     let left_brace = tok(Token::LeftBrace);
     let right_brace = tok(Token::RightBrace);
+
+    let type_literal = |type_token, type_vtype: VarType<'src>| {
+        just(type_token)
+            .map(move |_| Expression::TypeLiteral(Box::new(type_vtype.clone())))
+            .spanned()
+            .boxed()
+    };
+    let void_type = type_literal(Token::VoidType, VarType::Void);
+    let int_type = type_literal(Token::IntType, VarType::Int);
+    let float_type = type_literal(Token::FloatType, VarType::Float);
+    let bool_type = type_literal(Token::BoolType, VarType::Bool);
+    let string_type = type_literal(Token::StringType, VarType::Str);
+    let type_type = type_literal(Token::TypeType, VarType::Type);
+    let list_type = type_literal(Token::ListType, VarType::List);
+
     let bool_true: P<'src, I, Expression<'src>> = just(Token::BoolTrue)
         .map(|_| Expression::Literal(Literal::Bool(true)))
         .boxed();
@@ -133,32 +157,93 @@ where
         .map(|_| Expression::Literal(Literal::Bool(false)))
         .boxed();
     let bool_literal: P<'src, I, Expression<'src>> = choice((bool_true, bool_false)).boxed();
+    let undefined = just(Token::Undefined)
+        .map(|_| Expression::Literal(Literal::Undefined))
+        .spanned()
+        .boxed();
 
-    let struct_literal = expr
+    // let struct_literal = expr
+    //     .clone()
+    //     .then(
+    //         choice((
+    //             name.clone()
+    //                 .then_ignore(tok(Token::Equals))
+    //                 .then(expr.clone())
+    //                 .map(Some),
+    //             tok(Token::Comma).map(|_| None),
+    //         ))
+    //         .repeated()
+    //         .collect::<Vec<_>>()
+    //         .map(|items| items.into_iter().flatten().collect::<Vec<_>>())
+    //         .delimited_by(left_brace.clone(), right_brace.clone()),
+    //     )
+    //     .map_with(|fields, e| Expression::StructLiteral {
+    //         parent: Box::new(fields.0),
+    //         fields: fields.1,
+    //     })
+    //     .labelled("struct literal")
+    //     .as_context()
+    //     .boxed();
+    let struct_field = vtype
         .clone()
-        .then(
-            choice((
-                name.clone()
-                    .then_ignore(tok(Token::Equals))
-                    .then(expr.clone())
-                    .map(Some),
-                tok(Token::Comma).map(|_| None),
-            ))
-            .repeated()
-            .collect::<Vec<_>>()
-            .map(|items| items.into_iter().flatten().collect::<Vec<_>>())
-            .delimited_by(left_brace.clone(), right_brace.clone()),
-        )
-        .map_with(|fields, e| Expression::StructLiteral {
-            parent: Box::new(fields.0),
-            fields: fields.1,
+        .then(name.clone().spanned())
+        .map(|((vtype, vtype_name), field_name)| (vtype, vtype_name, field_name.inner));
+    let struct_fields = choice((struct_field.map(Some), tok(Token::Comma).map(|_| None)))
+        .repeated()
+        .at_least(1)
+        .collect::<Vec<_>>()
+        .map(|items| items.into_iter().flatten().collect::<Vec<_>>())
+        .delimited_by(left_brace.clone(), right_brace.clone());
+
+    let struct_type_decl = tok(Token::StructDecl)
+        .ignore_then(struct_fields)
+        .map_with(|fields, e| Spanned {
+            inner: Expression::StructTypeDeclaration { fields },
+            span: e.span(),
         })
-        .labelled("struct literal")
+        .labelled("struct type")
+        .as_context()
+        .boxed();
+
+    let function_literal = choice((name.clone().map(Some), tok(Token::Comma).map(|_| None)))
+        .repeated()
+        .collect::<Vec<_>>()
+        .map(|items| items.into_iter().flatten().collect::<Vec<_>>())
+        .delimited_by(tok(Token::Pipe), tok(Token::Pipe))
+        .then(block)
+        .map_with(|(params, body), e| Spanned {
+            inner: Expression::FunctionLiteral { params, body },
+            span: e.span(),
+        })
+        .labelled("function literal")
+        .as_context()
+        .boxed();
+
+    let vec_literal = choice((expr.clone().map(Some), tok(Token::Comma).map(|_| None)))
+        .repeated()
+        .collect::<Vec<_>>()
+        .map(|items| items.into_iter().flatten().collect::<Vec<_>>())
+        .delimited_by(left_bracket.clone(), right_bracket.clone())
+        .map_with(|values, e| Spanned {
+            inner: Expression::VecLiteral(values),
+            span: e.span(),
+        })
+        .labelled("vec literal")
         .as_context()
         .boxed();
 
     let atom = choice((
-        struct_literal,
+        struct_type_decl,
+        function_literal,
+        vec_literal,
+        void_type,
+        int_type,
+        float_type,
+        bool_type,
+        string_type,
+        type_type,
+        list_type,
+        undefined,
         int_literal.spanned(),
         float_literal.spanned(),
         bool_literal.spanned(),
@@ -185,6 +270,30 @@ where
     .as_context()
     .boxed();
 
+    let struct_literal_fields = choice((
+        name.clone()
+            .then_ignore(tok(Token::Equals))
+            .then(expr.clone())
+            .map(Some),
+        tok(Token::Comma).map(|_| None),
+    ))
+    .repeated()
+    .at_least(1)
+    .collect::<Vec<_>>()
+    .map(|items| items.into_iter().flatten().collect::<Vec<_>>())
+    .delimited_by(left_brace, right_brace);
+
+    let struct_literal = struct_literal_fields
+        .map_with(|fields, e| {
+            Postfix::StructLiteral(Spanned {
+                inner: fields,
+                span: e.span(),
+            })
+        })
+        .labelled("struct literal")
+        .as_context()
+        .boxed();
+
     let index = expr
         .clone()
         .delimited_by(left_bracket, right_bracket)
@@ -209,47 +318,65 @@ where
         .boxed();
 
     let postfix = atom
-        .foldl(choice((func_args, index, member)).repeated(), |base, op| {
-            let start = base.span.start;
-            match op {
-                Postfix::Call(params) => Spanned {
-                    inner: Expression::FunctionCall {
-                        function: Box::new(base),
-                        params: params.inner,
+        .foldl(
+            choice((func_args, index, member, struct_literal)).repeated(),
+            |base, op| {
+                let start = base.span.start;
+                match op {
+                    Postfix::Call(params) => Spanned {
+                        inner: Expression::FunctionCall {
+                            function: Box::new(base),
+                            params: params.inner,
+                        },
+                        span: SimpleSpan::from(start..params.span.end),
                     },
-                    span: SimpleSpan::from(start..params.span.end),
-                },
-                Postfix::Index(index) => Spanned {
-                    inner: Expression::IndexAccess {
-                        parent: Box::new(base),
-                        index: Box::new(index.inner),
+                    Postfix::Index(index) => Spanned {
+                        inner: Expression::IndexAccess {
+                            parent: Box::new(base),
+                            index: Box::new(index.inner),
+                        },
+                        span: SimpleSpan::from(start..index.span.end),
                     },
-                    span: SimpleSpan::from(start..index.span.end),
-                },
-                Postfix::Member(member) => Spanned {
-                    inner: Expression::MemberAccess {
-                        parent: Box::new(base),
-                        member: member,
+                    Postfix::Member(member) => Spanned {
+                        inner: Expression::MemberAccess {
+                            parent: Box::new(base),
+                            member: member,
+                        },
+                        span: SimpleSpan::from(start..member.span.end),
                     },
-                    span: SimpleSpan::from(start..member.span.end),
-                },
-            }
-        })
+                    Postfix::StructLiteral(fields) => Spanned {
+                        inner: Expression::StructLiteral {
+                            parent: Box::new(base),
+                            fields: fields.inner,
+                        },
+                        span: SimpleSpan::from(start..fields.span.end),
+                    },
+                }
+            },
+        )
         .boxed();
 
-    let unary = minus.clone().to_span().repeated().foldr(
-        postfix,
-        |op_span: SimpleSpan, rhs: Spanned<Expression<'_>>| {
+    let unary_op = choice((
+        tok(Token::Minus).to(UnaryOperator::Negative),
+        tok(Token::Star).to(UnaryOperator::Dereference),
+        tok(Token::Ampersand).to(UnaryOperator::Reference),
+        tok(Token::Exclamation).to(UnaryOperator::Not),
+    ))
+    .map_with(|op, e| (op, e.span()))
+    .boxed();
+
+    let unary = unary_op
+        .repeated()
+        .foldr(postfix, |(op, op_span), rhs: Expr<'src>| {
             let span = SimpleSpan::from(op_span.start..rhs.span.end);
             Spanned {
                 inner: Expression::UnaryOperation {
-                    op: UnaryOperator::Negative,
+                    op,
                     right: Box::new(rhs),
                 },
                 span,
             }
-        },
-    );
+        });
     let product = unary.clone().foldl(
         choice((
             star.to(BinaryOperator::Multiply),
@@ -282,9 +409,7 @@ where
         |lhs, (op, rhs)| binary(lhs, op, rhs),
     );
 
-    let boring_expr = comparison.labelled("expression").as_context().boxed();
-
-    choice((struct_type_decl, boring_expr)).boxed()
+    comparison.labelled("expression").as_context().boxed()
 }
 
 fn type_parser<'src, I, EP>(
@@ -295,55 +420,18 @@ where
     I: BorrowInput<'src, Token = Token<'src>, Span = SimpleSpan> + ValueInput<'src>,
     EP: Parser<'src, I, Expr<'src>, extra::Err<Rich<'src, Token<'src>>>> + 'src,
 {
-    recursive(|vtype| {
-        let struct_type_decl = tok(Token::StructDecl)
-            .ignore_then(
-                choice((
-                    vtype.then(name.clone()).map(Some),
-                    tok(Token::Comma).map(|_| None),
-                ))
-                .repeated()
-                .collect::<Vec<_>>()
-                .map(|items| {
-                    items
-                        .into_iter()
-                        .flatten()
-                        .map(|((vtype, vtype_name), field_name)| (vtype, vtype_name, field_name))
-                        .collect::<Vec<_>>()
-                })
-                .delimited_by(left_brace.clone(), right_brace.clone()),
+    expr.map(VarType::Custom)
+        .map_with(move |vtype, e| {
+            let span = e.span();
+            (
+                vtype,
+                Spanned {
+                    inner: &src[span.into_range()],
+                    span: span,
+                },
             )
-            .map_with(|fields, e| Spanned {
-                inner: Expression::StructTypeDeclaration { fields },
-                span: e.span(),
-            })
-            .labelled("struct type")
-            .as_context()
-            .boxed();
-
-        let vtype_token: P<'src, I, VarType> = choice((
-            just(Token::IntType).to(VarType::Int),
-            just(Token::FloatType).to(VarType::Float),
-            just(Token::BoolType).to(VarType::Bool),
-            just(Token::StringType).to(VarType::Str),
-            just(Token::TypeType).to(VarType::Type),
-            expr.map(VarType::Custom),
-        ))
-        .boxed();
-
-        vtype_token
-            .map_with(move |vtype, e| {
-                let span = e.span();
-                (
-                    vtype,
-                    Spanned {
-                        inner: &src[span.into_range()],
-                        span: span,
-                    },
-                )
-            })
-            .boxed()
-    })
+        })
+        .boxed()
 }
 
 fn statement_parser<'src, I>(
@@ -359,25 +447,27 @@ where
     let if_kw = tok(Token::If);
     let else_kw = tok(Token::Else);
 
-    let mut rec = Recursive::declare();
-    let vtype = type_parser(src, rec.clone());
-    let expr = expr_parser(src, rec.clone(), vtype.clone());
-    rec.define(expr);
+    let mut expr_rec = Recursive::declare();
+    let mut stmt_rec = Recursive::declare();
 
-    let statement: P<'src, I, Option<Stmt<'src>>> = recursive(|statement| {
-        let block = statement
-            .clone()
-            .repeated()
-            .collect::<Vec<Option<Stmt<'src>>>>()
-            .map(|statements| statements.into_iter().flatten().collect::<Vec<_>>())
-            .delimited_by(left_brace, right_brace)
-            .labelled("block")
-            .as_context()
-            .boxed();
+    let vtype = type_parser(src, expr_rec.clone());
+    let block = stmt_rec
+        .clone()
+        .repeated()
+        .collect::<Vec<Option<Stmt<'src>>>>()
+        .map(|statements| statements.into_iter().flatten().collect::<Vec<_>>())
+        .delimited_by(left_brace, right_brace)
+        .labelled("block")
+        .as_context()
+        .boxed();
 
+    let expr = expr_parser(src, expr_rec.clone(), vtype.clone(), block.clone());
+    expr_rec.define(expr);
+
+    let statement_body: P<'src, I, Option<Stmt<'src>>> = {
         let var_decl = vtype
             .then(name.spanned())
-            .then(equals_assign.ignored().then(rec.clone()).or_not())
+            .then(equals_assign.ignored().then(expr_rec.clone()).or_not())
             .map(
                 |((decl_vtype, decl_name), decl_value)| Statement::VariableDeclaration {
                     vtype_name: decl_vtype.1,
@@ -391,7 +481,7 @@ where
             .spanned()
             .boxed();
 
-        let var_assign = rec
+        let var_assign = expr_rec
             .clone()
             .then(choice((
                 tok(Token::Equals).to(AssignmentOperator::Equals),
@@ -401,20 +491,34 @@ where
                 tok(Token::SlashEquals).to(AssignmentOperator::DivideEquals),
                 tok(Token::PercentEquals).to(AssignmentOperator::ModulusEquals),
             )))
-            .then(rec.clone())
+            .then(expr_rec.clone())
             .map(|((variable, op), expr)| Statement::VariableAssignment { variable, op, expr })
             .labelled("variable assignment")
             .as_context()
             .spanned()
             .boxed();
 
+        let return_stmt = tok(Token::Return)
+            .ignore_then(expr_rec.clone())
+            .map(Statement::Return)
+            .labelled("return statement")
+            .as_context()
+            .spanned()
+            .boxed();
+
+        let standalone_expr = expr_rec
+            .clone()
+            .map(Statement::StandaloneExpression)
+            .spanned()
+            .boxed();
+
         let else_if = else_kw
             .clone()
             .ignore_then(if_kw.clone())
-            .ignore_then(rec.clone())
+            .ignore_then(expr_rec.clone())
             .then(block.clone());
         let if_stmt = if_kw
-            .ignore_then(rec.clone())
+            .ignore_then(expr_rec.clone())
             .then(block.clone())
             .then(else_if.repeated().collect::<Vec<_>>())
             .then(else_kw.ignore_then(block).or_not())
@@ -431,16 +535,18 @@ where
             .spanned()
             .boxed();
 
-        choice((var_decl, var_assign, if_stmt))
+        choice((return_stmt, var_decl, var_assign, if_stmt, standalone_expr))
+            .then_ignore(tok(Token::Semicolon).or_not())
             .map(Some)
             .labelled("statement")
             .as_context()
             .recover_with(via_parser(recovery_parser()))
             .boxed()
-    })
+    }
     .boxed();
+    stmt_rec.define(statement_body);
 
-    statement
+    stmt_rec
         .repeated()
         .collect::<Vec<Option<Stmt<'src>>>>()
         .map(|statements| statements.into_iter().flatten().collect::<Vec<_>>())

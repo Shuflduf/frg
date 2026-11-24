@@ -98,9 +98,18 @@ pub enum Token<'src> {
     #[token(",")]
     #[strum(to_string = ",")]
     Comma,
+    #[token(";")]
+    #[strum(to_string = ";")]
+    Semicolon,
     #[token(".")]
     #[strum(to_string = ".")]
     Period,
+    #[token("|")]
+    #[strum(to_string = "|")]
+    Pipe,
+    #[token("&")]
+    #[strum(to_string = "&")]
+    Ampersand,
 
     #[token("==")]
     #[strum(to_string = "==")]
@@ -141,6 +150,9 @@ pub enum Token<'src> {
     #[token("type")]
     #[strum(to_string = "type")]
     TypeType,
+    #[token("void")]
+    #[strum(to_string = "void")]
+    VoidType,
     #[token("struct")]
     #[strum(to_string = "struct")]
     StructDecl,
@@ -154,6 +166,9 @@ pub enum Token<'src> {
     #[token("else")]
     #[strum(to_string = "else")]
     Else,
+    #[token("return")]
+    #[strum(to_string = "return")]
+    Return,
 
     #[token("true")]
     #[strum(to_string = "true")]
@@ -161,6 +176,9 @@ pub enum Token<'src> {
     #[token("false")]
     #[strum(to_string = "false")]
     BoolFalse,
+    #[token("undefined")]
+    #[strum(to_string = "undefined")]
+    Undefined,
 
     #[regex("[a-zA-Z_][a-zA-Z0-9_]*", |lex| lex.slice())]
     Identifier(&'src str),

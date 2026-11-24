@@ -12,6 +12,7 @@ pub enum VarType<'src> {
     Str,
     Bool,
     Type,
+    List,
     Custom(Expr<'src>),
 }
 
@@ -22,6 +23,7 @@ pub enum Literal {
     Float(f64),
     Str(String),
     Bool(bool),
+    Undefined,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -65,6 +67,7 @@ pub enum AssignmentOperator {
 pub enum Expression<'src> {
     Identifier(&'src str),
     Literal(Literal),
+    TypeLiteral(Box<VarType<'src>>),
     BinaryOperation {
         left: Box<Expr<'src>>,
         op: BinaryOperator,
@@ -128,4 +131,6 @@ pub enum Statement<'src> {
         op: AssignmentOperator,
         expr: Expr<'src>,
     },
+    Return(Expr<'src>),
+    StandaloneExpression(Expr<'src>),
 }
