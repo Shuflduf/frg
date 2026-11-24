@@ -20,7 +20,10 @@ pub fn eval<'ast>(
     super::exec_statements(state, else_body)
 }
 
-fn condition_true<'ast>(state: &mut State<'ast>, condition: &Expr<'_>) -> Result<bool, Diagnostic> {
+fn condition_true<'ast>(
+    state: &mut State<'ast>,
+    condition: &Expr<'ast>,
+) -> Result<bool, Diagnostic> {
     match super::eval(state, condition)? {
         Value::Bool(value) => Ok(value),
         other => Err(Diagnostic::new("if statement expects a `bool`")

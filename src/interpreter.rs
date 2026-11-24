@@ -361,6 +361,34 @@ fn type_of_value<'ast>(value: &Value<'ast>) -> TypeValue<'ast> {
     }
 }
 
+fn value_matches_type<'ast>(vtype: &TypeValue<'ast>, value: &Value<'ast>) -> bool {
+    match (vtype, value) {
+        (TypeValue::Primitive(VarType::Void), Value::Undefined) => true,
+        (TypeValue::Primitive(VarType::Int), Value::Int(_)) => true,
+        (TypeValue::Primitive(VarType::Float), Value::Float(_)) => true,
+        (TypeValue::Primitive(VarType::Bool), Value::Bool(_)) => true,
+        (TypeValue::Primitive(VarType::Str), Value::String(_)) => true,
+        (TypeValue::Primitive(VarType::Type), Value::Type(_)) => true,
+        (TypeValue::Primitive(VarType::List), Value::List(_)) => true,
+        (TypeValue::Primitive(_), _) => false,
+        (TypeValue::List(elem), Value::List(values)) => {
+            values.iter().all(|value| value_matches_type(elem, value))
+        }
+        (TypeValue::Struct(fields), Value::Struct(values)) => {
+            fields.len() == values.len()
+                && fields.iter().all(|(field_type, field_name)| {
+                    values
+                        .get(*field_name)
+                        .is_some_and(|var| value_matches_type(field_type, &var.value))
+                })
+        }
+        // TODO
+        (TypeValue::Function { .. }, Value::Function(_)) => true,
+        (TypeValue::Reference(_), Value::Reference(_)) => true,
+        _ => false,
+    }
+}
+
 fn type_arguments<'ast>(
     state: &mut State<'ast>,
     span: SimpleSpan,

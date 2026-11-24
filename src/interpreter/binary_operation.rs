@@ -1,13 +1,13 @@
 use super::*;
 pub fn eval<'ast>(
-    state: &State<'ast>,
+    state: &mut State<'ast>,
     span: SimpleSpan,
-    left: &Box<Expr<'ast>>,
+    left: &Expr<'ast>,
     op: &BinaryOperator,
-    right: &Box<Expr<'ast>>,
+    right: &Expr<'ast>,
 ) -> Result<Value<'ast>, Diagnostic> {
-    let left = super::eval(state, &left)?;
-    let right = super::eval(state, &right)?;
+    let left = super::eval(state, left)?;
+    let right = super::eval(state, right)?;
     let map_op_err = |e: OpError| Diagnostic::basic(e.to_string(), span);
     match op {
         BinaryOperator::Add => left.add(right).map_err(map_op_err),
