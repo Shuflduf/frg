@@ -6,10 +6,10 @@ pub fn eval<'ast>(
     op: &AssignmentOperator,
     expr: &Expr<'ast>,
 ) -> Result<(), Diagnostic> {
-    let value = super::eval(state, expr)?.clone();
+    let value = super::eval(state, expr)?;
     let variable_entry = get_variable(state, variable)?;
     let map_op_err = |e: OpError| Diagnostic::basic(e.to_string(), expr.span);
-    if !var_type_check(&variable_entry.vtype, &value) {
+    if !value_matches_type(&variable_entry.vtype, &value) {
         let found = value.type_name();
         let expected = variable_entry.vtype_name;
         let expected_inner = variable_entry.vtype_name.inner;

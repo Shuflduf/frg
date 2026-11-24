@@ -21,6 +21,7 @@ mod variable_declaration;
 
 const STD: Expression = Expression::Identifier("std");
 
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 pub enum TypeValue<'ast> {
     Primitive(VarType<'ast>),

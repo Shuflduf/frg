@@ -38,7 +38,7 @@ type Frog = struct {
     int legs,,,,
     float age,,
 }
-int me = Frog {
+Frog me = Frog {
     legs = 2,,
     age = 0.1,
 }
