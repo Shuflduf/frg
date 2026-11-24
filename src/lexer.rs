@@ -169,6 +169,9 @@ pub enum Token<'src> {
     #[token("return")]
     #[strum(to_string = "return")]
     Return,
+    #[token("mod")]
+    #[strum(to_string = "mod")]
+    Module,
 
     #[token("true")]
     #[strum(to_string = "true")]
