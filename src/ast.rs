@@ -120,7 +120,7 @@ pub enum Statement<'src> {
         name: Spanned<&'src str>,
         value: Option<Expr<'src>>,
     },
-    IfStatement {
+    If {
         condition: Expr<'src>,
         body: Vec<Stmt<'src>>,
         else_ifs: Vec<(Expr<'src>, Vec<Stmt<'src>>)>,

@@ -58,7 +58,7 @@ pub fn run<'ast>(program: &[Stmt<'ast>]) -> Result<i64, Diagnostic> {
 
     let result = exec_statements(&mut state, program).map(|_| 0);
 
-    println!("{state:#?}");
+    // println!("{state:#?}");
 
     result
 }
@@ -75,7 +75,7 @@ fn exec_statements<'ast>(
                 name,
                 value,
             } => variable_declaration::eval(state, vtype_name, vtype, name, value)?,
-            Statement::IfStatement {
+            Statement::If {
                 condition,
                 body,
                 else_ifs,
@@ -426,15 +426,46 @@ fn eval_type_from_expr<'ast>(
         )),
     }
 }
-fn get_variable<'a, 'state>(
-    state: &'a mut State<'state>,
-    expr: &Expr,
-) -> Result<&'a mut Variable<'state>, Diagnostic> {
-    match **expr {
-        Expression::Identifier(identifier) => state
+fn get_variable<'a, 'ast>(
+    state: &'a mut State<'ast>,
+    expr: &Expr<'ast>,
+) -> Result<&'a mut Variable<'ast>, Diagnostic> {
+    let mut target = match &expr.inner {
+        Expression::Identifier(name) => name.to_string(),
+        Expression::UnaryOperation {
+            op: UnaryOperator::Dereference,
+            right,
+        } => match &right.inner {
+            Expression::Identifier(name) => name.to_string(),
+            _ => {
+                return Err(Diagnostic::basic(
+                    "can only assign through a named reference",
+                    expr.span,
+                ));
+            }
+        },
+        _ => {
+            return Err(Diagnostic::basic(
+                "cannot assign to this expression",
+                expr.span,
+            ));
+        }
+    };
+    loop {
+        let next = state
             .variables
-            .get_mut(identifier)
-            .ok_or(Diagnostic::new("var not found")),
-        _ => Err(Diagnostic::new("shit")),
+            .get(&target)
+            .ok_or_else(|| Diagnostic::basic("variable not found", expr.span))?
+            .value
+            .clone();
+        match next {
+            Value::Reference(name) => target = name,
+            _ => break,
+        }
     }
+
+    state
+        .variables
+        .get_mut(&target)
+        .ok_or_else(|| Diagnostic::basic("variable not found", expr.span))
 }

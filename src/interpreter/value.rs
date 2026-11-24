@@ -1,3 +1,5 @@
+use std::{cell::RefCell, rc::Rc};
+
 use super::*;
 #[derive(Debug, Clone)]
 pub enum Value<'ast> {
@@ -10,11 +12,11 @@ pub enum Value<'ast> {
     Struct(HashMap<String, Variable<'ast>>),
     List(Vec<Value<'ast>>),
     Function(FunctionValue<'ast>),
-    Reference(String),
+    Reference(Rc<RefCell<Value<'ast>>>),
     // Module()
 }
 
-impl<'ast> Value<'_> {
+impl Value<'_> {
     pub fn type_name(&self) -> &'static str {
         match self {
             Self::Undefined => "undefined",

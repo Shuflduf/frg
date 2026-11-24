@@ -1,4 +1,4 @@
-use std::fs;
+use std::{fs, time::Instant};
 
 use chumsky::prelude::*;
 use clap::Parser as _;
@@ -50,6 +50,8 @@ float seconds = me.age
 }
 
 fn execute(src: &str, filename: &str) {
+    let now = Instant::now();
+
     let tokens = match lexer::lex(src) {
         Ok(t) => t,
         Err(diag) => {
@@ -57,9 +59,11 @@ fn execute(src: &str, filename: &str) {
             return;
         }
     };
+    println!("Lexing: {:.5}s", now.elapsed().as_secs_f64());
     // println!("{tokens:?}");
     let eoi = SimpleSpan::from(src.len()..src.len());
     let delimiter_check = check_delimiters(&tokens);
+    println!("Check #1: {:.5}s", now.elapsed().as_secs_f64());
     let can_parse = delimiter_check.can_parse;
     let mut diags = delimiter_check.diagnostics;
     let delimiter_spans: Vec<SimpleSpan> =
@@ -74,7 +78,9 @@ fn execute(src: &str, filename: &str) {
         .cloned()
         .collect();
     let input = parse_tokens.as_slice().split_spanned(eoi);
-    let ast = match parser::create_parser(src).parse(input).into_result() {
+    let parser = parser::create_parser(src);
+    println!("Create parser: {:.5}s", now.elapsed().as_secs_f64());
+    let ast = match parser.parse(input).into_result() {
         Ok(ast) => {
             if diags.is_empty() {
                 ast
@@ -100,11 +106,13 @@ fn execute(src: &str, filename: &str) {
             return;
         }
     };
-    println!("{ast:#?}");
+    println!("Parse: {:.5}s", now.elapsed().as_secs_f64());
+    // println!("{ast:#?}");
     match interpreter::run(&ast) {
         Ok(output) => println!("{output}"),
         Err(eval_err) => eval_err.report(src, filename),
     };
+    println!("Interpreter: {:.5}s", now.elapsed().as_secs_f64());
 }
 
 fn report_all(diags: &[Diagnostic], src: &str, filename: &str) {

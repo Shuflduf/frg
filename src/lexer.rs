@@ -125,7 +125,6 @@ pub enum Token<'src> {
     GreaterThanOrEqual,
 
     #[token("int")]
-    #[token("num")]
     #[strum(to_string = "int")]
     IntType,
     #[token("float")]

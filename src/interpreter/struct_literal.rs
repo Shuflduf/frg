@@ -33,8 +33,8 @@ pub fn eval<'ast>(
                 Diagnostic::basic(format!("unknown field `{}`", field_name), field_expr.span)
             })?;
 
-        let field_value = super::eval(state, &field_expr)?;
-        if !value_matches_type(&field_type, &field_value) {
+        let field_value = super::eval(state, field_expr)?;
+        if !value_matches_type(field_type, &field_value) {
             // TODO: make this diagnostic point to the struct defitinion
             return Err(Diagnostic::basic(
                 format!(

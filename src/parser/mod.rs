@@ -340,7 +340,7 @@ where
                     Postfix::Member(member) => Spanned {
                         inner: Expression::MemberAccess {
                             parent: Box::new(base),
-                            member: member,
+                            member,
                         },
                         span: SimpleSpan::from(start..member.span.end),
                     },
@@ -427,7 +427,7 @@ where
                 vtype,
                 Spanned {
                     inner: &src[span.into_range()],
-                    span: span,
+                    span,
                 },
             )
         })
@@ -522,14 +522,12 @@ where
             .then(block.clone())
             .then(else_if.repeated().collect::<Vec<_>>())
             .then(else_kw.ignore_then(block).or_not())
-            .map(
-                |(((condition, body), else_ifs), else_body)| Statement::IfStatement {
-                    condition,
-                    body,
-                    else_ifs,
-                    else_body: else_body.unwrap_or_default(),
-                },
-            )
+            .map(|(((condition, body), else_ifs), else_body)| Statement::If {
+                condition,
+                body,
+                else_ifs,
+                else_body: else_body.unwrap_or_default(),
+            })
             .labelled("if statement")
             .as_context()
             .spanned()
