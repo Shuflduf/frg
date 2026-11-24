@@ -6,8 +6,11 @@ pub enum Value<'ast> {
     Float(f64),
     Bool(bool),
     String(String),
-    Type(CustomType<'ast>),
+    Type(TypeValue<'ast>),
     Struct(HashMap<String, Variable<'ast>>),
+    List(Vec<Value<'ast>>),
+    Function(FunctionValue<'ast>),
+    Reference(String),
     // Module()
 }
 
@@ -21,6 +24,9 @@ impl<'ast> Value<'_> {
             Self::String(_) => "str",
             Self::Type(_) => "type",
             Self::Struct(_) => "struct",
+            Self::List(_) => "list",
+            Self::Function(_) => "function",
+            Self::Reference(_) => "reference",
         }
     }
     pub fn add(self, rhs: Self) -> Result<Self, OpError> {

@@ -1,50 +1,29 @@
 use super::*;
 
-pub fn eval<'a, 'ast>(
+pub fn eval<'ast>(
     state: &mut State<'ast>,
     condition: &Expr<'ast>,
-    body: &'a Vec<Stmt<'ast>>,
-    else_ifs: &'a Vec<(Expr<'ast>, Vec<Stmt<'ast>>)>,
-    else_body: &'a Vec<Stmt<'ast>>,
-) -> Result<(), Diagnostic>
-where
-    'a: 'ast,
-{
-    if let Ok(ran) = if_branch(state, condition, body)
-        && ran
-    {
-        return Ok(());
+    body: &[Stmt<'ast>],
+    else_ifs: &[(Expr<'ast>, Vec<Stmt<'ast>>)],
+    else_body: &[Stmt<'ast>],
+) -> Result<Option<Value<'ast>>, Diagnostic> {
+    if condition_true(state, condition)? {
+        return super::exec_statements(state, body);
     }
 
-    for branch in else_ifs {
-        if let Ok(ran) = if_branch(state, &branch.0, &branch.1)
-            && ran
-        {
-            return Ok(());
+    for (condition, body) in else_ifs {
+        if condition_true(state, condition)? {
+            return super::exec_statements(state, body);
         }
     }
 
-    _ = run_statements(state, else_body);
-
-    Ok(())
+    super::exec_statements(state, else_body)
 }
 
-fn if_branch<'ast>(
-    state: &mut State<'ast>,
-    condition: &Expr<'_>,
-    body: &'ast [Stmt<'_>],
-) -> Result<bool, Diagnostic> {
-    let condition_result = super::eval(&state, condition)?;
-    if let Value::Bool(should_go) = condition_result {
-        if should_go {
-            _ = run_statements(state, body)?;
-            return Ok(true);
-        } else {
-            return Ok(false);
-        }
-    } else {
-        let found = condition_result.type_name();
-        return Err(Diagnostic::new(format!("if statement expects a `bool`"))
-            .with_label(format!("this is `{found}`"), condition.span));
+fn condition_true<'ast>(state: &mut State<'ast>, condition: &Expr<'_>) -> Result<bool, Diagnostic> {
+    match super::eval(state, condition)? {
+        Value::Bool(value) => Ok(value),
+        other => Err(Diagnostic::new("if statement expects a `bool`")
+            .with_label(format!("this is `{}`", other.type_name()), condition.span)),
     }
 }
