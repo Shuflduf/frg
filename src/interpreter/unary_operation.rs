@@ -11,7 +11,7 @@ pub fn eval<'ast>(
     match op {
         UnaryOperator::Reference => {
             if let Expression::Identifier(name) = &right.inner
-                && let Some(variable) = state.variables.get(*name)
+                && let Some(variable) = state.lookup(*name)
             {
                 let slot = Rc::clone(&variable.slot);
                 let value = slot.borrow().value.clone();

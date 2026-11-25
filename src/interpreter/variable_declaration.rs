@@ -32,9 +32,6 @@ pub fn eval<'ast>(
         }
         None => Value::Undefined,
     };
-    state.variables.insert(
-        name.inner.to_string(),
-        Variable::new(*vtype_name, declared, value),
-    );
+    state.declare(&name.inner, Variable::new(*vtype_name, declared, value));
     Ok(())
 }

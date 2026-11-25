@@ -8,16 +8,16 @@ pub fn eval<'ast>(
     else_body: &[Stmt<'ast>],
 ) -> Result<Option<Value<'ast>>, Diagnostic> {
     if condition_true(state, condition)? {
-        return super::exec_statements(state, body);
+        return super::exec_block(state, body);
     }
 
     for (condition, body) in else_ifs {
         if condition_true(state, condition)? {
-            return super::exec_statements(state, body);
+            return super::exec_block(state, body);
         }
     }
 
-    super::exec_statements(state, else_body)
+    super::exec_block(state, else_body)
 }
 
 fn condition_true<'ast>(

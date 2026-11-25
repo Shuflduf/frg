@@ -84,9 +84,45 @@ impl<'ast> Variable<'ast> {
     }
 }
 
+#[derive(Debug, Clone, Default)]
+struct Scope<'ast> {
+    variables: HashMap<String, Variable<'ast>>,
+}
+
 #[derive(Debug, Clone)]
 struct State<'ast> {
-    variables: HashMap<String, Variable<'ast>>,
+    scopes: Vec<Scope<'ast>>,
+}
+
+impl<'ast> State<'ast> {
+    fn new() -> Self {
+        Self {
+            scopes: vec![Scope::default()],
+        }
+    }
+
+    fn lookup(&self, name: &str) -> Option<&Variable<'ast>> {
+        self.scopes
+            .iter()
+            .rev()
+            .find_map(|scope| scope.variables.get(name))
+    }
+
+    fn declare(&mut self, name: &str, variable: Variable<'ast>) {
+        self.scopes
+            .last_mut()
+            .expect("state should have at least one scope")
+            .variables
+            .insert(name.to_string(), variable);
+    }
+
+    fn push_scope(&mut self) {
+        self.scopes.push(Scope::default());
+    }
+
+    fn pop_scope(&mut self) {
+        self.scopes.pop();
+    }
 }
 
 struct LValue<'ast> {
@@ -96,9 +132,7 @@ struct LValue<'ast> {
 }
 
 pub fn run<'ast>(program: &[Stmt<'ast>]) -> Result<i64, Diagnostic> {
-    let mut state = State {
-        variables: HashMap::new(),
-    };
+    let mut state = State::new();
 
     let result = exec_statements(&mut state, program).map(|_| 0);
 
@@ -123,6 +157,16 @@ fn deref_value<'ast>(
         "reference chain is too deep (max 64)",
         span,
     ))
+}
+
+fn exec_block<'ast>(
+    state: &mut State<'ast>,
+    stmts: &[Stmt<'ast>],
+) -> Result<Option<Value<'ast>>, Diagnostic> {
+    state.push_scope();
+    let res = exec_statements(state, stmts);
+    state.pop_scope();
+    res
 }
 
 fn exec_statements<'ast>(
@@ -156,6 +200,11 @@ fn exec_statements<'ast>(
             Statement::StandaloneExpression(expr) => {
                 eval(state, expr)?;
             }
+            Statement::Block(body) => {
+                if let Some(value) = exec_block(state, body)? {
+                    return Ok(Some(value));
+                }
+            }
         }
     }
 
@@ -165,8 +214,7 @@ fn exec_statements<'ast>(
 fn eval<'ast>(state: &mut State<'ast>, expr: &Expr<'ast>) -> Result<Value<'ast>, Diagnostic> {
     match &expr.inner {
         Expression::Identifier(name) => state
-            .variables
-            .get(*name)
+            .lookup(name)
             .map(Variable::value)
             .ok_or_else(|| Diagnostic::basic(format!("undefined variable `{name}`"), expr.span)),
         Expression::Literal(lit) => match lit {
@@ -260,8 +308,8 @@ fn eval_call<'ast>(
             }
             let mut local = state.clone();
             for (name, value) in function.params.iter().zip(arguments) {
-                local.variables.insert(
-                    name.to_string(),
+                local.declare(
+                    name,
                     Variable::new(Spanned { inner: *name, span }, type_of_value(&value), value),
                 );
             }
@@ -295,7 +343,7 @@ fn method_reciever<'ast>(
     parent: &Expr<'ast>,
 ) -> Result<Value<'ast>, Diagnostic> {
     if let Expression::Identifier(name) = parent.inner {
-        let variable = state.variables.get(name).ok_or_else(|| {
+        let variable = state.lookup(name).ok_or_else(|| {
             Diagnostic::basic(format!("undefined variable `{name}`"), parent.span)
         })?;
         return Ok(Value::Reference(Rc::clone(&variable.slot)));
@@ -442,7 +490,7 @@ fn resolve_lvalue<'ast>(
 ) -> Result<LValue<'ast>, Diagnostic> {
     match &expr.inner {
         Expression::Identifier(name) => {
-            let variable = state.variables.get(*name).ok_or_else(|| {
+            let variable = state.lookup(*name).ok_or_else(|| {
                 Diagnostic::basic(format!("undefined variable `{name}`"), expr.span)
             })?;
             let slot = Rc::clone(&variable.slot);
