@@ -13,3 +13,11 @@ clap = { version = "4.6.7", features = ["derive"] }
 logos = "0.16.1"
 strum = "0.28.0"
 strum_macros = "0.28.0"
+
+[profile.release]
+opt-level = "z"
+debug = false
+strip = "symbols"
+lto = true
+panic = "abort"
+codegen-units = 1
