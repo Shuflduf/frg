@@ -48,14 +48,21 @@ pub fn eval<'ast>(
         }
         struct_values.insert(
             field_name.to_string(),
-            Variable {
-                vtype_name: Spanned {
+            Variable::new(
+                Spanned {
                     inner: *field_name,
                     span: field_expr.span,
                 },
-                vtype: field_type.clone(),
-                value: field_value,
-            },
+                field_type.clone(),
+                field_value,
+            ), // Variable {
+               //     vtype_name: Spanned {
+               //         inner: *field_name,
+               //         span: field_expr.span,
+               //     },
+               //     vtype: field_type.clone(),
+               //     value: field_value,
+               // },
         );
         // let var = Variable {
         //     vtype_name: Spanned {

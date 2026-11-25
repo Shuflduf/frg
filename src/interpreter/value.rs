@@ -1,5 +1,3 @@
-use std::{cell::RefCell, rc::Rc};
-
 use super::*;
 #[derive(Debug, Clone)]
 pub enum Value<'ast> {
@@ -12,7 +10,7 @@ pub enum Value<'ast> {
     Struct(HashMap<String, Variable<'ast>>),
     List(Vec<Value<'ast>>),
     Function(FunctionValue<'ast>),
-    Reference(Rc<RefCell<Value<'ast>>>),
+    Reference(SlotRef<'ast>),
     // Module()
 }
 

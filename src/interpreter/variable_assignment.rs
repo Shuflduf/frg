@@ -7,12 +7,13 @@ pub fn eval<'ast>(
     expr: &Expr<'ast>,
 ) -> Result<(), Diagnostic> {
     let value = super::eval(state, expr)?;
-    let variable_entry = get_variable(state, variable)?;
+    // let variable_entry = get_variable(state, variable)?;
+    let target = resolve_lvalue(state, variable)?;
     let map_op_err = |e: OpError| Diagnostic::basic(e.to_string(), expr.span);
-    if !value_matches_type(&variable_entry.vtype, &value) {
+    if !value_matches_type(&target.vtype, &value) {
         let found = value.type_name();
-        let expected = variable_entry.vtype_name;
-        let expected_inner = variable_entry.vtype_name.inner;
+        let expected = target.vtype_name;
+        let expected_inner = target.vtype_name.inner;
         return Err(Diagnostic::new(format!(
             "cannot assign a `{found}` to a variable of type `{expected_inner}`"
         ))
@@ -20,23 +21,23 @@ pub fn eval<'ast>(
         .with_label(format!("this is `{found}`"), expr.span));
     }
     // bullshittery
-    let mut ass = |ass_func: fn(
+    let ass = |ass_func: fn(
                     Value<'ast>,
                     Value<'ast>,
                 ) -> Result<Value<'ast>, OpError>|
-                 -> Result<(), Diagnostic> {
-                    variable_entry.value = ass_func(variable_entry.value.clone(), value.clone())
-                        .map_err(map_op_err)?;
-                    Ok(())
+                 -> Result<Value<'ast>, Diagnostic> {
+                     let current = target.slot.borrow().value.clone();
+                    ass_func(current, value.clone()).map_err(map_op_err)
                 };
-    match op {
-        AssignmentOperator::Equals => variable_entry.value = value,
+    let new_value = match op {
+        AssignmentOperator::Equals => value,
         AssignmentOperator::PlusEquals => ass(Value::add)?,
         AssignmentOperator::MinusEquals => ass(Value::sub)?,
         AssignmentOperator::TimesEquals => ass(Value::mul)?,
         AssignmentOperator::DivideEquals => ass(Value::div)?,
         AssignmentOperator::ModulusEquals => todo!(),
-    }
+    };
+    target.slot.borrow_mut().value = new_value;
 
     Ok(())
 }

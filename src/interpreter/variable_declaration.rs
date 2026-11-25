@@ -34,11 +34,7 @@ pub fn eval<'ast>(
     };
     state.variables.insert(
         name.inner.to_string(),
-        Variable {
-            vtype_name: *vtype_name,
-            vtype: declared,
-            value,
-        },
+        Variable::new(*vtype_name, declared, value),
     );
     Ok(())
 }

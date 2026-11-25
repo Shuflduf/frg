@@ -13,15 +13,18 @@ pub fn eval<'ast>(
             if let Expression::Identifier(name) = &right.inner
                 && let Some(variable) = state.variables.get(*name)
             {
-                return match &variable.value {
+                let slot = Rc::clone(&variable.slot);
+                let value = slot.borrow().value.clone();
+                return match value {
                     Value::Type(vtype) => {
                         Ok(Value::Type(TypeValue::Reference(Box::new(vtype.clone()))))
                     }
-                    _ => Ok(Value::Reference(name.to_string())),
+                    _ => Ok(Value::Reference(slot)),
                 };
             }
             match super::eval(state, right)? {
                 Value::Type(vtype) => Ok(Value::Type(TypeValue::Reference(Box::new(vtype)))),
+                Value::Reference(slot) => Ok(Value::Reference(slot)),
                 other => Err(Diagnostic::basic(
                     format!("cannot take a reference to `{}`", other.type_name()),
                     span,
@@ -29,11 +32,7 @@ pub fn eval<'ast>(
             }
         }
         UnaryOperator::Dereference => match super::eval(state, right)? {
-            Value::Reference(name) => state
-                .variables
-                .get(&name)
-                .map(|var| var.value.clone())
-                .ok_or_else(|| Diagnostic::basic("reference target not found", span)),
+            Value::Reference(slot) => Ok(slot.borrow().value.clone()),
             other => Err(Diagnostic::basic(
                 format!("cannot dereference `{}`", other.type_name()),
                 span,

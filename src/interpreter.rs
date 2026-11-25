@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{cell::RefCell, collections::HashMap, rc::Rc};
 
 use chumsky::span::{SimpleSpan, Spanned};
 
@@ -22,7 +22,7 @@ mod variable_declaration;
 const STD: Expression = Expression::Identifier("std");
 
 #[allow(dead_code)]
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum TypeValue<'ast> {
     Primitive(VarType<'ast>),
     List(Box<TypeValue<'ast>>),
@@ -40,15 +40,62 @@ struct FunctionValue<'ast> {
     body: Vec<Stmt<'ast>>,
 }
 
-#[derive(Debug, Clone)]
-struct Variable<'ast> {
+#[derive(Debug)]
+struct Slot<'ast> {
     vtype_name: Spanned<&'ast str>,
     vtype: TypeValue<'ast>,
     value: Value<'ast>,
 }
+
+type SlotRef<'ast> = Rc<RefCell<Slot<'ast>>>;
+
+#[derive(Debug)]
+struct Variable<'ast> {
+    slot: SlotRef<'ast>,
+}
+impl<'ast> Clone for Slot<'ast> {
+    fn clone(&self) -> Self {
+        Self {
+            vtype_name: self.vtype_name,
+            vtype: self.vtype.clone(),
+            value: self.value.clone(),
+        }
+    }
+}
+
+impl<'ast> Clone for Variable<'ast> {
+    fn clone(&self) -> Self {
+        Self {
+            slot: Rc::new(RefCell::new(self.slot.borrow().clone())),
+        }
+    }
+}
+
+impl<'ast> Variable<'ast> {
+    fn new(vtype_name: Spanned<&'ast str>, vtype: TypeValue<'ast>, value: Value<'ast>) -> Self {
+        Self {
+            slot: Rc::new(RefCell::new(Slot {
+                vtype_name,
+                vtype,
+                value,
+            })),
+        }
+    }
+
+    fn value(&self) -> Value<'ast> {
+        self.slot.borrow().value.clone()
+    }
+}
+
 #[derive(Debug, Clone)]
 struct State<'ast> {
     variables: HashMap<String, Variable<'ast>>,
+}
+
+struct LValue<'ast> {
+    slot: SlotRef<'ast>,
+    vtype: TypeValue<'ast>,
+    vtype_name: Spanned<&'ast str>,
 }
 
 pub fn run<'ast>(program: &[Stmt<'ast>]) -> Result<i64, Diagnostic> {
@@ -61,6 +108,24 @@ pub fn run<'ast>(program: &[Stmt<'ast>]) -> Result<i64, Diagnostic> {
     // println!("{state:#?}");
 
     result
+}
+
+fn deref_value<'ast>(
+    state: &mut State<'ast>,
+    expr: &Expr<'ast>,
+    span: SimpleSpan,
+) -> Result<Value<'ast>, Diagnostic> {
+    let mut value = eval(state, expr)?;
+    for _ in 0..64 {
+        match value {
+            Value::Reference(slot) => value = slot.borrow().value.clone(),
+            other => return Ok(other),
+        }
+    }
+    Err(Diagnostic::basic(
+        "reference chain is too deep (max 64)",
+        span,
+    ))
 }
 
 fn exec_statements<'ast>(
@@ -105,7 +170,7 @@ fn eval<'ast>(state: &mut State<'ast>, expr: &Expr<'ast>) -> Result<Value<'ast>,
         Expression::Identifier(name) => state
             .variables
             .get(*name)
-            .map(|var| var.value.clone())
+            .map(Variable::value)
             .ok_or_else(|| Diagnostic::basic(format!("undefined variable `{name}`"), expr.span)),
         Expression::Literal(lit) => match lit {
             Literal::Int(n) => Ok(Value::Int(*n)),
@@ -125,29 +190,11 @@ fn eval<'ast>(state: &mut State<'ast>, expr: &Expr<'ast>) -> Result<Value<'ast>,
             if matches!(&parent.inner, &STD) && member.inner == "debug" {
                 return Ok(Value::Int(1));
             }
-            match eval(state, parent)? {
-                Value::Struct(vars) => vars
-                    .get(member.inner)
-                    .map(|var| var.value.clone())
-                    .ok_or_else(|| {
+            match deref_value(state, parent, expr.span)? {
+                Value::Struct(vars) => {
+                    vars.get(member.inner).map(Variable::value).ok_or_else(|| {
                         Diagnostic::basic(format!("no field `{}`", member.inner), member.span)
-                    }),
-                Value::Reference(target) => {
-                    match state.variables.get(&target).map(|var| &var.value) {
-                        Some(Value::Struct(vars)) => vars
-                            .get(member.inner)
-                            .map(|var| var.value.clone())
-                            .ok_or_else(|| {
-                                Diagnostic::basic(
-                                    format!("no field `{}`", member.inner),
-                                    member.span,
-                                )
-                            }),
-                        _ => Err(Diagnostic::basic(
-                            format!("no field `{}`", member.inner),
-                            member.span,
-                        )),
-                    }
+                    })
                 }
                 other => Err(Diagnostic::basic(
                     format!(
@@ -175,7 +222,7 @@ fn eval<'ast>(state: &mut State<'ast>, expr: &Expr<'ast>) -> Result<Value<'ast>,
         }
         Expression::StructLiteral { parent, fields } => struct_literal::eval(state, parent, fields),
         Expression::IndexAccess { parent, index } => {
-            let parent_value = eval(state, parent)?;
+            let parent_value = deref_value(state, parent, expr.span)?;
             let index_value = eval(state, index)?;
             let index_span = index.span;
             let index = match index_value {
@@ -259,11 +306,7 @@ fn eval_call<'ast>(
             for (name, value) in function.params.iter().zip(arguments) {
                 local.variables.insert(
                     name.to_string(),
-                    Variable {
-                        vtype_name: Spanned { inner: *name, span },
-                        vtype: type_of_value(&value),
-                        value,
-                    },
+                    Variable::new(Spanned { inner: *name, span }, type_of_value(&value), value),
                 );
             }
             Ok(exec_statements(&mut local, &function.body)?.unwrap_or(Value::Undefined))
@@ -296,7 +339,10 @@ fn method_reciever<'ast>(
     parent: &Expr<'ast>,
 ) -> Result<Value<'ast>, Diagnostic> {
     if let Expression::Identifier(name) = parent.inner {
-        return Ok(Value::Reference(name.to_string()));
+        let variable = state.variables.get(name).ok_or_else(|| {
+            Diagnostic::basic(format!("undefined variable `{name}`"), parent.span)
+        })?;
+        return Ok(Value::Reference(Rc::clone(&variable.slot)));
     }
     match eval(state, parent)? {
         Value::Reference(value) => Ok(Value::Reference(value)),
@@ -350,15 +396,18 @@ fn type_of_value<'ast>(value: &Value<'ast>) -> TypeValue<'ast> {
         Value::Struct(fields) => TypeValue::Struct(
             fields
                 .values()
-                .map(|var| (var.vtype.clone(), var.vtype_name.inner))
+                .map(|var| {
+                    let slot = var.slot.borrow();
+                    (slot.vtype.clone(), slot.vtype_name.inner)
+                })
                 .collect(),
         ),
+        Value::Reference(slot) => TypeValue::Reference(Box::new(slot.borrow().vtype.clone())),
         // TODO
         Value::Function(_) => TypeValue::Function {
             returns: Box::new(TypeValue::Primitive(VarType::Void)),
             params: Vec::new(),
         },
-        Value::Reference(_) => TypeValue::Reference(Box::new(TypeValue::Primitive(VarType::List))),
     }
 }
 
@@ -378,14 +427,18 @@ fn value_matches_type<'ast>(vtype: &TypeValue<'ast>, value: &Value<'ast>) -> boo
         (TypeValue::Struct(fields), Value::Struct(values)) => {
             fields.len() == values.len()
                 && fields.iter().all(|(field_type, field_name)| {
-                    values
-                        .get(*field_name)
-                        .is_some_and(|var| value_matches_type(field_type, &var.value))
+                    values.get(*field_name).is_some_and(|var| {
+                        let slot = var.slot.borrow();
+                        value_matches_type(field_type, &slot.value)
+                    })
                 })
         }
         // TODO
         (TypeValue::Function { .. }, Value::Function(_)) => true,
-        (TypeValue::Reference(_), Value::Reference(_)) => true,
+        (TypeValue::Reference(inner), Value::Reference(slot)) => {
+            let slot = slot.borrow();
+            slot.vtype == **inner || value_matches_type(inner, &slot.value)
+        }
         _ => false,
     }
 }
@@ -426,20 +479,50 @@ fn eval_type_from_expr<'ast>(
         )),
     }
 }
-fn get_variable<'a, 'ast>(
-    state: &'a mut State<'ast>,
+
+fn resolve_lvalue<'ast>(
+    state: &mut State<'ast>,
     expr: &Expr<'ast>,
-) -> Result<&'a mut Variable<'ast>, Diagnostic> {
-    let mut target = match &expr.inner {
-        Expression::Identifier(name) => name.to_string(),
+) -> Result<LValue<'ast>, Diagnostic> {
+    match &expr.inner {
+        Expression::Identifier(name) => {
+            let variable = state.variables.get(*name).ok_or_else(|| {
+                Diagnostic::basic(format!("undefined variable `{name}`"), expr.span)
+            })?;
+            let slot = Rc::clone(&variable.slot);
+            let (vtype, vtype_name) = {
+                let slot = slot.borrow();
+                (slot.vtype.clone(), slot.vtype_name)
+            };
+            Ok(LValue {
+                slot,
+                vtype,
+                vtype_name,
+            })
+        }
         Expression::UnaryOperation {
             op: UnaryOperator::Dereference,
             right,
-        } => match &right.inner {
-            Expression::Identifier(name) => name.to_string(),
-            _ => {
+        } => match eval(state, right)? {
+            Value::Reference(slot) => {
+                let (vtype, vtype_name) = {
+                    let slot = slot.borrow();
+                    let vtype = match &slot.vtype {
+                        TypeValue::Reference(inner) => (**inner).clone(),
+                        other => other.clone(),
+                    };
+                    (vtype, slot.vtype_name)
+                };
+                Ok(LValue {
+                    slot,
+                    vtype,
+                    vtype_name,
+                })
+            }
+            // Expression::Identifier(name) => name.to_string(),
+            other => {
                 return Err(Diagnostic::basic(
-                    "can only assign through a named reference",
+                    format!("cannot assign through `{}`", other.type_name()),
                     expr.span,
                 ));
             }
@@ -450,22 +533,5 @@ fn get_variable<'a, 'ast>(
                 expr.span,
             ));
         }
-    };
-    loop {
-        let next = state
-            .variables
-            .get(&target)
-            .ok_or_else(|| Diagnostic::basic("variable not found", expr.span))?
-            .value
-            .clone();
-        match next {
-            Value::Reference(name) => target = name,
-            _ => break,
-        }
     }
-
-    state
-        .variables
-        .get_mut(&target)
-        .ok_or_else(|| Diagnostic::basic("variable not found", expr.span))
 }
