@@ -34,16 +34,11 @@ fn run(args: RunArgs) {
 
 fn test() {
     let src = r#"
-type Frog = struct {
-    int legs,,,,
-    float age,,
+void(int) test = |val| {
+    if val == 1 {
+        fuck = 3.14
+    }   
 }
-Frog me = Frog {
-    legs = 2,,
-    age = 0.1,
-}
-int feet = me.legs
-float seconds = me.age
     "#;
     let filename = "tester.frg";
     execute(src, filename);
