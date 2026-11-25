@@ -34,11 +34,12 @@ fn run(args: RunArgs) {
 
 fn test() {
     let src = r#"
-void(int) test = |val| {
-    if val == 1 {
-        fuck = 3.14
-    }   
-}
+void() noop = || {}
+
+int value = 5
+noop()
+value = 5
+
     "#;
     let filename = "tester.frg";
     execute(src, filename);

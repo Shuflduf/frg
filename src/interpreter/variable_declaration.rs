@@ -7,15 +7,25 @@ pub fn eval<'ast>(
     name: &Spanned<&'ast str>,
     value: &Option<Expr<'ast>>,
 ) -> Result<(), Diagnostic> {
-    // let mut val = Value::Undefined;
-    // if let Some(value) = value {
-    //     val = super::eval(&state, &value)?;
-    //     if !var_type_check(&vtype, &val) {
-    //         let expected = vtype_name.inner;
-    //         let found = val.type_name();
-    //     }
-    // }
-    let declared = eval_type(state, vtype)?;
+    let declared = match vtype {
+        VarType::Custom(expr) => match super::eval(state, expr)? {
+            Value::Type(t) => t,
+            _ => {
+                let target = Spanned {
+                    inner: Expression::Identifier(name.inner),
+                    span: name.span,
+                };
+                let initializer = value.as_ref().unwrap();
+                return variable_assignment::eval(
+                    state,
+                    &target,
+                    &AssignmentOperator::Equals,
+                    initializer,
+                );
+            }
+        },
+        other => super::eval_type(state, other)?,
+    };
     let value = match value {
         Some(expr) => {
             let value = super::eval(state, expr)?;
