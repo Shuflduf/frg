@@ -12,6 +12,7 @@ pub enum VarType<'src> {
     Str,
     Bool,
     Type,
+    Module,
     Custom(Expr<'src>),
 }
 
@@ -67,6 +68,7 @@ pub enum Expression<'src> {
     Identifier(&'src str),
     Literal(Literal),
     TypeLiteral(Box<VarType<'src>>),
+    ModuleLiteral(Vec<Stmt<'src>>),
     BinaryOperation {
         left: Box<Expr<'src>>,
         op: BinaryOperator,

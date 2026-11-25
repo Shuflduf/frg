@@ -44,6 +44,7 @@ where
         // just(Token::ListType),
         just(Token::TypeType),
         just(Token::VoidType),
+        just(Token::Module),
         just(Token::StructDecl),
         just(Token::If),
         just(Token::Return),
@@ -149,6 +150,17 @@ where
     let bool_type = type_literal(Token::BoolType, VarType::Bool);
     let string_type = type_literal(Token::StringType, VarType::Str);
     let type_type = type_literal(Token::TypeType, VarType::Type);
+    let mod_type = type_literal(Token::Module, VarType::Module);
+
+    let module_literal = tok(Token::Module)
+        .ignore_then(block.clone())
+        .map_with(|body, e| Spanned {
+            inner: Expression::ModuleLiteral(body),
+            span: e.span(),
+        })
+        .labelled("module literal")
+        .as_context()
+        .boxed();
 
     let bool_true: P<'src, I, Expression<'src>> = just(Token::BoolTrue)
         .map(|_| Expression::Literal(Literal::Bool(true)))
@@ -236,12 +248,14 @@ where
         struct_type_decl,
         function_literal,
         vec_literal,
+        module_literal,
         void_type,
         int_type,
         float_type,
         bool_type,
         string_type,
         type_type,
+        mod_type,
         undefined,
         int_literal.spanned(),
         float_literal.spanned(),
