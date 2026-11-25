@@ -8,11 +8,14 @@ use crate::{
         UnaryOperator, VarType,
     },
     errors::{Diagnostic, OpError},
+    interpreter::value::FunctionValue,
 };
 use value::Value;
 
 mod binary_operation;
 mod if_statement;
+mod index_access;
+mod member_access;
 mod struct_literal;
 mod unary_operation;
 mod value;
@@ -32,12 +35,6 @@ pub enum TypeValue<'ast> {
         params: Vec<TypeValue<'ast>>,
     },
     Reference(Box<TypeValue<'ast>>),
-}
-
-#[derive(Debug, Clone)]
-struct FunctionValue<'ast> {
-    params: Vec<&'ast str>,
-    body: Vec<Stmt<'ast>>,
 }
 
 #[derive(Debug)]
@@ -187,24 +184,7 @@ fn eval<'ast>(state: &mut State<'ast>, expr: &Expr<'ast>) -> Result<Value<'ast>,
             unary_operation::eval(state, expr.span, op, right)
         }
         Expression::MemberAccess { parent, member } => {
-            if matches!(&parent.inner, &STD) && member.inner == "debug" {
-                return Ok(Value::Int(1));
-            }
-            match deref_value(state, parent, expr.span)? {
-                Value::Struct(vars) => {
-                    vars.get(member.inner).map(Variable::value).ok_or_else(|| {
-                        Diagnostic::basic(format!("no field `{}`", member.inner), member.span)
-                    })
-                }
-                other => Err(Diagnostic::basic(
-                    format!(
-                        "cannot access the field `{}` on `{}`",
-                        member.inner,
-                        other.type_name()
-                    ),
-                    member.span,
-                )),
-            }
+            member_access::eval(state, expr.span, parent, *member)
         }
         Expression::StructTypeDeclaration { fields } => {
             let mut resolved = Vec::with_capacity(fields.len());
@@ -222,31 +202,7 @@ fn eval<'ast>(state: &mut State<'ast>, expr: &Expr<'ast>) -> Result<Value<'ast>,
         }
         Expression::StructLiteral { parent, fields } => struct_literal::eval(state, parent, fields),
         Expression::IndexAccess { parent, index } => {
-            let parent_value = deref_value(state, parent, expr.span)?;
-            let index_value = eval(state, index)?;
-            let index_span = index.span;
-            let index = match index_value {
-                Value::Int(n) if n >= 0 => n as usize,
-                other => {
-                    return Err(Diagnostic::basic(
-                        format!(
-                            "index must be a non-negative int, found `{}`",
-                            other.type_name()
-                        ),
-                        index_span,
-                    ));
-                }
-            };
-            match parent_value {
-                Value::List(values) => values
-                    .into_iter()
-                    .nth(index)
-                    .ok_or_else(|| Diagnostic::basic("index out of bounds", index_span)),
-                other => Err(Diagnostic::basic(
-                    format!("cannot index into `{}`", other.type_name()),
-                    parent.span,
-                )),
-            }
+            index_access::eval(state, expr.span, parent, index)
         }
         Expression::FunctionLiteral { params, body } => Ok(Value::Function(FunctionValue {
             params: params.clone(),

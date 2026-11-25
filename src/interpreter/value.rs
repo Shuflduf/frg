@@ -1,4 +1,11 @@
 use super::*;
+
+#[derive(Debug, Clone)]
+pub struct FunctionValue<'ast> {
+    pub params: Vec<&'ast str>,
+    pub body: Vec<Stmt<'ast>>,
+}
+
 #[derive(Debug, Clone)]
 pub enum Value<'ast> {
     Undefined,
