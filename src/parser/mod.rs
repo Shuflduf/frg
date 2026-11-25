@@ -512,6 +512,8 @@ where
             .spanned()
             .boxed();
 
+        let block_stmt = block.clone().map(Statement::Block).spanned().boxed();
+
         let else_if = else_kw
             .clone()
             .ignore_then(if_kw.clone())
@@ -533,13 +535,20 @@ where
             .spanned()
             .boxed();
 
-        choice((return_stmt, var_decl, var_assign, if_stmt, standalone_expr))
-            .then_ignore(tok(Token::Semicolon).or_not())
-            .map(Some)
-            .labelled("statement")
-            .as_context()
-            .recover_with(via_parser(recovery_parser()))
-            .boxed()
+        choice((
+            return_stmt,
+            var_decl,
+            var_assign,
+            if_stmt,
+            block_stmt,
+            standalone_expr,
+        ))
+        .then_ignore(tok(Token::Semicolon).or_not())
+        .map(Some)
+        .labelled("statement")
+        .as_context()
+        .recover_with(via_parser(recovery_parser()))
+        .boxed()
     }
     .boxed();
     stmt_rec.define(statement_body);

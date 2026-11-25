@@ -133,4 +133,5 @@ pub enum Statement<'src> {
     },
     Return(Expr<'src>),
     StandaloneExpression(Expr<'src>),
+    Block(Vec<Stmt<'src>>),
 }

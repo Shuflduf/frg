@@ -10,7 +10,7 @@ void() print_ref = || {
 }
 
 {
-	print(value) // 1
+	print(value); // 1
 	value = 2
 	print(value) // 2
 }
@@ -18,7 +18,7 @@ void() print_ref = || {
 print(value) // 2
 
 {
-	print(value) // 2
+	print(value); // 2
 	int value = 3
 	print(value) // 3
 }
