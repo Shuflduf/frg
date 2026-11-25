@@ -36,10 +36,12 @@ fn test() {
     let src = r#"
 void() noop = || {}
 
-int value = 5
+str value = "lkdfjs"
 noop()
-value = 5
-
+value = "gooop"
+type Frog = struct {int legs, float age}
+Frog me = Frog {legs = 4, age = 3.14}
+return me
     "#;
     let filename = "tester.frg";
     execute(src, filename);
@@ -104,11 +106,16 @@ fn execute(src: &str, filename: &str) {
     };
     println!("Parse: {:.5}s", now.elapsed().as_secs_f64());
     // println!("{ast:#?}");
+
+    let mut res = None;
     match interpreter::run(&ast) {
-        Ok(output) => println!("{output}"),
+        Ok(output) => res = output,
         Err(eval_err) => eval_err.report(src, filename),
     };
     println!("Interpreter: {:.5}s", now.elapsed().as_secs_f64());
+    if let Some(output) = res {
+        println!("Output: {output}");
+    }
 }
 
 fn report_all(diags: &[Diagnostic], src: &str, filename: &str) {

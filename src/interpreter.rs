@@ -131,14 +131,10 @@ struct LValue<'ast> {
     vtype_name: Spanned<&'ast str>,
 }
 
-pub fn run<'ast>(program: &[Stmt<'ast>]) -> Result<i64, Diagnostic> {
+pub fn run<'ast>(program: &[Stmt<'ast>]) -> Result<Option<Value<'ast>>, Diagnostic> {
     let mut state = State::new();
 
-    let result = exec_statements(&mut state, program).map(|_| 0);
-
-    // println!("{state:#?}");
-
-    result
+    exec_statements(&mut state, program)
 }
 
 fn deref_value<'ast>(

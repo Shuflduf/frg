@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use super::*;
 
 #[derive(Debug, Clone)]
@@ -151,6 +153,44 @@ impl Value<'_> {
                 left: left.type_name(),
                 right: right.type_name(),
             }),
+        }
+    }
+}
+
+impl Display for TypeValue<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Primitive(t) => f.write_str(&format!("{t:?}")),
+            _ => todo!(),
+        }
+    }
+}
+
+impl Display for Value<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Undefined => f.write_str("undefined"),
+            Self::Int(n) => f.write_str(&n.to_string()),
+            Self::Float(n) => f.write_str(&n.to_string()),
+            Self::Bool(b) => f.write_str(&b.to_string()),
+            Self::String(s) => f.write_str(&s),
+            Self::Type(t) => f.write_str(&t.to_string()),
+            Self::Struct(s) => f.write_str(&format!(
+                "{{ {} }}",
+                s.iter()
+                    .map(|(k, v)| (k, v.value().to_string()))
+                    .map(|(k, v)| format!("{k} = {v}"))
+                    .collect::<Vec<String>>()
+                    .join(", ")
+            )),
+            Self::List(l) => f.write_str(&format!(
+                "[{}]",
+                l.iter()
+                    .map(|value| value.to_string())
+                    .collect::<Vec<String>>()
+                    .join(", ")
+            )),
+            _ => todo!(),
         }
     }
 }
