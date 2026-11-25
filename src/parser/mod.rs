@@ -109,6 +109,7 @@ fn expr_parser<'src, I, EP, BP>(
     expr: EP,
     vtype: P<'src, I, (VarType<'src>, Spanned<&'src str>)>,
     block: BP,
+    allow_struct_literal: bool,
 ) -> P<'src, I, Expr<'src>>
 where
     I: BorrowInput<'src, Token = Token<'src>, Span = SimpleSpan> + ValueInput<'src>,
@@ -317,43 +318,45 @@ where
         .as_context()
         .boxed();
 
+    let postfix_op: P<'src, I, Postfix<'src>> = if allow_struct_literal {
+        choice((func_args, index, member, struct_literal)).boxed()
+    } else {
+        choice((func_args, index, member)).boxed()
+    };
     let postfix = atom
-        .foldl(
-            choice((func_args, index, member, struct_literal)).repeated(),
-            |base, op| {
-                let start = base.span.start;
-                match op {
-                    Postfix::Call(params) => Spanned {
-                        inner: Expression::FunctionCall {
-                            function: Box::new(base),
-                            params: params.inner,
-                        },
-                        span: SimpleSpan::from(start..params.span.end),
+        .foldl(postfix_op.repeated(), |base, op| {
+            let start = base.span.start;
+            match op {
+                Postfix::Call(params) => Spanned {
+                    inner: Expression::FunctionCall {
+                        function: Box::new(base),
+                        params: params.inner,
                     },
-                    Postfix::Index(index) => Spanned {
-                        inner: Expression::IndexAccess {
-                            parent: Box::new(base),
-                            index: Box::new(index.inner),
-                        },
-                        span: SimpleSpan::from(start..index.span.end),
+                    span: SimpleSpan::from(start..params.span.end),
+                },
+                Postfix::Index(index) => Spanned {
+                    inner: Expression::IndexAccess {
+                        parent: Box::new(base),
+                        index: Box::new(index.inner),
                     },
-                    Postfix::Member(member) => Spanned {
-                        inner: Expression::MemberAccess {
-                            parent: Box::new(base),
-                            member,
-                        },
-                        span: SimpleSpan::from(start..member.span.end),
+                    span: SimpleSpan::from(start..index.span.end),
+                },
+                Postfix::Member(member) => Spanned {
+                    inner: Expression::MemberAccess {
+                        parent: Box::new(base),
+                        member,
                     },
-                    Postfix::StructLiteral(fields) => Spanned {
-                        inner: Expression::StructLiteral {
-                            parent: Box::new(base),
-                            fields: fields.inner,
-                        },
-                        span: SimpleSpan::from(start..fields.span.end),
+                    span: SimpleSpan::from(start..member.span.end),
+                },
+                Postfix::StructLiteral(fields) => Spanned {
+                    inner: Expression::StructLiteral {
+                        parent: Box::new(base),
+                        fields: fields.inner,
                     },
-                }
-            },
-        )
+                    span: SimpleSpan::from(start..fields.span.end),
+                },
+            }
+        })
         .boxed();
 
     let unary_op = choice((
@@ -448,6 +451,7 @@ where
     let else_kw = tok(Token::Else);
 
     let mut expr_rec = Recursive::declare();
+    let mut condition_rec = Recursive::declare();
     let mut stmt_rec = Recursive::declare();
 
     let vtype = type_parser(src, expr_rec.clone());
@@ -461,8 +465,16 @@ where
         .as_context()
         .boxed();
 
-    let expr = expr_parser(src, expr_rec.clone(), vtype.clone(), block.clone());
+    let expr = expr_parser(src, expr_rec.clone(), vtype.clone(), block.clone(), true);
+    let condition = expr_parser(
+        src,
+        condition_rec.clone(),
+        vtype.clone(),
+        block.clone(),
+        false,
+    );
     expr_rec.define(expr);
+    condition_rec.define(condition);
 
     let statement_body: P<'src, I, Option<Stmt<'src>>> = {
         let var_decl = vtype
@@ -517,10 +529,10 @@ where
         let else_if = else_kw
             .clone()
             .ignore_then(if_kw.clone())
-            .ignore_then(expr_rec.clone())
+            .ignore_then(condition_rec.clone())
             .then(block.clone());
         let if_stmt = if_kw
-            .ignore_then(expr_rec.clone())
+            .ignore_then(condition_rec.clone())
             .then(block.clone())
             .then(else_if.repeated().collect::<Vec<_>>())
             .then(else_kw.ignore_then(block).or_not())
