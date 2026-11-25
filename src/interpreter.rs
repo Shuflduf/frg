@@ -38,7 +38,7 @@ pub enum TypeValue<'ast> {
 }
 
 #[derive(Debug)]
-struct Slot<'ast> {
+pub(crate) struct Slot<'ast> {
     vtype_name: Spanned<&'ast str>,
     vtype: TypeValue<'ast>,
     value: Value<'ast>,
@@ -47,7 +47,7 @@ struct Slot<'ast> {
 type SlotRef<'ast> = Rc<RefCell<Slot<'ast>>>;
 
 #[derive(Debug)]
-struct Variable<'ast> {
+pub(crate) struct Variable<'ast> {
     slot: SlotRef<'ast>,
 }
 impl<'ast> Clone for Slot<'ast> {
@@ -192,7 +192,9 @@ fn exec_statements<'ast>(
             Statement::VariableAssignment { variable, op, expr } => {
                 variable_assignment::eval(state, variable, op, expr)?
             }
-            Statement::Return(expr) => return Ok(Some(eval(state, expr)?)),
+            Statement::Return(expr) => {
+                return expr.as_ref().map(|expr| eval(state, &expr)).transpose();
+            }
             Statement::StandaloneExpression(expr) => {
                 eval(state, expr)?;
             }
@@ -311,15 +313,16 @@ fn eval_call<'ast>(
             }
             Ok(exec_statements(&mut local, &function.body)?.unwrap_or(Value::Undefined))
         }
-        Value::Type(TypeValue::Primitive(VarType::List)) => {
-            let type_args = type_arguments(state, span, implicit, params)?;
-            if type_args.len() != 1 {
-                return Err(Diagnostic::basic("vec expects one element of `type`", span));
-            }
-            Ok(Value::Type(TypeValue::List(Box::new(
-                type_args.into_iter().next().unwrap(),
-            ))))
-        }
+        Value::Type(TypeValue::List(elem)) => None,
+        // Value::Type(TypeValue::Primitive(VarType::List)) => {
+        //     let type_args = type_arguments(state, span, implicit, params)?;
+        //     if type_args.len() != 1 {
+        //         return Err(Diagnostic::basic("vec expects one element of `type`", span));
+        //     }
+        //     Ok(Value::Type(TypeValue::List(Box::new(
+        //         type_args.into_iter().next().unwrap(),
+        //     ))))
+        // }
         Value::Type(vtype) => {
             let type_args = type_arguments(state, span, implicit, params)?;
             Ok(Value::Type(TypeValue::Function {

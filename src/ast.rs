@@ -12,7 +12,7 @@ pub enum VarType<'src> {
     Str,
     Bool,
     Type,
-    List,
+    // List,
     Custom(Expr<'src>),
 }
 
@@ -131,7 +131,7 @@ pub enum Statement<'src> {
         op: AssignmentOperator,
         expr: Expr<'src>,
     },
-    Return(Expr<'src>),
+    Return(Option<Expr<'src>>),
     StandaloneExpression(Expr<'src>),
     Block(Vec<Stmt<'src>>),
 }

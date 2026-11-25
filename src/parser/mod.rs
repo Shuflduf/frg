@@ -149,7 +149,7 @@ where
     let bool_type = type_literal(Token::BoolType, VarType::Bool);
     let string_type = type_literal(Token::StringType, VarType::Str);
     let type_type = type_literal(Token::TypeType, VarType::Type);
-    let list_type = type_literal(Token::ListType, VarType::List);
+    // let list_type = type_literal(Token::ListType, VarType::List);
 
     let bool_true: P<'src, I, Expression<'src>> = just(Token::BoolTrue)
         .map(|_| Expression::Literal(Literal::Bool(true)))
@@ -243,7 +243,7 @@ where
         bool_type,
         string_type,
         type_type,
-        list_type,
+        // list_type,
         undefined,
         int_literal.spanned(),
         float_literal.spanned(),
@@ -511,7 +511,7 @@ where
             .boxed();
 
         let return_stmt = tok(Token::Return)
-            .ignore_then(expr_rec.clone())
+            .ignore_then(expr_rec.clone().or_not())
             .map(Statement::Return)
             .labelled("return statement")
             .as_context()

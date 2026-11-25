@@ -159,10 +159,19 @@ impl Value<'_> {
 
 impl Display for TypeValue<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Primitive(t) => f.write_str(&format!("{t:?}")),
+        let display = match self {
+            Self::Primitive(t) => match t {
+                VarType::Void => "void",
+                VarType::Int => "int",
+                VarType::Float => "float",
+                VarType::Str => "str",
+                VarType::Bool => "bool",
+                VarType::Type => "type",
+                VarType::Custom(expr) => &format!("{expr:?}"),
+            },
             _ => todo!(),
-        }
+        };
+        f.write_str(display)
     }
 }
 
@@ -190,7 +199,36 @@ impl Display for Value<'_> {
                     .collect::<Vec<String>>()
                     .join(", ")
             )),
-            _ => todo!(),
+            Self::Function(v) => f.write_str(&format!(
+                "|{}| {{ {:?} returns }}",
+                v.params.join(", "),
+                count_returns(&v.body)
+            )),
+            Self::Reference(r) => f.write_str(&format!("&{}", r.borrow().vtype)),
         }
     }
+}
+
+fn count_returns(block: &[Stmt]) -> u32 {
+    let mut returns = 0;
+    for stmt in block {
+        match stmt.inner {
+            Statement::Return(_) => returns += 1,
+            Statement::If {
+                ref body,
+                ref else_ifs,
+                ref else_body,
+                ..
+            } => {
+                returns += count_returns(&body)
+                    + else_ifs
+                        .iter()
+                        .map(|(_, else_if_body)| count_returns(else_if_body))
+                        .sum::<u32>()
+                    + count_returns(else_body)
+            }
+            _ => {}
+        }
+    }
+    returns
 }

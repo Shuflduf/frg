@@ -34,14 +34,22 @@ fn run(args: RunArgs) {
 
 fn test() {
     let src = r#"
-void() noop = || {}
+void(float) noop = |reveal| {
+    int hii = 18
+    if 5 == 3 {
+        return 
+    } else {
+        return 4
+    }
+    return reveal
+}
 
 str value = "lkdfjs"
-noop()
+noop(3.14)
 value = "gooop"
 type Frog = struct {int legs, float age}
 Frog me = Frog {legs = 4, age = 3.14}
-return me
+return &value
     "#;
     let filename = "tester.frg";
     execute(src, filename);
