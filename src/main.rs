@@ -48,6 +48,7 @@ mod maths = mod {
 
 int res = maths.add(7, 11)
 int res2 = maths.inner.sub(7, 11)
+return res + res2
     "#;
     let filename = "tester.frg";
     execute(src, filename);

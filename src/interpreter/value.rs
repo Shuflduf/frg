@@ -17,6 +17,7 @@ pub enum Value<'ast> {
     String(String),
     Type(TypeValue<'ast>),
     Struct(HashMap<String, Variable<'ast>>),
+    Module(HashMap<String, Variable<'ast>>),
     List(Vec<Value<'ast>>),
     Function(FunctionValue<'ast>),
     Reference(SlotRef<'ast>),
@@ -33,6 +34,7 @@ impl Value<'_> {
             Self::String(_) => "str",
             Self::Type(_) => "type",
             Self::Struct(_) => "struct",
+            Self::Module(_) => "mod",
             Self::List(_) => "list",
             Self::Function(_) => "function",
             Self::Reference(_) => "reference",
@@ -167,6 +169,7 @@ impl Display for TypeValue<'_> {
                 VarType::Str => "str",
                 VarType::Bool => "bool",
                 VarType::Type => "type",
+                VarType::Module => "mod",
                 VarType::Custom(expr) => &format!("{expr:?}"),
             },
             _ => todo!(),
@@ -177,35 +180,43 @@ impl Display for TypeValue<'_> {
 
 impl Display for Value<'_> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Undefined => f.write_str("undefined"),
-            Self::Int(n) => f.write_str(&n.to_string()),
-            Self::Float(n) => f.write_str(&n.to_string()),
-            Self::Bool(b) => f.write_str(&b.to_string()),
-            Self::String(s) => f.write_str(&s),
-            Self::Type(t) => f.write_str(&t.to_string()),
-            Self::Struct(s) => f.write_str(&format!(
+        let display = match self {
+            Self::Undefined => "undefined",
+            Self::Int(n) => &n.to_string(),
+            Self::Float(n) => &n.to_string(),
+            Self::Bool(b) => &b.to_string(),
+            Self::String(s) => &s,
+            Self::Type(t) => &t.to_string(),
+            Self::Struct(s) => &format!(
                 "{{ {} }}",
                 s.iter()
                     .map(|(k, v)| (k, v.value().to_string()))
                     .map(|(k, v)| format!("{k} = {v}"))
                     .collect::<Vec<String>>()
                     .join(", ")
-            )),
-            Self::List(l) => f.write_str(&format!(
+            ),
+            Self::List(l) => &format!(
                 "[{}]",
                 l.iter()
                     .map(|value| value.to_string())
                     .collect::<Vec<String>>()
                     .join(", ")
-            )),
-            Self::Function(v) => f.write_str(&format!(
+            ),
+            Self::Function(v) => &format!(
                 "|{}| {{ {:?} returns }}",
                 v.params.join(", "),
                 count_returns(&v.body)
-            )),
-            Self::Reference(r) => f.write_str(&format!("&{}", r.borrow().vtype)),
-        }
+            ),
+            Self::Reference(r) => &format!("&{}", r.borrow().vtype),
+            Self::Module(s) => &format!(
+                "mod {{ {} }}",
+                s.iter()
+                    .map(|(k, v)| format!("{k} = {}", v.value()))
+                    .collect::<Vec<String>>()
+                    .join(", ")
+            ),
+        };
+        f.write_str(display)
     }
 }
 

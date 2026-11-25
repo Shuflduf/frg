@@ -14,6 +14,10 @@ pub fn eval<'ast>(
             .get(member.inner)
             .map(Variable::value)
             .ok_or_else(|| Diagnostic::basic(format!("no field `{}`", member.inner), member.span)),
+        Value::Module(vars) => vars
+            .get(member.inner)
+            .map(Variable::value)
+            .ok_or_else(|| Diagnostic::basic(format!("no member `{}`", member.inner), member.span)),
         other => Err(Diagnostic::basic(
             format!(
                 "cannot access the field `{}` on `{}`",

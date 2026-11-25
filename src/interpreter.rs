@@ -120,8 +120,10 @@ impl<'ast> State<'ast> {
         self.scopes.push(Scope::default());
     }
 
-    fn pop_scope(&mut self) {
-        self.scopes.pop();
+    fn pop_scope(&mut self) -> Scope<'ast> {
+        self.scopes
+            .pop()
+            .expect("state should have at least one scope")
     }
 }
 
@@ -223,6 +225,13 @@ fn eval<'ast>(state: &mut State<'ast>, expr: &Expr<'ast>) -> Result<Value<'ast>,
             Literal::Undefined => Ok(Value::Undefined),
         },
         Expression::TypeLiteral(vtype) => Ok(Value::Type(eval_type(state, vtype)?)),
+        Expression::ModuleLiteral(body) => {
+            state.push_scope();
+            let result = exec_statements(state, body);
+            let scope = state.pop_scope();
+            result?;
+            Ok(Value::Module(scope.variables))
+        }
         Expression::BinaryOperation { left, op, right } => {
             binary_operation::eval(state, expr.span, left, op, right)
         }
@@ -276,7 +285,18 @@ fn eval_call<'ast>(
     implicit: Option<Value<'ast>>,
 ) -> Result<Value<'ast>, Diagnostic> {
     if let Expression::MemberAccess { parent, member } = &function.inner {
-        let reciever = method_reciever(state, parent)?;
+        // let reciever = method_reciever(state, parent)?;
+        let parent_value = deref_value(state, parent, parent.span)?;
+        if let Value::Module(members) = parent_value {
+            let callee = members
+                .get(member.inner)
+                .map(Variable::value)
+                .ok_or_else(|| {
+                    Diagnostic::basic(format!("no member `{}`", member.inner), member.span)
+                })?;
+            return call_value(state, span, callee, params, None);
+        }
+        let reciever = method_reciever(state, parent, parent_value)?;
         let callee = Spanned {
             inner: Expression::Identifier(member.inner),
             span: member.span,
@@ -284,6 +304,16 @@ fn eval_call<'ast>(
         return eval_call(state, span, &callee, params, Some(reciever));
     }
     let callee = eval(state, function)?;
+    call_value(state, span, callee, params, implicit)
+}
+
+fn call_value<'ast>(
+    state: &mut State<'ast>,
+    span: SimpleSpan,
+    callee: Value<'ast>,
+    params: &[Expr<'ast>],
+    implicit: Option<Value<'ast>>,
+) -> Result<Value<'ast>, Diagnostic> {
     match callee {
         Value::Function(function) => {
             let positional = params.len() + if implicit.is_some() { 1 } else { 0 };
@@ -329,8 +359,9 @@ fn eval_call<'ast>(
 }
 
 fn method_reciever<'ast>(
-    state: &mut State<'ast>,
+    state: &State<'ast>,
     parent: &Expr<'ast>,
+    value: Value<'ast>,
 ) -> Result<Value<'ast>, Diagnostic> {
     if let Expression::Identifier(name) = parent.inner {
         let variable = state.lookup(name).ok_or_else(|| {
@@ -338,7 +369,7 @@ fn method_reciever<'ast>(
         })?;
         return Ok(Value::Reference(Rc::clone(&variable.slot)));
     }
-    match eval(state, parent)? {
+    match value {
         Value::Reference(value) => Ok(Value::Reference(value)),
         other => Err(Diagnostic::basic(
             format!(
@@ -368,6 +399,7 @@ fn eval_type<'ast>(
                 expr.span,
             )),
         },
+        VarType::Module => Ok(TypeValue::Primitive(VarType::Module)),
     }
 }
 
@@ -395,12 +427,14 @@ fn type_of_value<'ast>(value: &Value<'ast>) -> TypeValue<'ast> {
                 })
                 .collect(),
         ),
+        Value::Module(_) => TypeValue::Primitive(VarType::Module),
         Value::Reference(slot) => TypeValue::Reference(Box::new(slot.borrow().vtype.clone())),
         // TODO
         Value::Function(_) => TypeValue::Function {
             returns: Box::new(TypeValue::Primitive(VarType::Void)),
             params: Vec::new(),
         },
+        // Value::M
     }
 }
 
@@ -412,6 +446,7 @@ fn value_matches_type<'ast>(vtype: &TypeValue<'ast>, value: &Value<'ast>) -> boo
         (TypeValue::Primitive(VarType::Bool), Value::Bool(_)) => true,
         (TypeValue::Primitive(VarType::Str), Value::String(_)) => true,
         (TypeValue::Primitive(VarType::Type), Value::Type(_)) => true,
+        (TypeValue::Primitive(VarType::Module), Value::Module(_)) => true,
         (TypeValue::Primitive(_), _) => false,
         (TypeValue::List(elem), Value::List(values)) => {
             values.iter().all(|value| value_matches_type(elem, value))
