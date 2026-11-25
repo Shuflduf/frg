@@ -88,7 +88,6 @@ fn field_type_name<'ast>(vtype: &TypeValue<'ast>) -> &'static str {
         TypeValue::Primitive(VarType::Str) => "str",
         TypeValue::Primitive(VarType::Bool) => "bool",
         TypeValue::Primitive(VarType::Type) => "type",
-        // TypeValue::Primitive(VarType::List) => "list",
         TypeValue::Primitive(VarType::Custom(_)) => "custom",
         TypeValue::List(_) => "list",
         TypeValue::Struct(_) => "struct",

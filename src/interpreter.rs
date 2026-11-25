@@ -313,16 +313,7 @@ fn eval_call<'ast>(
             }
             Ok(exec_statements(&mut local, &function.body)?.unwrap_or(Value::Undefined))
         }
-        Value::Type(TypeValue::List(elem)) => None,
-        // Value::Type(TypeValue::Primitive(VarType::List)) => {
-        //     let type_args = type_arguments(state, span, implicit, params)?;
-        //     if type_args.len() != 1 {
-        //         return Err(Diagnostic::basic("vec expects one element of `type`", span));
-        //     }
-        //     Ok(Value::Type(TypeValue::List(Box::new(
-        //         type_args.into_iter().next().unwrap(),
-        //     ))))
-        // }
+        Value::Type(TypeValue::List(elem)) => Ok(Value::Type(TypeValue::List(elem))),
         Value::Type(vtype) => {
             let type_args = type_arguments(state, span, implicit, params)?;
             Ok(Value::Type(TypeValue::Function {
@@ -370,7 +361,6 @@ fn eval_type<'ast>(
         VarType::Str => Ok(TypeValue::Primitive(VarType::Str)),
         VarType::Bool => Ok(TypeValue::Primitive(VarType::Bool)),
         VarType::Type => Ok(TypeValue::Primitive(VarType::Type)),
-        VarType::List => Ok(TypeValue::Primitive(VarType::List)),
         VarType::Custom(expr) => match eval(state, expr)? {
             Value::Type(vtype) => Ok(vtype),
             other => Err(Diagnostic::basic(
@@ -393,7 +383,7 @@ fn type_of_value<'ast>(value: &Value<'ast>) -> TypeValue<'ast> {
             let first = values
                 .first()
                 .map(type_of_value)
-                .unwrap_or_else(|| TypeValue::Primitive(VarType::List));
+                .unwrap_or_else(|| TypeValue::Primitive(VarType::Void));
             TypeValue::List(Box::new(first))
         }
         Value::Struct(fields) => TypeValue::Struct(
@@ -422,7 +412,6 @@ fn value_matches_type<'ast>(vtype: &TypeValue<'ast>, value: &Value<'ast>) -> boo
         (TypeValue::Primitive(VarType::Bool), Value::Bool(_)) => true,
         (TypeValue::Primitive(VarType::Str), Value::String(_)) => true,
         (TypeValue::Primitive(VarType::Type), Value::Type(_)) => true,
-        (TypeValue::Primitive(VarType::List), Value::List(_)) => true,
         (TypeValue::Primitive(_), _) => false,
         (TypeValue::List(elem), Value::List(values)) => {
             values.iter().all(|value| value_matches_type(elem, value))

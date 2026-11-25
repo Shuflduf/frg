@@ -12,7 +12,6 @@ pub enum VarType<'src> {
     Str,
     Bool,
     Type,
-    // List,
     Custom(Expr<'src>),
 }
 

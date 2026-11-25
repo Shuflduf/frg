@@ -34,22 +34,20 @@ fn run(args: RunArgs) {
 
 fn test() {
     let src = r#"
-void(float) noop = |reveal| {
-    int hii = 18
-    if 5 == 3 {
-        return 
-    } else {
-        return 4
+mod maths = mod {
+    int(int, int) add = |a, b| {
+        return a + b
     }
-    return reveal
+
+    mod inner = mod {
+        int(int, int) sub = |a, b| {
+            return a - b
+        }
+    }
 }
 
-str value = "lkdfjs"
-noop(3.14)
-value = "gooop"
-type Frog = struct {int legs, float age}
-Frog me = Frog {legs = 4, age = 3.14}
-return &value
+int res = maths.add(7, 11)
+int res2 = maths.inner.sub(7, 11)
     "#;
     let filename = "tester.frg";
     execute(src, filename);

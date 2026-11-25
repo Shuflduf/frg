@@ -136,12 +136,12 @@ pub enum Token<'src> {
     #[token("str")]
     #[strum(to_string = "str")]
     StringType,
-    #[token("list")]
-    #[token("arr")]
-    #[token("array")]
-    #[token("vec")]
-    #[strum(to_string = "list")]
-    ListType,
+    // #[token("list")]
+    // #[token("arr")]
+    // #[token("array")]
+    // #[token("vec")]
+    // #[strum(to_string = "list")]
+    // ListType,
     #[token("map")]
     #[token("dict")]
     #[strum(to_string = "map")]

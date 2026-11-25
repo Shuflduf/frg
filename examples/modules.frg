@@ -2,11 +2,11 @@ mod maths = mod {
 	// constant (can only be acessed from this maths module and cant be assigned to)
 	float PI = 3.1415
 
-	int|int, int| add = |a, b| {
+	int(int, int) add = |a, b| {
 		return a + b
 	}
 
-	int|int, int| sub = |a, b| {
+	int(int, int) sub = |a, b| {
 		return a - b
 	}
 }
@@ -17,7 +17,7 @@ int _INTERNAL_CONST = 1225
 
 int result = maths.sub(7, 11)
 
-int|| increment = || {
+int() increment = || {
 	_internal += 1
 	return _internal
 }
